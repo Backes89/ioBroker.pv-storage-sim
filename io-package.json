@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "pv-storage-sim",
-    "version": "0.0.15",
+    "version": "0.0.16",
     "news": {
+      "0.0.16": {
+        "en": "New single signed grid balance states (live.gridNet*); grid chart now draws one net series (red import / blue feed-in), eliminating the two-series merge issue.",
+        "de": "Neue einzelne Netz-Saldo-Datenpunkte (live.gridNet*); Netz-Chart zeichnet jetzt eine Saldo-Reihe (rot Bezug / blau Einspeisung) und vermeidet das Zwei-Reihen-Problem."
+      },
       "0.0.15": {
         "en": "Table/tooltip use carry-forward instead of nearest value when merging series, so import and feed-in no longer appear together in the same row.",
         "de": "Tabelle/Tooltip nutzen beim Zusammenführen den letzten gültigen Wert statt des nächsten – Bezug und Einspeisung erscheinen nicht mehr zusammen in einer Zeile."

@@ -41,6 +41,7 @@ in `kW` bzw. `Wh` liefert. So lassen sich Geräte mit unterschiedlichen Einheite
 | `economics.amortizationYears` | grobe Amortisationsschätzung |
 | `live.pvW` / `live.consumptionW` / `live.directUseW` | momentane Leistungen (nur Modus PV+Verbrauch) |
 | `live.gridImportSimW` / `live.gridExportSimW` | momentaner Netzbezug / Einspeisung mit Speicher |
+| `live.gridNetOrigW` / `live.gridNetSimW` | Netz-Saldo als ein vorzeichenbehafteter Wert (+Bezug/−Einspeisung), ohne/mit Speicher |
 | `live.batteryPowerW` | momentane Speicherleistung (+lädt / −entlädt) |
 
 > **Hinweis für die grafische Auswertung:** Die `live.*`-Datenpunkte liefern momentane
@@ -81,6 +82,11 @@ Offene Punkte und geplante Erweiterungen werden in [TODO.md](TODO.md) gepflegt
 (u. a. bekannte Vereinfachungen des Rechenmodells und Ideen wie eine Web-Visualisierung).
 
 ## Changelog
+
+### 0.0.16 (2026-06-30)
+- Neue einzelne Netz-Saldo-Datenpunkte `live.gridNetOrigW` / `live.gridNetSimW`
+  (+Bezug/−Einspeisung); der Netz-Chart zeichnet jetzt eine Saldo-Reihe (rot über 0 =
+  Bezug, blau unter 0 = Einspeisung) und umgeht das Zwei-Reihen-Zusammenführen komplett
 
 ### 0.0.15 (2026-06-30)
 - Tabelle/Tooltip führen die Reihen per „letztem gültigen Wert" (Carry-forward) statt

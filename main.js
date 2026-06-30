@@ -35,6 +35,9 @@ const STATE_DEFS = [
     ['live.gridImportSimW', 'Netzbezug mit Speicher (aktuell)', 'W', 'value.power', 'number'],
     ['live.gridExportOrigW', 'Einspeisung ohne Speicher (aktuell)', 'W', 'value.power', 'number'],
     ['live.gridExportSimW', 'Einspeisung mit Speicher (aktuell)', 'W', 'value.power', 'number'],
+    // Netz-Saldo als EIN vorzeichenbehafteter Wert (+ = Bezug, − = Einspeisung) für die Visualisierung
+    ['live.gridNetOrigW', 'Netz-Saldo ohne Speicher (+Bezug/−Einsp.)', 'W', 'value.power', 'number'],
+    ['live.gridNetSimW', 'Netz-Saldo mit Speicher (+Bezug/−Einsp.)', 'W', 'value.power', 'number'],
     ['live.batteryPowerW', 'Speicher-Leistung (+lädt / −entlädt)', 'W', 'value.power', 'number'],
 ];
 
@@ -302,6 +305,8 @@ class PvStorageSim extends utils.Adapter {
             this.setStateAsync('live.gridImportSimW', { val: w(r.gridImportWh), ack: true }),
             this.setStateAsync('live.gridExportOrigW', { val: w(surplusWh), ack: true }),
             this.setStateAsync('live.gridExportSimW', { val: w(r.gridExportWh), ack: true }),
+            this.setStateAsync('live.gridNetOrigW', { val: w(deficitWh - surplusWh), ack: true }),
+            this.setStateAsync('live.gridNetSimW', { val: w(r.gridImportWh - r.gridExportWh), ack: true }),
             this.setStateAsync('live.batteryPowerW', { val: w(r.chargedWh - r.dischargedWh), ack: true }),
         ]);
     }
