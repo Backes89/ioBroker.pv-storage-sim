@@ -250,7 +250,7 @@
     },
     "_vizHint": {
       "type": "staticText",
-      "text": "Für die Verlaufs-Diagramme werden Zeitreihen benötigt. Aktiviere dazu ein History-Logging (Adapter 'history', 'sql' oder 'influxdb') auf den live.*-Datenpunkten dieser Instanz (z. B. live.pvW, live.consumptionW, live.gridImportSimW) sowie auf battery.soc.percent. Ohne Logging zeigt die Auswertung nur den aktuellen Wert, keinen Verlauf.",
+      "text": "Für die Verlaufs-Diagramme werden Zeitreihen benötigt. Aktiviere dazu ein History-Logging (Adapter 'history', 'sql' oder 'influxdb') auf den live.*-Datenpunkten dieser Instanz (im Netz-Modus z. B. live.gridNetOrigW, live.gridNetSimW, live.batteryPowerW; im PV-Modus live.pvW, live.consumptionW, live.directUseW) sowie auf battery.soc.percent. Für die Monatsansicht zusätzlich economics.savingsTotal.eur. Ohne Logging zeigt die Auswertung nur den aktuellen Wert, keinen Verlauf.",
       "sm": 12
     }
   }

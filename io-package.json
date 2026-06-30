@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "pv-storage-sim",
-    "version": "0.0.18",
+    "version": "0.0.19",
     "news": {
+      "0.0.19": {
+        "en": "Cleanup: removed the redundant live.gridImport*/Export* states (replaced by live.gridNet*); old objects are deleted automatically on start.",
+        "de": "Aufräumen: redundante live.gridImport*/Export*-States entfernt (durch live.gridNet* ersetzt); alte Objekte werden beim Start automatisch gelöscht."
+      },
       "0.0.18": {
         "en": "Bugfix: daily/monthly/yearly figures are now reset correctly after a restart spanning a date boundary (no longer carry stale values into the new period).",
         "de": "Bugfix: Tages-/Monats-/Jahreswerte werden nach einem Neustart über eine Datumsgrenze korrekt zurückgesetzt (keine veralteten Werte mehr in der neuen Periode)."

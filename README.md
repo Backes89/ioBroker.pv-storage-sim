@@ -40,7 +40,6 @@ in `kW` bzw. `Wh` liefert. So lassen sich Geräte mit unterschiedlichen Einheite
 | `economics.batteryCoverageToday.percent` | wie viel des Bezugs der Speicher deckt |
 | `economics.amortizationYears` | grobe Amortisationsschätzung |
 | `live.pvW` / `live.consumptionW` / `live.directUseW` | momentane Leistungen (nur Modus PV+Verbrauch) |
-| `live.gridImportSimW` / `live.gridExportSimW` | momentaner Netzbezug / Einspeisung mit Speicher |
 | `live.gridNetOrigW` / `live.gridNetSimW` | Netz-Saldo als ein vorzeichenbehafteter Wert (+Bezug/−Einspeisung), ohne/mit Speicher |
 | `live.batteryPowerW` | momentane Speicherleistung (+lädt / −entlädt) |
 
@@ -82,6 +81,10 @@ Offene Punkte und geplante Erweiterungen werden in [TODO.md](TODO.md) gepflegt
 (u. a. bekannte Vereinfachungen des Rechenmodells und Ideen wie eine Web-Visualisierung).
 
 ## Changelog
+
+### 0.0.19 (2026-06-30)
+- Aufräumen: die redundanten `live.gridImport*/Export*W`-States entfernt (durch `live.gridNet*`
+  ersetzt); alte Objekte werden beim Adapterstart automatisch gelöscht
 
 ### 0.0.18 (2026-06-30)
 - Bugfix: Tages-/Monats-/Jahreswerte werden nach einem Neustart über eine Datumsgrenze hinweg
