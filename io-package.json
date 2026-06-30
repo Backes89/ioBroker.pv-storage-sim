@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "pv-storage-sim",
-    "version": "0.0.8",
+    "version": "0.0.9",
     "news": {
+      "0.0.9": {
+        "en": "Evaluation tab uses the full window width and a taller chart.",
+        "de": "Auswertungs-Tab nutzt die volle Fensterbreite und einen höheren Chart."
+      },
       "0.0.8": {
         "en": "Larger chart, value table on the right, and hover crosshair with tooltip that highlights the matching table row.",
         "de": "Größerer Chart, Werte-Tabelle rechts und Hover-Fadenkreuz mit Tooltip, das die passende Tabellenzeile hervorhebt."

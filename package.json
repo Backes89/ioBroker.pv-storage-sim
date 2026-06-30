@@ -1,6 +1,6 @@
 {
   "name": "iobroker.pv-storage-sim",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "Simuliert einen PV-Batteriespeicher zur Wirtschaftlichkeitsprüfung (lohnt sich der Kauf?)",
   "author": {
     "name": "Dominik Kremer",

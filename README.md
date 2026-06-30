@@ -82,6 +82,9 @@ Offene Punkte und geplante Erweiterungen werden in [TODO.md](TODO.md) gepflegt
 
 ## Changelog
 
+### 0.0.9 (2026-06-30)
+- Auswertungs-Tab nutzt die volle Fensterbreite und einen höheren Chart
+
 ### 0.0.8 (2026-06-30)
 - Auswertungs-Tab: größerer Chart, Werte-Tabelle rechts, Hover-Fadenkreuz mit Tooltip,
   das die passende Tabellenzeile hervorhebt
