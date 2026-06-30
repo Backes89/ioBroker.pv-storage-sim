@@ -176,6 +176,9 @@ function seriesConfig() {
 var refreshTimer = null;
 function refresh() {
     var b = dayBounds();
+    // Achse = voller Tag (b.start..b.end), Abfrage aber nur bis "jetzt",
+    // sonst füllt der History-Adapter einen Randwert bis 24:00 -> Kurve läuft flach weiter.
+    var queryEnd = Math.min(b.end, Date.now());
     setStatus('Lade Daten…');
     // sourceMode der Instanz lesen
     emitP('getObject', ['system.adapter.pv-storage-sim.' + curInst]).then(function (obj) {
@@ -184,7 +187,7 @@ function refresh() {
         var cfg = seriesConfig();
         var all = cfg.areas.concat(cfg.lines);
         return Promise.all(all.map(function (s) {
-            return getHistory(s.path, b.start, b.end).then(function (data) { s.data = data; return s; });
+            return getHistory(s.path, b.start, queryEnd).then(function (data) { s.data = data; return s; });
         })).then(function () { return cfg; });
     }).then(function (cfg) {
         var total = cfg.areas.concat(cfg.lines).reduce(function (n, s) { return n + s.data.length; }, 0);
