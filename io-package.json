@@ -1,0 +1,79 @@
+{
+  "common": {
+    "name": "pv-storage-sim",
+    "version": "0.0.1",
+    "title": "PV Storage Simulation",
+    "titleLang": {
+      "en": "PV Storage Simulation",
+      "de": "PV-Speicher-Simulation"
+    },
+    "desc": {
+      "en": "Simulates a PV battery storage to evaluate whether buying one would pay off.",
+      "de": "Simuliert einen PV-Batteriespeicher, um die Wirtschaftlichkeit eines Kaufs zu prüfen."
+    },
+    "authors": [
+      "Dominik Kremer <dom.kremer@gmail.com>"
+    ],
+    "keywords": [
+      "pv",
+      "photovoltaik",
+      "speicher",
+      "battery",
+      "simulation"
+    ],
+    "license": "MIT",
+    "platform": "Javascript/Node.js",
+    "main": "main.js",
+    "icon": "pv-storage-sim.png",
+    "extIcon": "https://raw.githubusercontent.com/Backes89/ioBroker.pv-storage-sim/master/admin/pv-storage-sim.png",
+    "readme": "https://github.com/Backes89/ioBroker.pv-storage-sim/blob/master/README.md",
+    "loglevel": "info",
+    "mode": "daemon",
+    "type": "energy",
+    "compact": true,
+    "connectionType": "local",
+    "dataSource": "poll",
+    "adminUI": {
+      "config": "json"
+    },
+    "dependencies": [
+      { "js-controller": ">=5.0.0" }
+    ],
+    "globalDependencies": [
+      { "admin": ">=6.0.0" }
+    ]
+  },
+  "native": {
+    "inputMode": "power",
+    "sourceMode": "pv_consumption",
+    "idPv": "",
+    "idConsumption": "",
+    "idGridImport": "",
+    "idGridExport": "",
+    "intervalSec": 30,
+    "capacityKwh": 10,
+    "minSocPercent": 5,
+    "roundTripEff": 90,
+    "maxChargeW": 3000,
+    "maxDischargeW": 3000,
+    "priceImportCt": 35,
+    "priceFeedInCt": 8,
+    "investmentEur": 7000
+  },
+  "objects": [],
+  "instanceObjects": [
+    {
+      "_id": "info.connection",
+      "type": "state",
+      "common": {
+        "role": "indicator.connected",
+        "name": "Adapter aktiv",
+        "type": "boolean",
+        "read": true,
+        "write": false,
+        "def": false
+      },
+      "native": {}
+    }
+  ]
+}

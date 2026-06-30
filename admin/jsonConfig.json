@@ -1,0 +1,156 @@
+{
+  "i18n": true,
+  "type": "panel",
+  "items": {
+    "_headerInput": {
+      "type": "header",
+      "size": 2,
+      "text": "Eingangsdaten"
+    },
+    "inputMode": {
+      "type": "select",
+      "label": "Eingabeart der Datenpunkte",
+      "help": "Leistung: momentane Werte in W. Zählerstand: kumulierte Werte in kWh.",
+      "options": [
+        { "value": "power", "label": "Leistung (W, momentan)" },
+        { "value": "energy", "label": "Zählerstand (kWh, kumuliert)" }
+      ],
+      "default": "power",
+      "newLine": true,
+      "sm": 12,
+      "md": 6
+    },
+    "sourceMode": {
+      "type": "select",
+      "label": "Datenquelle",
+      "help": "PV + Verbrauch ODER Netzbezug + Einspeisung eines Zweirichtungszählers.",
+      "options": [
+        { "value": "pv_consumption", "label": "PV-Erzeugung + Hausverbrauch" },
+        { "value": "grid_meter", "label": "Netzbezug + Einspeisung (Zweirichtungszähler)" }
+      ],
+      "default": "pv_consumption",
+      "sm": 12,
+      "md": 6
+    },
+    "idPv": {
+      "type": "objectId",
+      "label": "Datenpunkt PV-Erzeugung",
+      "hidden": "data.sourceMode !== 'pv_consumption'",
+      "newLine": true,
+      "sm": 12,
+      "md": 6
+    },
+    "idConsumption": {
+      "type": "objectId",
+      "label": "Datenpunkt Hausverbrauch",
+      "hidden": "data.sourceMode !== 'pv_consumption'",
+      "sm": 12,
+      "md": 6
+    },
+    "idGridImport": {
+      "type": "objectId",
+      "label": "Datenpunkt Netzbezug",
+      "hidden": "data.sourceMode !== 'grid_meter'",
+      "newLine": true,
+      "sm": 12,
+      "md": 6
+    },
+    "idGridExport": {
+      "type": "objectId",
+      "label": "Datenpunkt Einspeisung",
+      "hidden": "data.sourceMode !== 'grid_meter'",
+      "sm": 12,
+      "md": 6
+    },
+    "intervalSec": {
+      "type": "number",
+      "label": "Simulationsintervall (Sekunden)",
+      "min": 5,
+      "default": 30,
+      "newLine": true,
+      "sm": 12,
+      "md": 4
+    },
+
+    "_headerBattery": {
+      "type": "header",
+      "size": 2,
+      "text": "Speicher"
+    },
+    "capacityKwh": {
+      "type": "number",
+      "label": "Kapazität (kWh)",
+      "min": 0.1,
+      "default": 10,
+      "newLine": true,
+      "sm": 12,
+      "md": 4
+    },
+    "minSocPercent": {
+      "type": "number",
+      "label": "Mindest-Ladezustand (%)",
+      "min": 0,
+      "max": 50,
+      "default": 5,
+      "sm": 12,
+      "md": 4
+    },
+    "roundTripEff": {
+      "type": "number",
+      "label": "Roundtrip-Wirkungsgrad (%)",
+      "min": 1,
+      "max": 100,
+      "default": 90,
+      "sm": 12,
+      "md": 4
+    },
+    "maxChargeW": {
+      "type": "number",
+      "label": "Max. Ladeleistung (W)",
+      "min": 0,
+      "default": 3000,
+      "newLine": true,
+      "sm": 12,
+      "md": 6
+    },
+    "maxDischargeW": {
+      "type": "number",
+      "label": "Max. Entladeleistung (W)",
+      "min": 0,
+      "default": 3000,
+      "sm": 12,
+      "md": 6
+    },
+
+    "_headerEconomics": {
+      "type": "header",
+      "size": 2,
+      "text": "Wirtschaftlichkeit"
+    },
+    "priceImportCt": {
+      "type": "number",
+      "label": "Strompreis Bezug (ct/kWh)",
+      "min": 0,
+      "default": 35,
+      "newLine": true,
+      "sm": 12,
+      "md": 4
+    },
+    "priceFeedInCt": {
+      "type": "number",
+      "label": "Einspeisevergütung (ct/kWh)",
+      "min": 0,
+      "default": 8,
+      "sm": 12,
+      "md": 4
+    },
+    "investmentEur": {
+      "type": "number",
+      "label": "Anschaffungskosten (€)",
+      "min": 0,
+      "default": 7000,
+      "sm": 12,
+      "md": 4
+    }
+  }
+}
