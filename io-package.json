@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "pv-storage-sim",
-    "version": "0.0.26",
+    "version": "0.0.27",
     "news": {
+      "0.0.27": {
+        "en": "Added package validation tests (version/name consistency, news, required fields, referenced files, config<->native keys).",
+        "de": "Paketvalidierungs-Tests ergänzt (Versions-/Namens-Konsistenz, News, Pflichtfelder, referenzierte Dateien, Config<->native-Keys)."
+      },
       "0.0.26": {
         "en": "Accumulation logic extracted into a pure, tested function (totals, coverage, amortization).",
         "de": "Akkumulations-Logik in eine reine, getestete Funktion ausgelagert (Summen, Speicher-Deckung, Amortisation)."
