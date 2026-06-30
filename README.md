@@ -82,6 +82,10 @@ Offene Punkte und geplante Erweiterungen werden in [TODO.md](TODO.md) gepflegt
 
 ## Changelog
 
+### 0.0.22 (2026-06-30)
+- Fehlende Datenpunkte werden bei jedem Start automatisch angelegt (wie bisher) und nun zur
+  Transparenz im Log vermerkt
+
 ### 0.0.21 (2026-06-30)
 - Modusabhängige Datenpunkte: `live.pvW`/`live.consumptionW`/`live.directUseW` werden nur im
   Modus PV+Verbrauch angelegt; in den Netz-Modi entfallen sie (waren dort immer 0)

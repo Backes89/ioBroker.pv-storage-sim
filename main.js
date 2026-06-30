@@ -355,8 +355,10 @@ class PvStorageSim extends utils.Adapter {
 
     async createStates() {
         const isPv = this.sourceMode === 'pv_consumption';
+        let created = 0;
         for (const [id, name, unit, role, type] of STATE_DEFS) {
             if (!isPv && PV_ONLY_STATES.includes(id)) continue; // im Netz-Modus nicht anlegen
+            const existed = await this.getObjectAsync(id).catch(() => null);
             await this.setObjectNotExistsAsync(id, {
                 type: 'state',
                 common: {
@@ -369,7 +371,9 @@ class PvStorageSim extends utils.Adapter {
                 },
                 native: {},
             });
+            if (!existed) created++;
         }
+        if (created) this.log.info(`${created} fehlende(r) Datenpunkt(e) angelegt.`);
     }
 
     async getNumber(id) {
