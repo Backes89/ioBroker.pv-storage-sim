@@ -7,14 +7,14 @@
     <!-- socket.io-Client wird vom Admin selbst ausgeliefert (kein externes CDN) -->
     <script src="../../socket.io/socket.io.js"></script>
     <style>
-        :root { --bg:#fafafa; --card:#fff; --fg:#222; --muted:#777; --border:#e2e2e2; --accent:#4caf50; }
+        :root { --bg:#fafafa; --card:#fff; --fg:#222; --muted:#777; --border:#e2e2e2; --accent:#4caf50; --hl:rgba(76,175,80,0.18); }
         @media (prefers-color-scheme: dark) {
-            :root { --bg:#1e1e1e; --card:#2a2a2a; --fg:#eee; --muted:#aaa; --border:#444; }
+            :root { --bg:#1e1e1e; --card:#2a2a2a; --fg:#eee; --muted:#aaa; --border:#444; --hl:rgba(76,175,80,0.25); }
         }
         * { box-sizing: border-box; }
         body { margin:0; font-family:'Segoe UI',Roboto,Arial,sans-serif; background:var(--bg); color:var(--fg); }
-        .wrap { padding:14px 18px; max-width:1100px; margin:0 auto; }
-        .bar { display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:12px; }
+        .wrap { padding:14px 18px; max-width:1700px; margin:0 auto; }
+        .bar { display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:10px; }
         .bar h2 { margin:0; font-size:18px; font-weight:600; }
         .bar .spacer { flex:1; }
         select, input[type=date], button {
@@ -23,20 +23,40 @@
         }
         button { cursor:pointer; }
         button:hover { border-color:var(--accent); }
-        .status { font-size:13px; color:var(--muted); margin:4px 0 10px; min-height:18px; }
+        .status { font-size:13px; color:var(--muted); margin:2px 0 10px; min-height:18px; }
         .card { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:14px; }
-        .chart-card { position:relative; }
-        canvas { width:100%; height:320px; display:block; }
+        .main { display:flex; gap:14px; align-items:stretch; }
+        .chart-card { flex:1 1 0; min-width:0; }
+        .table-card { flex:0 0 360px; max-width:360px; padding:0; display:flex; flex-direction:column; }
+        @media (max-width:900px) { .main { flex-direction:column; } .table-card { flex-basis:auto; max-width:none; } }
+        .chart-wrap { position:relative; width:100%; height:460px; }
+        .chart-wrap canvas { position:absolute; inset:0; width:100%; height:100%; display:block; }
+        #cross { pointer-events:none; }
         .legend { display:flex; gap:16px; flex-wrap:wrap; margin-top:10px; font-size:13px; color:var(--muted); }
         .legend span { display:inline-flex; align-items:center; gap:6px; }
         .swatch { width:14px; height:14px; border-radius:3px; display:inline-block; }
+        .overlay { position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+            text-align:center; color:var(--muted); font-size:14px; padding:20px; pointer-events:none; }
+        .tip { position:absolute; pointer-events:none; background:var(--card); border:1px solid var(--border);
+            border-radius:8px; padding:8px 10px; font-size:12px; box-shadow:0 4px 14px rgba(0,0,0,0.25);
+            display:none; z-index:5; white-space:nowrap; }
+        .tip .t-time { font-weight:600; margin-bottom:4px; }
+        .tip .t-row { display:flex; align-items:center; gap:6px; }
+        .tbl-head { padding:12px 14px 8px; font-size:13px; color:var(--muted); border-bottom:1px solid var(--border); }
+        .tbl-scroll { overflow:auto; flex:1; max-height:520px; }
+        table { width:100%; border-collapse:collapse; font-size:12.5px; }
+        thead th { position:sticky; top:0; background:var(--card); color:var(--muted); font-weight:600;
+            text-align:right; padding:7px 10px; border-bottom:1px solid var(--border); }
+        thead th:first-child { text-align:left; }
+        tbody td { text-align:right; padding:5px 10px; border-bottom:1px solid var(--border); }
+        tbody td:first-child { text-align:left; color:var(--muted); }
+        tbody tr.hl { background:var(--hl); }
+        tbody tr.hl td:first-child { color:var(--fg); font-weight:600; }
         .kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-top:14px; }
         .kpi { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:12px 14px; }
         .kpi .label { font-size:12px; color:var(--muted); }
         .kpi .value { font-size:22px; font-weight:600; margin-top:2px; }
         .kpi .sub { font-size:12px; color:var(--muted); margin-top:2px; }
-        .overlay { position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
-            text-align:center; color:var(--muted); font-size:14px; padding:20px; pointer-events:none; }
     </style>
 </head>
 <body>
@@ -44,21 +64,27 @@
     <div class="bar">
         <h2>☀️🔋 PV-Speicher-Auswertung</h2>
         <div class="spacer"></div>
-        <label>Instanz
-            <select id="instance"></select>
-        </label>
-        <label>Tag
-            <input type="date" id="day">
-        </label>
+        <label>Instanz <select id="instance"></select></label>
+        <label>Tag <input type="date" id="day"></label>
         <button id="reload">Aktualisieren</button>
     </div>
     <div class="status" id="status">Verbinde…</div>
 
-    <div class="card chart-card">
-        <canvas id="chart"></canvas>
-        <div class="overlay" id="overlay"></div>
+    <div class="main">
+        <div class="card chart-card">
+            <div class="chart-wrap">
+                <canvas id="chart"></canvas>
+                <canvas id="cross"></canvas>
+                <div class="overlay" id="overlay"></div>
+                <div class="tip" id="tip"></div>
+            </div>
+            <div class="legend" id="legend"></div>
+        </div>
+        <div class="card table-card">
+            <div class="tbl-head">Werte über den Tag <span id="tblInfo" style="float:right"></span></div>
+            <div class="tbl-scroll"><table id="tbl"><thead></thead><tbody></tbody></table></div>
+        </div>
     </div>
-    <div class="legend" id="legend"></div>
 
     <div class="kpis" id="kpis"></div>
 </div>
@@ -66,121 +92,95 @@
 <script>
 'use strict';
 
-// ---- Verbindung zum ioBroker-Admin-Socket -------------------------------------------------
-var socket = null;
-var instances = [];
-var curInst = 0;
-var sourceMode = 'pv_consumption';
+var socket = null, instances = [], curInst = 0, sourceMode = 'pv_consumption';
+var curCfg = null, merged = [], tableRows = [], geom = null;
+var wrap, crossCanvas, tipEl;
 
 function setStatus(t) { document.getElementById('status').textContent = t; }
 
 function emitP(cmd, args) {
-    // socket.emit als Promise (letzter Parameter = Callback (err, result))
     return new Promise(function (resolve, reject) {
         if (!socket || !socket.connected) { reject(new Error('keine Verbindung')); return; }
-        socket.emit.apply(socket, [cmd].concat(args, [function (err, res) {
-            if (err) reject(err); else resolve(res);
-        }]));
+        socket.emit.apply(socket, [cmd].concat(args, [function (err, res) { err ? reject(err) : resolve(res); }]));
     });
 }
 
 function connect() {
-    try {
-        socket = io.connect(location.protocol + '//' + location.host, { path: '/socket.io' });
-    } catch (e) {
-        setStatus('Socket-Verbindung fehlgeschlagen: ' + e.message);
-        return;
-    }
+    try { socket = io.connect(location.protocol + '//' + location.host, { path: '/socket.io' }); }
+    catch (e) { setStatus('Socket-Verbindung fehlgeschlagen: ' + e.message); return; }
     socket.on('connect', function () { setStatus('Verbunden. Lade Instanzen…'); loadInstances(); });
     socket.on('disconnect', function () { setStatus('Verbindung getrennt.'); });
     socket.on('connect_error', function (e) { setStatus('Verbindungsfehler: ' + (e && e.message || e)); });
 }
 
-// ---- Instanzen ermitteln ------------------------------------------------------------------
 function loadInstances() {
     emitP('getObjectView', ['system', 'instance', {
         startkey: 'system.adapter.pv-storage-sim.', endkey: 'system.adapter.pv-storage-sim.香'
     }]).then(function (res) {
-        instances = (res && res.rows || []).map(function (r) {
-            return parseInt(String(r.id).split('.').pop(), 10);
-        }).filter(function (n) { return !isNaN(n); });
+        instances = (res && res.rows || []).map(function (r) { return parseInt(String(r.id).split('.').pop(), 10); })
+            .filter(function (n) { return !isNaN(n); });
         if (!instances.length) instances = [0];
         var sel = document.getElementById('instance');
         sel.innerHTML = instances.map(function (n) { return '<option value="' + n + '">pv-storage-sim.' + n + '</option>'; }).join('');
-        curInst = instances[0];
-        sel.value = curInst;
-        refresh();
+        curInst = instances[0]; sel.value = curInst; refresh();
     }).catch(function (e) {
-        // Fallback: einfach Instanz 0 annehmen
         instances = [0]; curInst = 0;
         document.getElementById('instance').innerHTML = '<option value="0">pv-storage-sim.0</option>';
-        setStatus('Instanzliste nicht abrufbar (' + e.message + ') – nutze .0');
-        refresh();
+        setStatus('Instanzliste nicht abrufbar (' + e.message + ') – nutze .0'); refresh();
     });
 }
 
-// ---- Datum / Zeitfenster ------------------------------------------------------------------
 function dayBounds() {
     var v = document.getElementById('day').value;
     var d = v ? new Date(v + 'T00:00:00') : new Date();
     var start = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0).getTime();
-    var end = start + 24 * 3600 * 1000; // immer voller Tag (00:00–24:00), damit die Zeitachse stimmt
-    return { start: start, end: end };
+    return { start: start, end: start + 24 * 3600 * 1000 };
 }
 
 function id(path) { return 'pv-storage-sim.' + curInst + '.' + path; }
 
 function getHistory(path, start, end) {
-    return emitP('getHistory', [id(path), {
-        start: start, end: end, count: 300, aggregate: 'average', ignoreNull: true
-    }]).then(function (res) {
-        // res kann {result:[...]} oder direkt [...] sein – beides abfangen
-        var arr = res && res.result ? res.result : res;
-        return (arr || []).filter(function (p) { return p && p.val !== null && typeof p.val === 'number'; });
-    }).catch(function () { return []; });
+    return emitP('getHistory', [id(path), { start: start, end: end, count: 300, aggregate: 'average', ignoreNull: true }])
+        .then(function (res) {
+            var arr = res && res.result ? res.result : res;
+            return (arr || []).filter(function (p) { return p && p.val !== null && typeof p.val === 'number'; });
+        }).catch(function () { return []; });
 }
 
 function getStateVal(path) {
-    return emitP('getState', [id(path)]).then(function (s) {
-        return s && typeof s.val === 'number' ? s.val : null;
-    }).catch(function () { return null; });
+    return emitP('getState', [id(path)]).then(function (s) { return s && typeof s.val === 'number' ? s.val : null; })
+        .catch(function () { return null; });
 }
 
-// ---- Serien je nach Datenquelle -----------------------------------------------------------
 function seriesConfig() {
     if (sourceMode === 'pv_consumption') {
         return {
             areas: [
-                { path: 'live.pvW', name: 'Erzeugung', color: 'rgba(244,196,48,0.55)', stroke: '#e0a800' },
-                { path: 'live.directUseW', name: 'Direktverbrauch', color: 'rgba(77,182,217,0.55)', stroke: '#3aa0c0' }
+                { path: 'live.pvW', name: 'Erzeugung', short: 'PV', unit: 'W', color: 'rgba(244,196,48,0.55)', stroke: '#e0a800' },
+                { path: 'live.directUseW', name: 'Direktverbrauch', short: 'Direkt', unit: 'W', color: 'rgba(77,182,217,0.55)', stroke: '#3aa0c0' }
             ],
             lines: [
-                { path: 'live.consumptionW', name: 'Verbrauch', color: '#7a7a1f', axis: 'left' },
-                { path: 'battery.soc.percent', name: 'Ladestand', color: '#4caf50', axis: 'right' }
+                { path: 'live.consumptionW', name: 'Verbrauch', short: 'Verbr.', unit: 'W', color: '#7a7a1f', axis: 'left' },
+                { path: 'battery.soc.percent', name: 'Ladestand', short: 'SoC', unit: '%', color: '#4caf50', axis: 'right' }
             ]
         };
     }
-    // Netz-Modi: PV/Verbrauch unbekannt -> Bezug real vs. simuliert + Ladestand
     return {
         areas: [
-            { path: 'live.gridImportOrigW', name: 'Netzbezug ohne Speicher', color: 'rgba(229,115,115,0.35)', stroke: '#d98b8b' },
-            { path: 'live.gridImportSimW', name: 'Netzbezug mit Speicher', color: 'rgba(211,47,47,0.55)', stroke: '#c62828' }
+            { path: 'live.gridImportOrigW', name: 'Netzbezug ohne Speicher', short: 'o. Sp.', unit: 'W', color: 'rgba(229,115,115,0.35)', stroke: '#d98b8b' },
+            { path: 'live.gridImportSimW', name: 'Netzbezug mit Speicher', short: 'm. Sp.', unit: 'W', color: 'rgba(211,47,47,0.55)', stroke: '#c62828' }
         ],
         lines: [
-            { path: 'battery.soc.percent', name: 'Ladestand', color: '#4caf50', axis: 'right' }
+            { path: 'battery.soc.percent', name: 'Ladestand', short: 'SoC', unit: '%', color: '#4caf50', axis: 'right' }
         ]
     };
 }
 
-// ---- Hauptablauf: Daten holen + zeichnen --------------------------------------------------
 var refreshTimer = null;
 function refresh() {
     var b = dayBounds();
-    // Achse = voller Tag (b.start..b.end), Abfrage aber nur bis "jetzt",
-    // sonst füllt der History-Adapter einen Randwert bis 24:00 -> Kurve läuft flach weiter.
     var queryEnd = Math.min(b.end, Date.now());
     setStatus('Lade Daten…');
-    // sourceMode der Instanz lesen
     emitP('getObject', ['system.adapter.pv-storage-sim.' + curInst]).then(function (obj) {
         sourceMode = obj && obj.native && obj.native.sourceMode || 'pv_consumption';
     }).catch(function () { sourceMode = 'pv_consumption'; }).then(function () {
@@ -190,39 +190,34 @@ function refresh() {
             return getHistory(s.path, b.start, queryEnd).then(function (data) { s.data = data; return s; });
         })).then(function () { return cfg; });
     }).then(function (cfg) {
-        var total = cfg.areas.concat(cfg.lines).reduce(function (n, s) { return n + s.data.length; }, 0);
+        curCfg = cfg;
+        merged = buildMerged(cfg);
         drawChart(cfg, b.start, b.end);
         renderLegend(cfg);
-        if (total === 0) {
+        renderTable(cfg, merged);
+        if (!merged.length) {
             showOverlay('Noch keine Verlaufsdaten. Bitte History-Logging (history/sql/influxdb) auf den live.*-Datenpunkten und battery.soc.percent aktivieren – danach füllt sich der Chart.');
             setStatus('Keine Historie gefunden.');
         } else {
-            showOverlay('');
-            setStatus('Stand: ' + new Date().toLocaleTimeString());
+            showOverlay(''); setStatus('Stand: ' + new Date().toLocaleTimeString());
         }
         return loadKpis();
-    }).catch(function (e) {
-        setStatus('Fehler: ' + (e && e.message || e));
-    });
+    }).catch(function (e) { setStatus('Fehler: ' + (e && e.message || e)); });
 }
 
 function loadKpis() {
     return Promise.all([
-        getStateVal('battery.soc.percent'),
-        getStateVal('economics.savingsToday.eur'),
-        getStateVal('grid.importOriginalToday.kWh'),
-        getStateVal('grid.importSimulatedToday.kWh'),
-        getStateVal('economics.savingsTotal.eur'),
-        getStateVal('economics.amortizationYears')
+        getStateVal('battery.soc.percent'), getStateVal('economics.savingsToday.eur'),
+        getStateVal('grid.importOriginalToday.kWh'), getStateVal('grid.importSimulatedToday.kWh'),
+        getStateVal('economics.savingsTotal.eur'), getStateVal('economics.amortizationYears')
     ]).then(function (v) {
-        var soc = v[0], save = v[1], impO = v[2], impS = v[3], saveTot = v[4], amort = v[5];
-        var saved = (impO != null && impS != null) ? Math.max(impO - impS, 0) : null;
+        var saved = (v[2] != null && v[3] != null) ? Math.max(v[2] - v[3], 0) : null;
         var kpis = [
-            { label: 'Ladestand', value: fmt(soc, 0, ' %') },
-            { label: 'Ersparnis heute', value: fmt(save, 2, ' €') },
-            { label: 'Netzbezug heute', value: fmt(impS, 1, ' kWh'), sub: saved != null ? ('−' + saved.toFixed(1) + ' kWh ggü. ohne Speicher') : '' },
-            { label: 'Ersparnis gesamt', value: fmt(saveTot, 2, ' €') },
-            { label: 'Amortisation', value: amort ? fmt(amort, 1, ' J') : '–' }
+            { label: 'Ladestand', value: fmt(v[0], 0, ' %') },
+            { label: 'Ersparnis heute', value: fmt(v[1], 2, ' €') },
+            { label: 'Netzbezug heute', value: fmt(v[3], 1, ' kWh'), sub: saved != null ? ('−' + saved.toFixed(1) + ' kWh ggü. ohne Speicher') : '' },
+            { label: 'Ersparnis gesamt', value: fmt(v[4], 2, ' €') },
+            { label: 'Amortisation', value: v[5] ? fmt(v[5], 1, ' J') : '–' }
         ];
         document.getElementById('kpis').innerHTML = kpis.map(function (k) {
             return '<div class="kpi"><div class="label">' + k.label + '</div><div class="value">' + k.value +
@@ -232,27 +227,68 @@ function loadKpis() {
 }
 
 function fmt(v, dec, unit) { return v == null ? '–' : v.toFixed(dec).replace('.', ',') + (unit || ''); }
+function pad2(n) { return (n < 10 ? '0' : '') + n; }
+function hhmm(ts) { var d = new Date(ts); return pad2(d.getHours()) + ':' + pad2(d.getMinutes()); }
 
-// ---- Canvas-Chart -------------------------------------------------------------------------
+// ---- Daten zusammenführen (für Tabelle + Hover) -------------------------------------------
+function nearestVal(data, ts) {
+    if (!data || !data.length) return null;
+    var best = null, bd = Infinity;
+    for (var i = 0; i < data.length; i++) { var d = Math.abs(data[i].ts - ts); if (d < bd) { bd = d; best = data[i].val; } }
+    return best;
+}
+function buildMerged(cfg) {
+    var series = cfg.areas.concat(cfg.lines), ref = null;
+    series.forEach(function (s) { if (!ref || (s.data && s.data.length > ref.data.length)) ref = s; });
+    if (!ref || !ref.data.length) return [];
+    return ref.data.map(function (p) {
+        var vals = {}; series.forEach(function (s) { vals[s.path] = nearestVal(s.data, p.ts); });
+        return { ts: p.ts, vals: vals };
+    });
+}
+
+function renderTable(cfg, rows) {
+    var series = cfg.areas.concat(cfg.lines);
+    document.querySelector('#tbl thead').innerHTML = '<tr><th>Zeit</th>' +
+        series.map(function (s) { return '<th>' + s.short + '<br><span style="font-weight:400">' + s.unit + '</span></th>'; }).join('') + '</tr>';
+    var step = Math.max(1, Math.ceil(rows.length / 48));
+    var sel = [];
+    for (var i = 0; i < rows.length; i += step) sel.push(rows[i]);
+    if (rows.length && sel[sel.length - 1] !== rows[rows.length - 1]) sel.push(rows[rows.length - 1]);
+    tableRows = sel;
+    document.querySelector('#tbl tbody').innerHTML = sel.map(function (r) {
+        return '<tr data-ts="' + r.ts + '"><td>' + hhmm(r.ts) + '</td>' + series.map(function (s) {
+            var v = r.vals[s.path]; return '<td>' + (v == null ? '–' : Math.round(v)) + '</td>';
+        }).join('') + '</tr>';
+    }).join('');
+    document.getElementById('tblInfo').textContent = sel.length ? (sel.length + ' Zeilen') : '';
+}
+
+// ---- Chart ---------------------------------------------------------------------------------
 function niceCeil(v) {
     if (v <= 0) return 100;
-    var mag = Math.pow(10, Math.floor(Math.log10(v)));
-    var n = v / mag;
-    var step = n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10;
-    return step * mag;
+    var mag = Math.pow(10, Math.floor(Math.log10(v))), n = v / mag;
+    return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10) * mag;
+}
+function sizeCanvas(cv) {
+    var dpr = window.devicePixelRatio || 1, w = cv.clientWidth, h = cv.clientHeight;
+    cv.width = w * dpr; cv.height = h * dpr;
+    var ctx = cv.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return { ctx: ctx, w: w, h: h };
+}
+function xPixG(ts) { return geom.padL + (ts - geom.x0) / (geom.x1 - geom.x0) * geom.plotW; }
+function yG(series, val) {
+    if (series.axis === 'right') return geom.padT + geom.plotH - Math.max(0, Math.min(val, 100)) / 100 * geom.plotH;
+    return geom.padT + geom.plotH - Math.max(0, Math.min(val, geom.leftMax)) / geom.leftMax * geom.plotH;
 }
 
 function drawChart(cfg, x0, x1) {
-    var cv = document.getElementById('chart');
-    var dpr = window.devicePixelRatio || 1;
-    var cssW = cv.clientWidth, cssH = cv.clientHeight;
-    cv.width = cssW * dpr; cv.height = cssH * dpr;
-    var ctx = cv.getContext('2d');
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    window._lastCfg = cfg; window._lastB = { start: x0, end: x1 };
+    var s = sizeCanvas(document.getElementById('chart')), ctx = s.ctx, cssW = s.w, cssH = s.h;
+    sizeCanvas(crossCanvas); // gleiche Größe fürs Overlay
     ctx.clearRect(0, 0, cssW, cssH);
 
     var css = getComputedStyle(document.documentElement);
-    var fg = css.getPropertyValue('--fg').trim() || '#222';
     var muted = css.getPropertyValue('--muted').trim() || '#777';
     var border = css.getPropertyValue('--border').trim() || '#ddd';
 
@@ -260,19 +296,14 @@ function drawChart(cfg, x0, x1) {
     var plotW = cssW - padL - padR, plotH = cssH - padT - padB;
     if (plotW <= 0 || plotH <= 0) return;
 
-    var xPix = function (ts) { return padL + (ts - x0) / (x1 - x0) * plotW; };
-
     var leftMax = 100;
-    cfg.areas.forEach(function (s) { s.data.forEach(function (p) { if (p.val > leftMax) leftMax = p.val; }); });
-    cfg.lines.forEach(function (s) { if (s.axis === 'left') s.data.forEach(function (p) { if (p.val > leftMax) leftMax = p.val; }); });
+    cfg.areas.forEach(function (sr) { sr.data.forEach(function (p) { if (p.val > leftMax) leftMax = p.val; }); });
+    cfg.lines.forEach(function (sr) { if (sr.axis !== 'right') sr.data.forEach(function (p) { if (p.val > leftMax) leftMax = p.val; }); });
     leftMax = niceCeil(leftMax);
-    var yL = function (v) { return padT + plotH - Math.max(0, Math.min(v, leftMax)) / leftMax * plotH; };
-    var yR = function (v) { return padT + plotH - Math.max(0, Math.min(v, 100)) / 100 * plotH; };
 
-    // Gitter + Achsen
-    ctx.strokeStyle = border; ctx.fillStyle = muted; ctx.lineWidth = 1;
-    ctx.font = '11px Segoe UI, Arial';
-    ctx.textBaseline = 'middle';
+    geom = { padL: padL, padT: padT, plotW: plotW, plotH: plotH, x0: x0, x1: x1, leftMax: leftMax };
+
+    ctx.strokeStyle = border; ctx.fillStyle = muted; ctx.lineWidth = 1; ctx.font = '11px Segoe UI, Arial'; ctx.textBaseline = 'middle';
     for (var i = 0; i <= 4; i++) {
         var yy = padT + plotH * i / 4;
         ctx.beginPath(); ctx.moveTo(padL, yy); ctx.lineTo(padL + plotW, yy); ctx.stroke();
@@ -283,35 +314,24 @@ function drawChart(cfg, x0, x1) {
     for (var h = 0; h <= 24; h += 3) {
         var xx = padL + plotW * h / 24;
         ctx.beginPath(); ctx.moveTo(xx, padT); ctx.lineTo(xx, padT + plotH); ctx.strokeStyle = border; ctx.stroke();
-        ctx.fillStyle = muted; ctx.fillText((h < 10 ? '0' + h : h) + ':00', xx, padT + plotH + 5);
+        ctx.fillStyle = muted; ctx.fillText(pad2(h) + ':00', xx, padT + plotH + 5);
     }
 
-    // Flächen
-    cfg.areas.forEach(function (s) {
-        if (!s.data.length) return;
-        ctx.beginPath();
-        ctx.moveTo(xPix(s.data[0].ts), yL(0));
-        s.data.forEach(function (p) { ctx.lineTo(xPix(p.ts), yL(p.val)); });
-        ctx.lineTo(xPix(s.data[s.data.length - 1].ts), yL(0));
-        ctx.closePath();
-        ctx.fillStyle = s.color; ctx.fill();
-        if (s.stroke) { ctx.strokeStyle = s.stroke; ctx.lineWidth = 1.2; ctx.beginPath();
-            s.data.forEach(function (p, idx) { var X = xPix(p.ts), Y = yL(p.val); idx ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); });
-            ctx.stroke(); }
+    cfg.areas.forEach(function (sr) {
+        if (!sr.data.length) return;
+        ctx.beginPath(); ctx.moveTo(xPixG(sr.data[0].ts), yG({}, 0));
+        sr.data.forEach(function (p) { ctx.lineTo(xPixG(p.ts), yG(sr, p.val)); });
+        ctx.lineTo(xPixG(sr.data[sr.data.length - 1].ts), yG({}, 0)); ctx.closePath();
+        ctx.fillStyle = sr.color; ctx.fill();
+        if (sr.stroke) { ctx.strokeStyle = sr.stroke; ctx.lineWidth = 1.2; ctx.beginPath();
+            sr.data.forEach(function (p, k) { var X = xPixG(p.ts), Y = yG(sr, p.val); k ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); }); ctx.stroke(); }
     });
-
-    // Linien
-    cfg.lines.forEach(function (s) {
-        if (!s.data.length) return;
-        var y = s.axis === 'right' ? yR : yL;
-        ctx.strokeStyle = s.color; ctx.lineWidth = 2; ctx.beginPath();
-        s.data.forEach(function (p, idx) { var X = xPix(p.ts), Y = y(p.val); idx ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); });
-        ctx.stroke();
+    cfg.lines.forEach(function (sr) {
+        if (!sr.data.length) return;
+        ctx.strokeStyle = sr.color; ctx.lineWidth = 2; ctx.beginPath();
+        sr.data.forEach(function (p, k) { var X = xPixG(p.ts), Y = yG(sr, p.val); k ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); }); ctx.stroke();
     });
-
-    // Rahmen
-    ctx.strokeStyle = border; ctx.lineWidth = 1;
-    ctx.strokeRect(padL, padT, plotW, plotH);
+    ctx.strokeStyle = border; ctx.lineWidth = 1; ctx.strokeRect(padL, padT, plotW, plotH);
 }
 
 function renderLegend(cfg) {
@@ -321,29 +341,87 @@ function renderLegend(cfg) {
         return '<span><i class="swatch" style="background:' + it.color + '"></i>' + it.name + '</span>';
     }).join('');
 }
-
 function showOverlay(text) { document.getElementById('overlay').textContent = text || ''; }
 
-// ---- Events -------------------------------------------------------------------------------
-document.getElementById('instance').addEventListener('change', function (e) { curInst = parseInt(e.target.value, 10); refresh(); });
-document.getElementById('day').addEventListener('change', refresh);
-document.getElementById('reload').addEventListener('click', refresh);
-window.addEventListener('resize', function () { /* nur neu zeichnen */ if (window._lastCfg) drawChart(window._lastCfg, window._lastB.start, window._lastB.end); });
+// ---- Hover / Crosshair --------------------------------------------------------------------
+function nearestMergedIdx(ts) {
+    var best = 0, bd = Infinity;
+    for (var i = 0; i < merged.length; i++) { var d = Math.abs(merged[i].ts - ts); if (d < bd) { bd = d; best = i; } }
+    return best;
+}
+function onMove(e) {
+    if (!geom || !merged.length || !curCfg) return;
+    var rect = wrap.getBoundingClientRect();
+    var cssX = e.clientX - rect.left;
+    if (cssX < geom.padL || cssX > geom.padL + geom.plotW) { onLeave(); return; }
+    var ts = geom.x0 + (cssX - geom.padL) / geom.plotW * (geom.x1 - geom.x0);
+    var m = merged[nearestMergedIdx(ts)];
+    drawCross(m);
+    showTip(m, rect);
+    highlightRow(m.ts);
+}
+function drawCross(m) {
+    var s = sizeCanvas(crossCanvas), ctx = s.ctx;
+    ctx.clearRect(0, 0, s.w, s.h);
+    var X = xPixG(m.ts);
+    ctx.strokeStyle = 'rgba(128,128,128,0.7)'; ctx.lineWidth = 1; ctx.setLineDash([4, 3]);
+    ctx.beginPath(); ctx.moveTo(X, geom.padT); ctx.lineTo(X, geom.padT + geom.plotH); ctx.stroke();
+    ctx.setLineDash([]);
+    curCfg.areas.concat(curCfg.lines).forEach(function (sr) {
+        var v = m.vals[sr.path]; if (v == null) return;
+        var Y = yG(sr, v);
+        ctx.fillStyle = sr.stroke || sr.color; ctx.beginPath(); ctx.arc(X, Y, 3.5, 0, 2 * Math.PI); ctx.fill();
+        ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.stroke();
+    });
+}
+function showTip(m, rect) {
+    var series = curCfg.areas.concat(curCfg.lines);
+    var html = '<div class="t-time">' + hhmm(m.ts) + ' Uhr</div>' + series.map(function (sr) {
+        var v = m.vals[sr.path];
+        return '<div class="t-row"><i class="swatch" style="width:10px;height:10px;background:' + (sr.stroke || sr.color) +
+            '"></i>' + sr.name + ': <b>' + (v == null ? '–' : Math.round(v) + ' ' + sr.unit) + '</b></div>';
+    }).join('');
+    tipEl.innerHTML = html;
+    tipEl.style.display = 'block';
+    var X = xPixG(m.ts);
+    var tw = tipEl.offsetWidth;
+    var left = X + 14; if (left + tw > rect.width) left = X - tw - 14;
+    tipEl.style.left = Math.max(4, left) + 'px';
+    tipEl.style.top = (geom.padT + 6) + 'px';
+}
+function highlightRow(ts) {
+    var rows = document.querySelectorAll('#tbl tbody tr');
+    if (!rows.length) return;
+    var best = null, bd = Infinity;
+    rows.forEach(function (tr) { var d = Math.abs(parseInt(tr.getAttribute('data-ts'), 10) - ts); if (d < bd) { bd = d; best = tr; } });
+    rows.forEach(function (tr) { tr.classList.remove('hl'); });
+    if (best) { best.classList.add('hl'); best.scrollIntoView({ block: 'nearest' }); }
+}
+function onLeave() {
+    if (crossCanvas) { var s = sizeCanvas(crossCanvas); s.ctx.clearRect(0, 0, s.w, s.h); }
+    tipEl.style.display = 'none';
+    document.querySelectorAll('#tbl tbody tr.hl').forEach(function (tr) { tr.classList.remove('hl'); });
+}
 
-// merken fürs Resize
-var _origDraw = drawChart;
-drawChart = function (cfg, a, b) { window._lastCfg = cfg; window._lastB = { start: a, end: b }; _origDraw(cfg, a, b); };
+// ---- Events --------------------------------------------------------------------------------
+window.addEventListener('DOMContentLoaded', function () {
+    wrap = document.querySelector('.chart-wrap');
+    crossCanvas = document.getElementById('cross');
+    tipEl = document.getElementById('tip');
+    wrap.addEventListener('mousemove', onMove);
+    wrap.addEventListener('mouseleave', onLeave);
 
-// Standard-Datum = heute
-(function () {
+    document.getElementById('instance').addEventListener('change', function (e) { curInst = parseInt(e.target.value, 10); refresh(); });
+    document.getElementById('day').addEventListener('change', refresh);
+    document.getElementById('reload').addEventListener('click', refresh);
+    window.addEventListener('resize', function () { if (window._lastCfg) drawChart(window._lastCfg, window._lastB.start, window._lastB.end); });
+
     var d = new Date();
-    document.getElementById('day').value = d.getFullYear() + '-' +
-        ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
-})();
+    document.getElementById('day').value = d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
 
-connect();
-// Auto-Refresh alle 60 s
-refreshTimer = setInterval(function () { if (socket && socket.connected) refresh(); }, 60000);
+    connect();
+    refreshTimer = setInterval(function () { if (socket && socket.connected) refresh(); }, 60000);
+});
 </script>
 </body>
 </html>

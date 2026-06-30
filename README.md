@@ -82,6 +82,10 @@ Offene Punkte und geplante Erweiterungen werden in [TODO.md](TODO.md) gepflegt
 
 ## Changelog
 
+### 0.0.8 (2026-06-30)
+- Auswertungs-Tab: größerer Chart, Werte-Tabelle rechts, Hover-Fadenkreuz mit Tooltip,
+  das die passende Tabellenzeile hervorhebt
+
 ### 0.0.7 (2026-06-30)
 - Fix: Auswertungs-Tab fragt die Historie nur bis „jetzt" ab (kein flacher Verlauf bis 24:00 mehr)
 

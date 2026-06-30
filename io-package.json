@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "pv-storage-sim",
-    "version": "0.0.7",
+    "version": "0.0.8",
     "news": {
+      "0.0.8": {
+        "en": "Larger chart, value table on the right, and hover crosshair with tooltip that highlights the matching table row.",
+        "de": "Größerer Chart, Werte-Tabelle rechts und Hover-Fadenkreuz mit Tooltip, das die passende Tabellenzeile hervorhebt."
+      },
       "0.0.7": {
         "en": "Fix: evaluation tab queries history only up to now (no flat line until 24:00).",
         "de": "Fix: Auswertungs-Tab fragt die Historie nur bis jetzt ab (kein flacher Verlauf bis 24:00)."
