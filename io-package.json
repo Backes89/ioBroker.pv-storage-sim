@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "pv-storage-sim",
-    "version": "0.0.16",
+    "version": "0.0.17",
     "news": {
+      "0.0.17": {
+        "en": "Forecast time axis capped at 40 years (avoids hundreds of gridlines when annual savings are tiny).",
+        "de": "Prognose-Zeitachse auf 40 Jahre begrenzt (verhindert hunderte Gitterlinien bei sehr kleiner Jahresersparnis)."
+      },
       "0.0.16": {
         "en": "New single signed grid balance states (live.gridNet*); grid chart now draws one net series (red import / blue feed-in), eliminating the two-series merge issue.",
         "de": "Neue einzelne Netz-Saldo-Datenpunkte (live.gridNet*); Netz-Chart zeichnet jetzt eine Saldo-Reihe (rot Bezug / blau Einspeisung) und vermeidet das Zwei-Reihen-Problem."

@@ -330,7 +330,7 @@ function refreshForecast() {
         drawForecast(annual, investmentEur);
         if (annual > 0 && investmentEur > 0) {
             var be = investmentEur / annual, rows = [];
-            for (var y = 0; y <= Math.ceil(be) + 2; y++) {
+            for (var y = 0; y <= Math.min(Math.ceil(be) + 2, 40); y++) {
                 rows.push([y + '', fmt(annual * y, 0, ' €'), (annual * y >= investmentEur ? '✓ erreicht' : fmt(investmentEur - annual * y, 0, ' €'))]);
             }
             renderRows(['Jahr', 'kum. Ersparnis', 'Rest bis Amort.'], rows, false);
@@ -355,7 +355,7 @@ function drawForecast(annual, invest) {
     var css = getComputedStyle(document.documentElement);
     var muted = css.getPropertyValue('--muted').trim() || '#777', border = css.getPropertyValue('--border').trim() || '#ddd';
     var be = invest > 0 ? invest / annual : 0;
-    var maxYears = Math.max(Math.ceil(be * 1.3), 5);
+    var maxYears = Math.min(Math.max(Math.ceil(be * 1.3), 5), 40);
     var yMax = niceCeil(Math.max(invest, annual * maxYears));
     var padL = 64, padR = 18, padT = 14, padB = 30, plotW = W - padL - padR, plotH = H - padT - padB;
     var xp = function (yr) { return padL + yr / maxYears * plotW; };

@@ -83,6 +83,10 @@ Offene Punkte und geplante Erweiterungen werden in [TODO.md](TODO.md) gepflegt
 
 ## Changelog
 
+### 0.0.17 (2026-06-30)
+- Prognose-Zeitachse auf max. 40 Jahre begrenzt (verhindert unbrauchbare Darstellung bei
+  sehr kleiner hochgerechneter Jahresersparnis)
+
 ### 0.0.16 (2026-06-30)
 - Neue einzelne Netz-Saldo-Datenpunkte `live.gridNetOrigW` / `live.gridNetSimW`
   (+Bezug/−Einspeisung); der Netz-Chart zeichnet jetzt eine Saldo-Reihe (rot über 0 =
