@@ -155,8 +155,10 @@ function dayBounds() {
 
 function id(path) { return 'pv-storage-sim.' + curInst + '.' + path; }
 
-function getHistory(path, start, end) {
-    return emitP('getHistory', [id(path), { start: start, end: end, count: 300, aggregate: 'average', ignoreNull: true }])
+function getHistory(path, start, end, opts) {
+    var o = { start: start, end: end, count: 300, aggregate: 'average', ignoreNull: true };
+    if (opts) for (var k in opts) o[k] = opts[k];
+    return emitP('getHistory', [id(path), o])
         .then(function (res) {
             var arr = res && res.result ? res.result : res;
             return (arr || []).filter(function (p) { return p && p.val !== null && typeof p.val === 'number'; });
@@ -229,8 +231,9 @@ function refreshDay() {
     fetchConfig().then(function () {
         var cfg = seriesConfig();
         var all = cfg.areas.concat(cfg.lines);
+        // Rohwerte (keine Mittelung): Momentanwerte -> Bezug und Einspeisung schliessen sich gegenseitig aus
         return Promise.all(all.map(function (s) {
-            return getHistory(s.path, b.start, queryEnd).then(function (data) { s.data = data; return s; });
+            return getHistory(s.path, b.start, queryEnd, { aggregate: 'none', count: 3000 }).then(function (data) { s.data = data; return s; });
         })).then(function () { return cfg; });
     }).then(function (cfg) {
         curCfg = cfg;

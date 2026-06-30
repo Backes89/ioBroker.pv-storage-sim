@@ -82,6 +82,10 @@ Offene Punkte und geplante Erweiterungen werden in [TODO.md](TODO.md) gepflegt
 
 ## Changelog
 
+### 0.0.14 (2026-06-30)
+- Tagesansicht nutzt Rohwerte statt Mittelung – Netzbezug und Einspeisung erscheinen nicht
+  mehr scheinbar gleichzeitig (war ein Mittelungs-Artefakt, kein Logikfehler)
+
 ### 0.0.13 (2026-06-30)
 - Auswertungs-Tab: Tagesnavigation (◀ ▶ / Heute), erweiterte Kennzahlen (Speicher-Deckung,
   geladen/entladen heute, Vollzyklen), Monats-Balkenansicht der täglichen Ersparnis und

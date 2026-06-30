@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "pv-storage-sim",
-    "version": "0.0.13",
+    "version": "0.0.14",
     "news": {
+      "0.0.14": {
+        "en": "Day view uses raw values instead of averaging, so import and feed-in no longer appear at the same time (averaging artifact).",
+        "de": "Tagesansicht nutzt Rohwerte statt Mittelung – Netzbezug und Einspeisung erscheinen nicht mehr gleichzeitig (Mittelungs-Artefakt)."
+      },
       "0.0.13": {
         "en": "Evaluation tab: day navigation, more KPIs, monthly savings bar view and an amortization forecast chart.",
         "de": "Auswertungs-Tab: Tagesnavigation, mehr Kennzahlen, Monats-Balkenansicht der Ersparnis und Amortisations-Prognose."
