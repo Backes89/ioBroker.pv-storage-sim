@@ -82,6 +82,10 @@ Offene Punkte und geplante Erweiterungen werden in [TODO.md](TODO.md) gepflegt
 
 ## Changelog
 
+### 0.0.23 (2026-06-30)
+- Entfernen veralteter/modusspezifischer Datenpunkte erfolgt nur noch, wenn sie existieren,
+  und wird im Log vermerkt
+
 ### 0.0.22 (2026-06-30)
 - Fehlende Datenpunkte werden bei jedem Start automatisch angelegt (wie bisher) und nun zur
   Transparenz im Log vermerkt

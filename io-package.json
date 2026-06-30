@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "pv-storage-sim",
-    "version": "0.0.22",
+    "version": "0.0.23",
     "news": {
+      "0.0.23": {
+        "en": "Removal of obsolete/mode-specific states only happens if they exist and is now logged.",
+        "de": "Entfernen veralteter/modusspezifischer Datenpunkte nur noch wenn vorhanden und jetzt protokolliert."
+      },
       "0.0.22": {
         "en": "Missing states are (re)created on every start (as before) and now logged for transparency.",
         "de": "Fehlende Datenpunkte werden bei jedem Start (wie bisher) automatisch angelegt und jetzt zur Transparenz protokolliert."

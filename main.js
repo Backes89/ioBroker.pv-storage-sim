@@ -103,9 +103,14 @@ class PvStorageSim extends utils.Adapter {
         }
 
         await this.createStates();
-        // veraltete + im aktuellen Modus nutzlose States entfernen
+        // veraltete + im aktuellen Modus nutzlose States entfernen (nur falls vorhanden)
         const toRemove = OBSOLETE_STATES.concat(this.sourceMode === 'pv_consumption' ? [] : PV_ONLY_STATES);
-        for (const id of toRemove) await this.delObjectAsync(id).catch(() => {});
+        let removed = 0;
+        for (const id of toRemove) {
+            const ex = await this.getObjectAsync(id).catch(() => null);
+            if (ex) { await this.delObjectAsync(id).catch(() => {}); removed++; }
+        }
+        if (removed) this.log.info(`${removed} nicht mehr benötigte(r) Datenpunkt(e) entfernt.`);
 
         // persistierte Werte wiederherstellen (Neustart mitten am Tag soll Werte nicht verlieren)
         this.socWh = (await this.getNumber('battery.soc.kWh')) * 1000 || this.p.minSocWh;
