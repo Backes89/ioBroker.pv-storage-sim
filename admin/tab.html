@@ -124,8 +124,8 @@ function dayBounds() {
     var v = document.getElementById('day').value;
     var d = v ? new Date(v + 'T00:00:00') : new Date();
     var start = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0).getTime();
-    var end = start + 24 * 3600 * 1000;
-    return { start: start, end: Math.min(end, Date.now()) || end };
+    var end = start + 24 * 3600 * 1000; // immer voller Tag (00:00–24:00), damit die Zeitachse stimmt
+    return { start: start, end: end };
 }
 
 function id(path) { return 'pv-storage-sim.' + curInst + '.' + path; }
