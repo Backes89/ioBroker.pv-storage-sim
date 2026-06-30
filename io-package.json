@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "pv-storage-sim",
-    "version": "0.0.12",
+    "version": "0.0.13",
     "news": {
+      "0.0.13": {
+        "en": "Evaluation tab: day navigation, more KPIs, monthly savings bar view and an amortization forecast chart.",
+        "de": "Auswertungs-Tab: Tagesnavigation, mehr Kennzahlen, Monats-Balkenansicht der Ersparnis und Amortisations-Prognose."
+      },
       "0.0.12": {
         "en": "View switch in the evaluation tab: Compare / With storage / Without storage.",
         "de": "Ansichts-Umschalter im Auswertungs-Tab: Vergleich / Mit Speicher / Ohne Speicher."

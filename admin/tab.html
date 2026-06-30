@@ -23,6 +23,8 @@
         }
         button { cursor:pointer; }
         button:hover { border-color:var(--accent); }
+        button.nav { padding:6px 8px; margin:0 2px; }
+        input[type=date] { vertical-align:middle; }
         .status { font-size:13px; color:var(--muted); margin:2px 0 10px; min-height:18px; }
         .card { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:14px; }
         .main { display:flex; gap:14px; align-items:stretch; }
@@ -65,13 +67,18 @@
     <div class="bar">
         <h2>☀️🔋 PV-Speicher-Auswertung</h2>
         <div class="spacer"></div>
-        <label>Ansicht <select id="view">
+        <label>Zeitraum <select id="period">
+            <option value="tag">Tag</option>
+            <option value="monat">Monat (Ersparnis/Tag)</option>
+            <option value="prognose">Prognose</option>
+        </select></label>
+        <label id="viewWrap">Ansicht <select id="view">
             <option value="vergleich">Vergleich (beide)</option>
             <option value="mit">Mit Speicher</option>
             <option value="ohne">Ohne Speicher</option>
         </select></label>
         <label>Instanz <select id="instance"></select></label>
-        <label>Tag <input type="date" id="day"></label>
+        <label id="dayWrap">Tag <button id="dayPrev" class="nav" title="Tag zurück">◀</button><input type="date" id="day"><button id="dayNext" class="nav" title="Tag vor">▶</button><button id="dayToday" class="nav">Heute</button></label>
         <button id="reload">Aktualisieren</button>
     </div>
     <div class="status" id="status">Verbinde…</div>
@@ -87,7 +94,7 @@
             <div class="legend" id="legend"></div>
         </div>
         <div class="card table-card">
-            <div class="tbl-head">Werte über den Tag <span id="tblInfo" style="float:right"></span></div>
+            <div class="tbl-head"><span id="tblTitle">Werte über den Tag</span> <span id="tblInfo" style="float:right"></span></div>
             <div class="tbl-scroll"><table id="tbl"><thead></thead><tbody></tbody></table></div>
         </div>
     </div>
@@ -100,6 +107,7 @@
 
 var socket = null, instances = [], curInst = 0, sourceMode = 'pv_consumption';
 var curCfg = null, merged = [], tableRows = [], geom = null, hiddenSet = {};
+var periodMode = 'tag', capacityKwh = 10;
 var wrap, crossCanvas, tipEl;
 
 function isHidden(s) { return !!hiddenSet[s.path]; }
@@ -188,14 +196,37 @@ function seriesConfig() {
     };
 }
 
-var refreshTimer = null;
+var refreshTimer = null, investmentEur = 0;
+
+function fetchConfig() {
+    return emitP('getObject', ['system.adapter.pv-storage-sim.' + curInst]).then(function (obj) {
+        var n = obj && obj.native || {};
+        sourceMode = n.sourceMode || 'pv_consumption';
+        capacityKwh = Number(n.capacityKwh) || 10;
+        investmentEur = Number(n.investmentEur) || 0;
+    }).catch(function () { sourceMode = 'pv_consumption'; });
+}
+
+function setPeriodUI() {
+    document.getElementById('viewWrap').style.display = (periodMode === 'tag') ? '' : 'none';
+    document.getElementById('dayWrap').style.display = (periodMode === 'prognose') ? 'none' : '';
+    document.getElementById('legend').style.display = (periodMode === 'tag') ? '' : 'none';
+    var titles = { tag: 'Werte über den Tag', monat: 'Ersparnis je Tag', prognose: 'Prognose je Jahr' };
+    document.getElementById('tblTitle').textContent = titles[periodMode] || '';
+}
+
 function refresh() {
+    setPeriodUI();
+    if (periodMode === 'monat') return refreshMonth();
+    if (periodMode === 'prognose') return refreshForecast();
+    return refreshDay();
+}
+
+function refreshDay() {
     var b = dayBounds();
     var queryEnd = Math.min(b.end, Date.now());
     setStatus('Lade Daten…');
-    emitP('getObject', ['system.adapter.pv-storage-sim.' + curInst]).then(function (obj) {
-        sourceMode = obj && obj.native && obj.native.sourceMode || 'pv_consumption';
-    }).catch(function () { sourceMode = 'pv_consumption'; }).then(function () {
+    fetchConfig().then(function () {
         var cfg = seriesConfig();
         var all = cfg.areas.concat(cfg.lines);
         return Promise.all(all.map(function (s) {
@@ -217,18 +248,172 @@ function refresh() {
     }).catch(function (e) { setStatus('Fehler: ' + (e && e.message || e)); });
 }
 
+// ---- Monatsansicht: Ersparnis je Tag ------------------------------------------------------
+function refreshMonth() {
+    var nDays = 30;
+    var sel = document.getElementById('day').value;
+    var d = sel ? new Date(sel + 'T00:00:00') : new Date();
+    var endDay = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0).getTime() + 86400000;
+    var startDay = endDay - nDays * 86400000;
+    setStatus('Lade Monatsdaten…');
+    fetchConfig().then(function () {
+        return getHistory('economics.savingsTotal.eur', startDay - 86400000, Math.min(endDay, Date.now()));
+    }).then(function (points) {
+        var daily = computeDaily(points, startDay, nDays);
+        drawBars(daily, startDay);
+        renderRows(['Datum', 'Ersparnis €', 'kumuliert €'], daily.map(function (x) {
+            return [ddmm(x.day), fmt(x.val, 2, ''), fmt(x.cum, 2, '')];
+        }), true);
+        showOverlay(points.length ? '' : 'Noch keine Tagesdaten. Bitte History-Logging auf economics.savingsTotal.eur aktivieren – dann erscheint hier die tägliche Ersparnis.');
+        setStatus('Stand: ' + new Date().toLocaleTimeString());
+        return loadKpis();
+    }).catch(function (e) { setStatus('Fehler: ' + (e && e.message || e)); });
+}
+
+function computeDaily(points, startDay, nDays) {
+    var cum = new Array(nDays), baseline = points.length ? points[0].val : 0;
+    for (var i = 0; i < points.length; i++) { if (points[i].ts < startDay) baseline = points[i].val; }
+    points.forEach(function (p) {
+        var di = Math.floor((p.ts - startDay) / 86400000);
+        if (di >= 0 && di < nDays) cum[di] = p.val; // letzter Wert des Tages gewinnt (Punkte aufsteigend)
+    });
+    var out = [], last = baseline;
+    for (var dI = 0; dI < nDays; dI++) {
+        if (cum[dI] == null) out.push({ day: startDay + dI * 86400000, val: 0, cum: last });
+        else { out.push({ day: startDay + dI * 86400000, val: cum[dI] - last, cum: cum[dI] }); last = cum[dI]; }
+    }
+    return out;
+}
+
+function drawBars(daily, startDay) {
+    var s = sizeCanvas(document.getElementById('chart')), ctx = s.ctx, W = s.w, H = s.h;
+    sizeCanvas(crossCanvas).ctx.clearRect(0, 0, W, H);
+    ctx.clearRect(0, 0, W, H);
+    var css = getComputedStyle(document.documentElement);
+    var muted = css.getPropertyValue('--muted').trim() || '#777', border = css.getPropertyValue('--border').trim() || '#ddd';
+    var padL = 60, padR = 18, padT = 14, padB = 36, plotW = W - padL - padR, plotH = H - padT - padB;
+    var maxAbs = 0.5, hasNeg = false;
+    daily.forEach(function (x) { if (Math.abs(x.val) > maxAbs) maxAbs = Math.abs(x.val); if (x.val < 0) hasNeg = true; });
+    var hi = niceCeil(maxAbs), lo = hasNeg ? -hi : 0;
+    var yv = function (v) { return padT + (hi - Math.max(lo, Math.min(hi, v))) / (hi - lo) * plotH; };
+    var zeroY = yv(0);
+    ctx.font = '11px Segoe UI, Arial'; ctx.textBaseline = 'middle';
+    for (var i = 0; i <= 4; i++) {
+        var yy = padT + plotH * i / 4, val = hi - (hi - lo) * i / 4;
+        ctx.strokeStyle = border; ctx.beginPath(); ctx.moveTo(padL, yy); ctx.lineTo(padL + plotW, yy); ctx.stroke();
+        ctx.fillStyle = muted; ctx.textAlign = 'right'; ctx.fillText(val.toFixed(2) + ' €', padL - 6, yy);
+    }
+    var n = daily.length, bw = Math.max(2, plotW / n * 0.7), everyN = Math.ceil(n / 10);
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    daily.forEach(function (x, i) {
+        var cx = padL + plotW * (i + 0.5) / n, y = yv(x.val);
+        ctx.fillStyle = x.val >= 0 ? '#4caf50' : '#e57373';
+        ctx.fillRect(cx - bw / 2, Math.min(y, zeroY), bw, Math.abs(y - zeroY));
+        if (i % everyN === 0) { ctx.fillStyle = muted; ctx.fillText(ddmm(x.day), cx, padT + plotH + 5); }
+    });
+    ctx.strokeStyle = muted; ctx.beginPath(); ctx.moveTo(padL, zeroY); ctx.lineTo(padL + plotW, zeroY); ctx.stroke();
+    ctx.strokeStyle = border; ctx.strokeRect(padL, padT, plotW, plotH);
+}
+
+// ---- Prognose: kumulierte Ersparnis vs. Investition ---------------------------------------
+function refreshForecast() {
+    setStatus('Berechne Prognose…');
+    fetchConfig().then(function () {
+        return Promise.all([getStateVal('economics.savingsTotal.eur'), getStateVal('economics._startTs')]);
+    }).then(function (v) {
+        var total = v[0] || 0, startTs = v[1] || Date.now();
+        var yearsElapsed = (Date.now() - startTs) / (365.25 * 86400000);
+        var annual = yearsElapsed > 0 ? total / yearsElapsed : 0;
+        drawForecast(annual, investmentEur);
+        if (annual > 0 && investmentEur > 0) {
+            var be = investmentEur / annual, rows = [];
+            for (var y = 0; y <= Math.ceil(be) + 2; y++) {
+                rows.push([y + '', fmt(annual * y, 0, ' €'), (annual * y >= investmentEur ? '✓ erreicht' : fmt(investmentEur - annual * y, 0, ' €'))]);
+            }
+            renderRows(['Jahr', 'kum. Ersparnis', 'Rest bis Amort.'], rows, false);
+            setStatus('Hochrechnung: ' + fmt(annual, 0, ' €/Jahr') + ' → Amortisation in ~' + fmt(be, 1, ' Jahren'));
+        } else {
+            renderRows(['Jahr', 'kum. Ersparnis', 'Rest'], [], false);
+            setStatus('Stand: ' + new Date().toLocaleTimeString());
+        }
+        return loadKpis();
+    }).catch(function (e) { setStatus('Fehler: ' + (e && e.message || e)); });
+}
+
+function drawForecast(annual, invest) {
+    var s = sizeCanvas(document.getElementById('chart')), ctx = s.ctx, W = s.w, H = s.h;
+    sizeCanvas(crossCanvas).ctx.clearRect(0, 0, W, H);
+    ctx.clearRect(0, 0, W, H);
+    if (!(annual > 0)) {
+        showOverlay('Noch keine positive Jahresersparnis – die Prognose erscheint, sobald der Speicher netto spart (meist nach einigen Tagen Lauf inkl. Entladephasen).');
+        return;
+    }
+    showOverlay('');
+    var css = getComputedStyle(document.documentElement);
+    var muted = css.getPropertyValue('--muted').trim() || '#777', border = css.getPropertyValue('--border').trim() || '#ddd';
+    var be = invest > 0 ? invest / annual : 0;
+    var maxYears = Math.max(Math.ceil(be * 1.3), 5);
+    var yMax = niceCeil(Math.max(invest, annual * maxYears));
+    var padL = 64, padR = 18, padT = 14, padB = 30, plotW = W - padL - padR, plotH = H - padT - padB;
+    var xp = function (yr) { return padL + yr / maxYears * plotW; };
+    var yp = function (e) { return padT + (yMax - Math.max(0, Math.min(yMax, e))) / yMax * plotH; };
+    ctx.font = '11px Segoe UI, Arial'; ctx.textBaseline = 'middle';
+    for (var i = 0; i <= 4; i++) {
+        var yy = padT + plotH * i / 4, val = yMax * (1 - i / 4);
+        ctx.strokeStyle = border; ctx.beginPath(); ctx.moveTo(padL, yy); ctx.lineTo(padL + plotW, yy); ctx.stroke();
+        ctx.fillStyle = muted; ctx.textAlign = 'right'; ctx.fillText(Math.round(val) + ' €', padL - 6, yy);
+    }
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    for (var yr = 0; yr <= maxYears; yr++) {
+        var xx = xp(yr); ctx.strokeStyle = border; ctx.beginPath(); ctx.moveTo(xx, padT); ctx.lineTo(xx, padT + plotH); ctx.stroke();
+        ctx.fillStyle = muted; ctx.fillText(yr + ' J', xx, padT + plotH + 5);
+    }
+    if (invest > 0) {
+        ctx.strokeStyle = '#e57373'; ctx.setLineDash([5, 4]); ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.moveTo(padL, yp(invest)); ctx.lineTo(padL + plotW, yp(invest)); ctx.stroke(); ctx.setLineDash([]);
+        ctx.fillStyle = '#e57373'; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom'; ctx.fillText('Investition ' + Math.round(invest) + ' €', padL + 4, yp(invest) - 3);
+    }
+    ctx.strokeStyle = '#4caf50'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(xp(0), yp(0)); ctx.lineTo(xp(maxYears), yp(annual * maxYears)); ctx.stroke();
+    if (be > 0 && be <= maxYears) {
+        ctx.fillStyle = '#4caf50'; ctx.beginPath(); ctx.arc(xp(be), yp(invest), 5, 0, 2 * Math.PI); ctx.fill();
+        ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.stroke();
+        ctx.fillStyle = muted; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillText('Amortisation ~' + be.toFixed(1) + ' J', xp(be), yp(invest) + 8);
+    }
+    ctx.strokeStyle = border; ctx.lineWidth = 1; ctx.strokeRect(padL, padT, plotW, plotH);
+}
+
+// ---- generische Tabelle (Monat / Prognose) ------------------------------------------------
+function renderRows(headers, rows, highlightLast) {
+    document.querySelector('#tbl thead').innerHTML = '<tr>' + headers.map(function (h) { return '<th>' + h + '</th>'; }).join('') + '</tr>';
+    document.querySelector('#tbl tbody').innerHTML = rows.map(function (r, i) {
+        var cls = (highlightLast && i === rows.length - 1) ? ' class="hl"' : '';
+        return '<tr' + cls + '>' + r.map(function (c) { return '<td>' + c + '</td>'; }).join('') + '</tr>';
+    }).join('');
+    document.getElementById('tblInfo').textContent = rows.length ? (rows.length + ' Zeilen') : '';
+}
+
+function ddmm(ts) { var d = new Date(ts); return pad2(d.getDate()) + '.' + pad2(d.getMonth() + 1) + '.'; }
+function setDayInput(d) { document.getElementById('day').value = d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
+function shiftDay(delta) { var el = document.getElementById('day'); var d = el.value ? new Date(el.value + 'T00:00:00') : new Date(); d.setDate(d.getDate() + delta); setDayInput(d); refresh(); }
+
 function loadKpis() {
     return Promise.all([
         getStateVal('battery.soc.percent'), getStateVal('economics.savingsToday.eur'),
         getStateVal('grid.importOriginalToday.kWh'), getStateVal('grid.importSimulatedToday.kWh'),
-        getStateVal('economics.savingsTotal.eur'), getStateVal('economics.amortizationYears')
+        getStateVal('economics.savingsTotal.eur'), getStateVal('economics.amortizationYears'),
+        getStateVal('battery.chargedToday.kWh'), getStateVal('battery.dischargedToday.kWh'),
+        getStateVal('economics.batteryCoverageToday.percent'), getStateVal('battery.dischargedTotal.kWh')
     ]).then(function (v) {
         var saved = (v[2] != null && v[3] != null) ? Math.max(v[2] - v[3], 0) : null;
+        var cycles = (v[9] != null && capacityKwh > 0) ? v[9] / capacityKwh : null;
         var kpis = [
             { label: 'Ladestand', value: fmt(v[0], 0, ' %') },
             { label: 'Ersparnis heute', value: fmt(v[1], 2, ' €') },
-            { label: 'Netzbezug heute', value: fmt(v[3], 1, ' kWh'), sub: saved != null ? ('−' + saved.toFixed(1) + ' kWh ggü. ohne Speicher') : '' },
             { label: 'Ersparnis gesamt', value: fmt(v[4], 2, ' €') },
+            { label: 'Netzbezug heute', value: fmt(v[3], 1, ' kWh'), sub: saved != null ? ('−' + saved.toFixed(1) + ' kWh ggü. ohne Speicher') : '' },
+            { label: 'Speicher-Deckung heute', value: fmt(v[8], 0, ' %') },
+            { label: 'Geladen / Entladen heute', value: fmt(v[6], 1, '') + ' / ' + fmt(v[7], 1, ' kWh') },
+            { label: 'Vollzyklen (gesamt)', value: cycles != null ? fmt(cycles, 1, '') : '–' },
             { label: 'Amortisation', value: v[5] ? fmt(v[5], 1, ' J') : '–' }
         ];
         document.getElementById('kpis').innerHTML = kpis.map(function (k) {
@@ -389,7 +574,7 @@ function nearestMergedIdx(ts) {
     return best;
 }
 function onMove(e) {
-    if (!geom || !merged.length || !curCfg) return;
+    if (periodMode !== 'tag' || !geom || !merged.length || !curCfg) return;
     var rect = wrap.getBoundingClientRect();
     var cssX = e.clientX - rect.left;
     if (cssX < geom.padL || cssX > geom.padL + geom.plotW) { onLeave(); return; }
@@ -439,8 +624,8 @@ function highlightRow(ts) {
 }
 function onLeave() {
     if (crossCanvas) { var s = sizeCanvas(crossCanvas); s.ctx.clearRect(0, 0, s.w, s.h); }
-    tipEl.style.display = 'none';
-    document.querySelectorAll('#tbl tbody tr.hl').forEach(function (tr) { tr.classList.remove('hl'); });
+    if (tipEl) tipEl.style.display = 'none';
+    if (periodMode === 'tag') document.querySelectorAll('#tbl tbody tr.hl').forEach(function (tr) { tr.classList.remove('hl'); });
 }
 
 // ---- Events --------------------------------------------------------------------------------
@@ -455,14 +640,20 @@ window.addEventListener('DOMContentLoaded', function () {
     document.getElementById('day').addEventListener('change', refresh);
     document.getElementById('reload').addEventListener('click', refresh);
     document.getElementById('view').addEventListener('change', function (e) { applyViewMode(e.target.value); applyVisibility(); });
+    document.getElementById('period').addEventListener('change', function (e) { periodMode = e.target.value; onLeave(); refresh(); });
+    document.getElementById('dayPrev').addEventListener('click', function () { shiftDay(-1); });
+    document.getElementById('dayNext').addEventListener('click', function () { shiftDay(1); });
+    document.getElementById('dayToday').addEventListener('click', function () { setDayInput(new Date()); refresh(); });
     document.getElementById('legend').addEventListener('click', function (e) {
         var sp = e.target.closest('span.leg'); if (!sp) return;
         var p = sp.getAttribute('data-path'); hiddenSet[p] = !hiddenSet[p]; applyVisibility();
     });
-    window.addEventListener('resize', function () { if (window._lastCfg) drawChart(window._lastCfg, window._lastB.start, window._lastB.end); });
+    window.addEventListener('resize', function () {
+        if (periodMode === 'tag') { if (window._lastCfg) drawChart(window._lastCfg, window._lastB.start, window._lastB.end); }
+        else refresh();
+    });
 
-    var d = new Date();
-    document.getElementById('day').value = d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+    setDayInput(new Date());
 
     connect();
     refreshTimer = setInterval(function () { if (socket && socket.connected) refresh(); }, 60000);

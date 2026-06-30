@@ -82,6 +82,11 @@ Offene Punkte und geplante Erweiterungen werden in [TODO.md](TODO.md) gepflegt
 
 ## Changelog
 
+### 0.0.13 (2026-06-30)
+- Auswertungs-Tab: Tagesnavigation (◀ ▶ / Heute), erweiterte Kennzahlen (Speicher-Deckung,
+  geladen/entladen heute, Vollzyklen), Monats-Balkenansicht der täglichen Ersparnis und
+  Amortisations-Prognose (kumulierte Ersparnis vs. Investition mit Break-even)
+
 ### 0.0.12 (2026-06-30)
 - Ansichts-Umschalter im Auswertungs-Tab: Vergleich / Mit Speicher / Ohne Speicher
   (blendet die jeweils passenden Serien automatisch ein/aus)
