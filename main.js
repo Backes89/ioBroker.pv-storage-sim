@@ -31,7 +31,9 @@ const STATE_DEFS = [
     ['live.pvW', 'PV-Erzeugung (aktuell)', 'W', 'value.power.produced', 'number'],
     ['live.consumptionW', 'Hausverbrauch (aktuell)', 'W', 'value.power.consumption', 'number'],
     ['live.directUseW', 'Direktverbrauch (aktuell)', 'W', 'value.power', 'number'],
+    ['live.gridImportOrigW', 'Netzbezug ohne Speicher (aktuell)', 'W', 'value.power', 'number'],
     ['live.gridImportSimW', 'Netzbezug mit Speicher (aktuell)', 'W', 'value.power', 'number'],
+    ['live.gridExportOrigW', 'Einspeisung ohne Speicher (aktuell)', 'W', 'value.power', 'number'],
     ['live.gridExportSimW', 'Einspeisung mit Speicher (aktuell)', 'W', 'value.power', 'number'],
     ['live.batteryPowerW', 'Speicher-Leistung (+lädt / −entlädt)', 'W', 'value.power', 'number'],
 ];
@@ -181,7 +183,7 @@ class PvStorageSim extends utils.Adapter {
         const benefit = dischargedKwh * this.priceImport - chargedKwh * this.priceFeedIn;
 
         await this.accumulate(r, chargedKwh, dischargedKwh, benefit, surplusWh, deficitWh);
-        await this.publishLive(r, dtH, pvWh, consWh);
+        await this.publishLive(r, dtH, pvWh, consWh, surplusWh, deficitWh);
     }
 
     /**
@@ -285,7 +287,7 @@ class PvStorageSim extends utils.Adapter {
      * Schreibt die momentanen Leistungen (W) für die grafische Auswertung.
      * pvWh/consWh sind nur im Modus PV+Verbrauch bekannt; sonst 0 (Netz-Modi liefern nur das Saldo).
      */
-    async publishLive(r, dtH, pvWh, consWh) {
+    async publishLive(r, dtH, pvWh, consWh, surplusWh, deficitWh) {
         if (dtH <= 0) return;
         const w = (wh) => Math.round(wh / dtH);
         const pvW = pvWh !== null ? w(pvWh) : 0;
@@ -296,7 +298,9 @@ class PvStorageSim extends utils.Adapter {
             this.setStateAsync('live.pvW', { val: pvW, ack: true }),
             this.setStateAsync('live.consumptionW', { val: consW, ack: true }),
             this.setStateAsync('live.directUseW', { val: directW, ack: true }),
+            this.setStateAsync('live.gridImportOrigW', { val: w(deficitWh), ack: true }),
             this.setStateAsync('live.gridImportSimW', { val: w(r.gridImportWh), ack: true }),
+            this.setStateAsync('live.gridExportOrigW', { val: w(surplusWh), ack: true }),
             this.setStateAsync('live.gridExportSimW', { val: w(r.gridExportWh), ack: true }),
             this.setStateAsync('live.batteryPowerW', { val: w(r.chargedWh - r.dischargedWh), ack: true }),
         ]);

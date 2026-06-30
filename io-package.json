@@ -1,7 +1,7 @@
 {
   "common": {
     "name": "pv-storage-sim",
-    "version": "0.0.4",
+    "version": "0.0.5",
     "title": "PV Storage Simulation",
     "titleLang": {
       "en": "PV Storage Simulation",
@@ -35,6 +35,11 @@
     "dataSource": "poll",
     "adminUI": {
       "config": "json"
+    },
+    "adminTab": {
+      "name": "PV-Auswertung",
+      "singleton": true,
+      "fa-icon": "solar-panel"
     },
     "dependencies": [
       { "js-controller": ">=5.0.0" }

@@ -47,6 +47,14 @@ in `kW` bzw. `Wh` liefert. So lassen sich Geräte mit unterschiedlichen Einheite
 > Leistungen in W. Für Verlaufs-Diagramme muss auf diesen States (und `battery.soc.percent`)
 > ein History-Logging (`history`, `sql` oder `influxdb`) aktiviert werden.
 
+## Auswertung (Admin-Tab)
+
+Der Adapter bringt einen eigenen Reiter **„PV-Auswertung"** im ioBroker-Admin mit
+(Tageskurven im bekannten Stil: Erzeugung, Verbrauch, Direktverbrauch, Ladestand bzw. im
+Netz-Modus Netzbezug real vs. simuliert). Voraussetzung ist aktiviertes History-Logging auf
+den oben genannten Datenpunkten. Über Instanz- und Datums-Auswahl lassen sich auch vergangene
+Tage anzeigen.
+
 ## Rechenmodell
 
 Pro Intervall:

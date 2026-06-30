@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>PV-Speicher-Simulation – Auswertung</title>
+    <!-- socket.io-Client wird vom Admin selbst ausgeliefert (kein externes CDN) -->
+    <script src="../../socket.io/socket.io.js"></script>
+    <style>
+        :root { --bg:#fafafa; --card:#fff; --fg:#222; --muted:#777; --border:#e2e2e2; --accent:#4caf50; }
+        @media (prefers-color-scheme: dark) {
+            :root { --bg:#1e1e1e; --card:#2a2a2a; --fg:#eee; --muted:#aaa; --border:#444; }
+        }
+        * { box-sizing: border-box; }
+        body { margin:0; font-family:'Segoe UI',Roboto,Arial,sans-serif; background:var(--bg); color:var(--fg); }
+        .wrap { padding:14px 18px; max-width:1100px; margin:0 auto; }
+        .bar { display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:12px; }
+        .bar h2 { margin:0; font-size:18px; font-weight:600; }
+        .bar .spacer { flex:1; }
+        select, input[type=date], button {
+            background:var(--card); color:var(--fg); border:1px solid var(--border);
+            border-radius:6px; padding:6px 9px; font-size:14px;
+        }
+        button { cursor:pointer; }
+        button:hover { border-color:var(--accent); }
+        .status { font-size:13px; color:var(--muted); margin:4px 0 10px; min-height:18px; }
+        .card { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:14px; }
+        .chart-card { position:relative; }
+        canvas { width:100%; height:320px; display:block; }
+        .legend { display:flex; gap:16px; flex-wrap:wrap; margin-top:10px; font-size:13px; color:var(--muted); }
+        .legend span { display:inline-flex; align-items:center; gap:6px; }
+        .swatch { width:14px; height:14px; border-radius:3px; display:inline-block; }
+        .kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-top:14px; }
+        .kpi { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:12px 14px; }
+        .kpi .label { font-size:12px; color:var(--muted); }
+        .kpi .value { font-size:22px; font-weight:600; margin-top:2px; }
+        .kpi .sub { font-size:12px; color:var(--muted); margin-top:2px; }
+        .overlay { position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+            text-align:center; color:var(--muted); font-size:14px; padding:20px; pointer-events:none; }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <div class="bar">
+        <h2>☀️🔋 PV-Speicher-Auswertung</h2>
+        <div class="spacer"></div>
+        <label>Instanz
+            <select id="instance"></select>
+        </label>
+        <label>Tag
+            <input type="date" id="day">
+        </label>
+        <button id="reload">Aktualisieren</button>
+    </div>
+    <div class="status" id="status">Verbinde…</div>
+
+    <div class="card chart-card">
+        <canvas id="chart"></canvas>
+        <div class="overlay" id="overlay"></div>
+    </div>
+    <div class="legend" id="legend"></div>
+
+    <div class="kpis" id="kpis"></div>
+</div>
+
+<script>
+'use strict';
+
+// ---- Verbindung zum ioBroker-Admin-Socket -------------------------------------------------
+var socket = null;
+var instances = [];
+var curInst = 0;
+var sourceMode = 'pv_consumption';
+
+function setStatus(t) { document.getElementById('status').textContent = t; }
+
+function emitP(cmd, args) {
+    // socket.emit als Promise (letzter Parameter = Callback (err, result))
+    return new Promise(function (resolve, reject) {
+        if (!socket || !socket.connected) { reject(new Error('keine Verbindung')); return; }
+        socket.emit.apply(socket, [cmd].concat(args, [function (err, res) {
+            if (err) reject(err); else resolve(res);
+        }]));
+    });
+}
+
+function connect() {
+    try {
+        socket = io.connect(location.protocol + '//' + location.host, { path: '/socket.io' });
+    } catch (e) {
+        setStatus('Socket-Verbindung fehlgeschlagen: ' + e.message);
+        return;
+    }
+    socket.on('connect', function () { setStatus('Verbunden. Lade Instanzen…'); loadInstances(); });
+    socket.on('disconnect', function () { setStatus('Verbindung getrennt.'); });
+    socket.on('connect_error', function (e) { setStatus('Verbindungsfehler: ' + (e && e.message || e)); });
+}
+
+// ---- Instanzen ermitteln ------------------------------------------------------------------
+function loadInstances() {
+    emitP('getObjectView', ['system', 'instance', {
+        startkey: 'system.adapter.pv-storage-sim.', endkey: 'system.adapter.pv-storage-sim.香'
+    }]).then(function (res) {
+        instances = (res && res.rows || []).map(function (r) {
+            return parseInt(String(r.id).split('.').pop(), 10);
+        }).filter(function (n) { return !isNaN(n); });
+        if (!instances.length) instances = [0];
+        var sel = document.getElementById('instance');
+        sel.innerHTML = instances.map(function (n) { return '<option value="' + n + '">pv-storage-sim.' + n + '</option>'; }).join('');
+        curInst = instances[0];
+        sel.value = curInst;
+        refresh();
+    }).catch(function (e) {
+        // Fallback: einfach Instanz 0 annehmen
+        instances = [0]; curInst = 0;
+        document.getElementById('instance').innerHTML = '<option value="0">pv-storage-sim.0</option>';
+        setStatus('Instanzliste nicht abrufbar (' + e.message + ') – nutze .0');
+        refresh();
+    });
+}
+
+// ---- Datum / Zeitfenster ------------------------------------------------------------------
+function dayBounds() {
+    var v = document.getElementById('day').value;
+    var d = v ? new Date(v + 'T00:00:00') : new Date();
+    var start = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0).getTime();
+    var end = start + 24 * 3600 * 1000;
+    return { start: start, end: Math.min(end, Date.now()) || end };
+}
+
+function id(path) { return 'pv-storage-sim.' + curInst + '.' + path; }
+
+function getHistory(path, start, end) {
+    return emitP('getHistory', [id(path), {
+        start: start, end: end, count: 300, aggregate: 'average', ignoreNull: true
+    }]).then(function (res) {
+        // res kann {result:[...]} oder direkt [...] sein – beides abfangen
+        var arr = res && res.result ? res.result : res;
+        return (arr || []).filter(function (p) { return p && p.val !== null && typeof p.val === 'number'; });
+    }).catch(function () { return []; });
+}
+
+function getStateVal(path) {
+    return emitP('getState', [id(path)]).then(function (s) {
+        return s && typeof s.val === 'number' ? s.val : null;
+    }).catch(function () { return null; });
+}
+
+// ---- Serien je nach Datenquelle -----------------------------------------------------------
+function seriesConfig() {
+    if (sourceMode === 'pv_consumption') {
+        return {
+            areas: [
+                { path: 'live.pvW', name: 'Erzeugung', color: 'rgba(244,196,48,0.55)', stroke: '#e0a800' },
+                { path: 'live.directUseW', name: 'Direktverbrauch', color: 'rgba(77,182,217,0.55)', stroke: '#3aa0c0' }
+            ],
+            lines: [
+                { path: 'live.consumptionW', name: 'Verbrauch', color: '#7a7a1f', axis: 'left' },
+                { path: 'battery.soc.percent', name: 'Ladestand', color: '#4caf50', axis: 'right' }
+            ]
+        };
+    }
+    // Netz-Modi: PV/Verbrauch unbekannt -> Bezug real vs. simuliert + Ladestand
+    return {
+        areas: [
+            { path: 'live.gridImportOrigW', name: 'Netzbezug ohne Speicher', color: 'rgba(229,115,115,0.35)', stroke: '#d98b8b' },
+            { path: 'live.gridImportSimW', name: 'Netzbezug mit Speicher', color: 'rgba(211,47,47,0.55)', stroke: '#c62828' }
+        ],
+        lines: [
+            { path: 'battery.soc.percent', name: 'Ladestand', color: '#4caf50', axis: 'right' }
+        ]
+    };
+}
+
+// ---- Hauptablauf: Daten holen + zeichnen --------------------------------------------------
+var refreshTimer = null;
+function refresh() {
+    var b = dayBounds();
+    setStatus('Lade Daten…');
+    // sourceMode der Instanz lesen
+    emitP('getObject', ['system.adapter.pv-storage-sim.' + curInst]).then(function (obj) {
+        sourceMode = obj && obj.native && obj.native.sourceMode || 'pv_consumption';
+    }).catch(function () { sourceMode = 'pv_consumption'; }).then(function () {
+        var cfg = seriesConfig();
+        var all = cfg.areas.concat(cfg.lines);
+        return Promise.all(all.map(function (s) {
+            return getHistory(s.path, b.start, b.end).then(function (data) { s.data = data; return s; });
+        })).then(function () { return cfg; });
+    }).then(function (cfg) {
+        var total = cfg.areas.concat(cfg.lines).reduce(function (n, s) { return n + s.data.length; }, 0);
+        drawChart(cfg, b.start, b.end);
+        renderLegend(cfg);
+        if (total === 0) {
+            showOverlay('Noch keine Verlaufsdaten. Bitte History-Logging (history/sql/influxdb) auf den live.*-Datenpunkten und battery.soc.percent aktivieren – danach füllt sich der Chart.');
+            setStatus('Keine Historie gefunden.');
+        } else {
+            showOverlay('');
+            setStatus('Stand: ' + new Date().toLocaleTimeString());
+        }
+        return loadKpis();
+    }).catch(function (e) {
+        setStatus('Fehler: ' + (e && e.message || e));
+    });
+}
+
+function loadKpis() {
+    return Promise.all([
+        getStateVal('battery.soc.percent'),
+        getStateVal('economics.savingsToday.eur'),
+        getStateVal('grid.importOriginalToday.kWh'),
+        getStateVal('grid.importSimulatedToday.kWh'),
+        getStateVal('economics.savingsTotal.eur'),
+        getStateVal('economics.amortizationYears')
+    ]).then(function (v) {
+        var soc = v[0], save = v[1], impO = v[2], impS = v[3], saveTot = v[4], amort = v[5];
+        var saved = (impO != null && impS != null) ? Math.max(impO - impS, 0) : null;
+        var kpis = [
+            { label: 'Ladestand', value: fmt(soc, 0, ' %') },
+            { label: 'Ersparnis heute', value: fmt(save, 2, ' €') },
+            { label: 'Netzbezug heute', value: fmt(impS, 1, ' kWh'), sub: saved != null ? ('−' + saved.toFixed(1) + ' kWh ggü. ohne Speicher') : '' },
+            { label: 'Ersparnis gesamt', value: fmt(saveTot, 2, ' €') },
+            { label: 'Amortisation', value: amort ? fmt(amort, 1, ' J') : '–' }
+        ];
+        document.getElementById('kpis').innerHTML = kpis.map(function (k) {
+            return '<div class="kpi"><div class="label">' + k.label + '</div><div class="value">' + k.value +
+                '</div>' + (k.sub ? '<div class="sub">' + k.sub + '</div>' : '') + '</div>';
+        }).join('');
+    });
+}
+
+function fmt(v, dec, unit) { return v == null ? '–' : v.toFixed(dec).replace('.', ',') + (unit || ''); }
+
+// ---- Canvas-Chart -------------------------------------------------------------------------
+function niceCeil(v) {
+    if (v <= 0) return 100;
+    var mag = Math.pow(10, Math.floor(Math.log10(v)));
+    var n = v / mag;
+    var step = n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10;
+    return step * mag;
+}
+
+function drawChart(cfg, x0, x1) {
+    var cv = document.getElementById('chart');
+    var dpr = window.devicePixelRatio || 1;
+    var cssW = cv.clientWidth, cssH = cv.clientHeight;
+    cv.width = cssW * dpr; cv.height = cssH * dpr;
+    var ctx = cv.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, cssW, cssH);
+
+    var css = getComputedStyle(document.documentElement);
+    var fg = css.getPropertyValue('--fg').trim() || '#222';
+    var muted = css.getPropertyValue('--muted').trim() || '#777';
+    var border = css.getPropertyValue('--border').trim() || '#ddd';
+
+    var padL = 55, padR = 45, padT = 12, padB = 26;
+    var plotW = cssW - padL - padR, plotH = cssH - padT - padB;
+    if (plotW <= 0 || plotH <= 0) return;
+
+    var xPix = function (ts) { return padL + (ts - x0) / (x1 - x0) * plotW; };
+
+    var leftMax = 100;
+    cfg.areas.forEach(function (s) { s.data.forEach(function (p) { if (p.val > leftMax) leftMax = p.val; }); });
+    cfg.lines.forEach(function (s) { if (s.axis === 'left') s.data.forEach(function (p) { if (p.val > leftMax) leftMax = p.val; }); });
+    leftMax = niceCeil(leftMax);
+    var yL = function (v) { return padT + plotH - Math.max(0, Math.min(v, leftMax)) / leftMax * plotH; };
+    var yR = function (v) { return padT + plotH - Math.max(0, Math.min(v, 100)) / 100 * plotH; };
+
+    // Gitter + Achsen
+    ctx.strokeStyle = border; ctx.fillStyle = muted; ctx.lineWidth = 1;
+    ctx.font = '11px Segoe UI, Arial';
+    ctx.textBaseline = 'middle';
+    for (var i = 0; i <= 4; i++) {
+        var yy = padT + plotH * i / 4;
+        ctx.beginPath(); ctx.moveTo(padL, yy); ctx.lineTo(padL + plotW, yy); ctx.stroke();
+        ctx.textAlign = 'right'; ctx.fillText(Math.round(leftMax * (1 - i / 4)) + ' W', padL - 6, yy);
+        ctx.textAlign = 'left'; ctx.fillText(Math.round(100 * (1 - i / 4)) + '%', padL + plotW + 6, yy);
+    }
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    for (var h = 0; h <= 24; h += 3) {
+        var xx = padL + plotW * h / 24;
+        ctx.beginPath(); ctx.moveTo(xx, padT); ctx.lineTo(xx, padT + plotH); ctx.strokeStyle = border; ctx.stroke();
+        ctx.fillStyle = muted; ctx.fillText((h < 10 ? '0' + h : h) + ':00', xx, padT + plotH + 5);
+    }
+
+    // Flächen
+    cfg.areas.forEach(function (s) {
+        if (!s.data.length) return;
+        ctx.beginPath();
+        ctx.moveTo(xPix(s.data[0].ts), yL(0));
+        s.data.forEach(function (p) { ctx.lineTo(xPix(p.ts), yL(p.val)); });
+        ctx.lineTo(xPix(s.data[s.data.length - 1].ts), yL(0));
+        ctx.closePath();
+        ctx.fillStyle = s.color; ctx.fill();
+        if (s.stroke) { ctx.strokeStyle = s.stroke; ctx.lineWidth = 1.2; ctx.beginPath();
+            s.data.forEach(function (p, idx) { var X = xPix(p.ts), Y = yL(p.val); idx ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); });
+            ctx.stroke(); }
+    });
+
+    // Linien
+    cfg.lines.forEach(function (s) {
+        if (!s.data.length) return;
+        var y = s.axis === 'right' ? yR : yL;
+        ctx.strokeStyle = s.color; ctx.lineWidth = 2; ctx.beginPath();
+        s.data.forEach(function (p, idx) { var X = xPix(p.ts), Y = y(p.val); idx ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); });
+        ctx.stroke();
+    });
+
+    // Rahmen
+    ctx.strokeStyle = border; ctx.lineWidth = 1;
+    ctx.strokeRect(padL, padT, plotW, plotH);
+}
+
+function renderLegend(cfg) {
+    var items = cfg.areas.map(function (s) { return { name: s.name, color: s.stroke || s.color }; })
+        .concat(cfg.lines.map(function (s) { return { name: s.name, color: s.color }; }));
+    document.getElementById('legend').innerHTML = items.map(function (it) {
+        return '<span><i class="swatch" style="background:' + it.color + '"></i>' + it.name + '</span>';
+    }).join('');
+}
+
+function showOverlay(text) { document.getElementById('overlay').textContent = text || ''; }
+
+// ---- Events -------------------------------------------------------------------------------
+document.getElementById('instance').addEventListener('change', function (e) { curInst = parseInt(e.target.value, 10); refresh(); });
+document.getElementById('day').addEventListener('change', refresh);
+document.getElementById('reload').addEventListener('click', refresh);
+window.addEventListener('resize', function () { /* nur neu zeichnen */ if (window._lastCfg) drawChart(window._lastCfg, window._lastB.start, window._lastB.end); });
+
+// merken fürs Resize
+var _origDraw = drawChart;
+drawChart = function (cfg, a, b) { window._lastCfg = cfg; window._lastB = { start: a, end: b }; _origDraw(cfg, a, b); };
+
+// Standard-Datum = heute
+(function () {
+    var d = new Date();
+    document.getElementById('day').value = d.getFullYear() + '-' +
+        ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+})();
+
+connect();
+// Auto-Refresh alle 60 s
+refreshTimer = setInterval(function () { if (socket && socket.connected) refresh(); }, 60000);
+</script>
+</body>
+</html>

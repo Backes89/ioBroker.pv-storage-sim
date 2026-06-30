@@ -17,23 +17,22 @@ Einheiten-Auswahlfeld (W/kW bzw. Wh/kWh), das einen Umrechnungsfaktor setzt.
 - Sinnvolle Defaults: power=W, energy=kWh (entspricht heutigem Verhalten → abwärtskompatibel).
 - jsonConfig.json: kleines `select` neben jedem `objectId`-Feld; io-package.json: native Defaults.
 
-## 2. Eigene Web-Seite zur Visualisierung (in Arbeit)
+## 2. Visualisierung – Admin-Tab (MVP umgesetzt, v0.0.5)
 
-**Idee:** Aufrufbare Web-Oberfläche im bekannten ASUE-Stil (Tageskurven: Erzeugung gelb,
-Verbrauch-Linie, Direktverbrauch hellblau, Ladestand), dazu Ersparnis/Amortisation.
+**Umgesetzt:**
+- ✅ `live.*`-Datenpunkte (momentane Leistungen in W) als Chart-Datenquelle
+- ✅ History-Hinweis in der Admin-Config
+- ✅ Admin-Tab „PV-Auswertung" (`admin/tab.html`, `common.adminTab`): Canvas-Chart ohne
+  externe Libs, Daten via Admin-Socket (`getHistory`/`getState`), Instanz- & Tagesauswahl,
+  KPI-Karten, modusabhängige Serien (PV-Modus: Erzeugung/Verbrauch/Direktverbrauch/Ladestand;
+  Netz-Modus: Netzbezug real vs. simuliert + Ladestand).
 
-**Fundament steht (v0.0.4):**
-- ✅ `live.*`-Datenpunkte mit momentanen Leistungen (W) als Chart-Datenquelle
-- ✅ History-Hinweis in der Admin-Config (User muss Logging aktivieren)
-
-**Noch offen – das eigentliche UI:**
-- **Variante A – Admin-Tab:** Reiter über `common.adminTab` / `tab_m.html`. Bleibt im Admin,
-  nutzt dessen Socket, kein extra Webserver. Schnellster Weg zum funktionierenden Chart.
-- **Variante B – eigenes `www/`-Verzeichnis:** standalone Seite, vom `web`-Adapter unter
-  `http://<ip>:8082/pv-storage-sim/` ausgeliefert; Live-Werte via socket.io.
-- Charts mit Chart.js. Historie via `getHistory`/`sendTo` an den History-Adapter.
-- Chart passt sich dem `sourceMode` an: voller Erzeugung/Verbrauch/Direktverbrauch-Chart nur
-  bei `pv_consumption`; bei Netz-Modi Netzbezug real vs. simuliert + Ladestand.
+**Mögliche Verbesserungen:**
+- Auth-Fall: Verbindung über Admin-Socket bei aktivierter Authentifizierung absichern
+  (Token), aktuell auf anonyme/lokale Verbindung ausgelegt.
+- Vor-/Zurück-Buttons für Tage, Wochen-/Monatsansicht, Aggregation größerer Zeiträume.
+- Optional zusätzlich eine standalone `www/`-Seite (web-Adapter) zum Teilen/Vollbild.
+- Tooltips/Hover-Werte am Chart, Export als PNG/CSV.
 
 ## Bekannte Vereinfachungen im Rechenmodell
 
