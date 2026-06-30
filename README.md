@@ -80,6 +80,31 @@ npm test                       # Unit-Tests der Simulationslogik
 Offene Punkte und geplante Erweiterungen werden in [TODO.md](TODO.md) gepflegt
 (u. a. bekannte Vereinfachungen des Rechenmodells und Ideen wie eine Web-Visualisierung).
 
+## Changelog
+
+### 0.0.7 (2026-06-30)
+- Fix: Auswertungs-Tab fragt die Historie nur bis „jetzt" ab (kein flacher Verlauf bis 24:00 mehr)
+
+### 0.0.6 (2026-06-30)
+- Fix: Zeitachse im Auswertungs-Tab läuft immer über den vollen Tag (00:00–24:00)
+
+### 0.0.5 (2026-06-30)
+- Admin-Tab „PV-Auswertung" mit Canvas-Chart (Tageskurven, KPI-Karten, Instanz-/Tagesauswahl)
+
+### 0.0.4 (2026-06-30)
+- `live.*`-Datenpunkte mit momentanen Leistungen (W) als Grundlage der Visualisierung
+- Hinweis in der Konfiguration, dass History-Logging für die Diagramme nötig ist
+
+### 0.0.3 (2026-06-30)
+- Einheit (W/kW bzw. kWh/Wh) je Datenpunkt auswählbar
+
+### 0.0.2 (2026-06-30)
+- Datenquelle „ein Datenpunkt mit Vorzeichen" (`grid_signed`) für Zähler mit saldierter Netzleistung
+
+### 0.0.1 (2026-06-30)
+- Erstveröffentlichung: Speicher-Simulation, Datenquellen PV+Verbrauch und Zweirichtungszähler,
+  Wirtschaftlichkeitsberechnung (Ersparnis, Amortisation)
+
 ## Lizenz
 
 MIT

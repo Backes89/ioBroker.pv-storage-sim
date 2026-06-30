@@ -2,6 +2,36 @@
   "common": {
     "name": "pv-storage-sim",
     "version": "0.0.7",
+    "news": {
+      "0.0.7": {
+        "en": "Fix: evaluation tab queries history only up to now (no flat line until 24:00).",
+        "de": "Fix: Auswertungs-Tab fragt die Historie nur bis jetzt ab (kein flacher Verlauf bis 24:00)."
+      },
+      "0.0.6": {
+        "en": "Fix: time axis of the evaluation tab always spans the full day (00:00-24:00).",
+        "de": "Fix: Zeitachse im Auswertungs-Tab läuft immer über den vollen Tag (00:00-24:00)."
+      },
+      "0.0.5": {
+        "en": "Admin tab 'PV evaluation' with canvas chart (daily curves, KPI cards).",
+        "de": "Admin-Tab 'PV-Auswertung' mit Canvas-Chart (Tageskurven, KPI-Karten)."
+      },
+      "0.0.4": {
+        "en": "New live.* power states and a hint that history logging is required for charts.",
+        "de": "Neue live.*-Leistungs-Datenpunkte und Hinweis, dass History-Logging für die Diagramme nötig ist."
+      },
+      "0.0.3": {
+        "en": "Unit (W/kW or kWh/Wh) selectable per datapoint.",
+        "de": "Einheit (W/kW bzw. kWh/Wh) je Datenpunkt auswählbar."
+      },
+      "0.0.2": {
+        "en": "New data source 'single signed datapoint' (grid_signed) for net grid power meters.",
+        "de": "Neue Datenquelle 'ein Datenpunkt mit Vorzeichen' (grid_signed) für Zähler mit saldierter Netzleistung."
+      },
+      "0.0.1": {
+        "en": "Initial release: storage simulation, PV+consumption and bidirectional meter sources, economics.",
+        "de": "Erstveröffentlichung: Speicher-Simulation, Quellen PV+Verbrauch und Zweirichtungszähler, Wirtschaftlichkeit."
+      }
+    },
     "title": "PV Storage Simulation",
     "titleLang": {
       "en": "PV Storage Simulation",
