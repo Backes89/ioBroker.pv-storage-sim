@@ -39,14 +39,41 @@
       "hidden": "data.sourceMode !== 'pv_consumption'",
       "newLine": true,
       "sm": 12,
-      "md": 6
+      "md": 5
+    },
+    "unitPv": {
+      "type": "select",
+      "label": "Einheit",
+      "help": "W (Leistungs-Modus) bzw. kWh (Zählerstand-Modus)",
+      "options": [
+        { "value": "auto_w_kwh", "label": "W / kWh" },
+        { "value": "kw_wh", "label": "kW / Wh" }
+      ],
+      "default": "auto_w_kwh",
+      "hidden": "data.sourceMode !== 'pv_consumption'",
+      "sm": 12,
+      "md": 3
     },
     "idConsumption": {
       "type": "objectId",
       "label": "Datenpunkt Hausverbrauch",
       "hidden": "data.sourceMode !== 'pv_consumption'",
+      "newLine": true,
       "sm": 12,
-      "md": 6
+      "md": 5
+    },
+    "unitConsumption": {
+      "type": "select",
+      "label": "Einheit",
+      "help": "W (Leistungs-Modus) bzw. kWh (Zählerstand-Modus)",
+      "options": [
+        { "value": "auto_w_kwh", "label": "W / kWh" },
+        { "value": "kw_wh", "label": "kW / Wh" }
+      ],
+      "default": "auto_w_kwh",
+      "hidden": "data.sourceMode !== 'pv_consumption'",
+      "sm": 12,
+      "md": 3
     },
     "idGridImport": {
       "type": "objectId",
@@ -54,14 +81,41 @@
       "hidden": "data.sourceMode !== 'grid_meter'",
       "newLine": true,
       "sm": 12,
-      "md": 6
+      "md": 5
+    },
+    "unitGridImport": {
+      "type": "select",
+      "label": "Einheit",
+      "help": "W (Leistungs-Modus) bzw. kWh (Zählerstand-Modus)",
+      "options": [
+        { "value": "auto_w_kwh", "label": "W / kWh" },
+        { "value": "kw_wh", "label": "kW / Wh" }
+      ],
+      "default": "auto_w_kwh",
+      "hidden": "data.sourceMode !== 'grid_meter'",
+      "sm": 12,
+      "md": 3
     },
     "idGridExport": {
       "type": "objectId",
       "label": "Datenpunkt Einspeisung",
       "hidden": "data.sourceMode !== 'grid_meter'",
+      "newLine": true,
       "sm": 12,
-      "md": 6
+      "md": 5
+    },
+    "unitGridExport": {
+      "type": "select",
+      "label": "Einheit",
+      "help": "W (Leistungs-Modus) bzw. kWh (Zählerstand-Modus)",
+      "options": [
+        { "value": "auto_w_kwh", "label": "W / kWh" },
+        { "value": "kw_wh", "label": "kW / Wh" }
+      ],
+      "default": "auto_w_kwh",
+      "hidden": "data.sourceMode !== 'grid_meter'",
+      "sm": 12,
+      "md": 3
     },
     "idGridPower": {
       "type": "objectId",
@@ -70,7 +124,20 @@
       "hidden": "data.sourceMode !== 'grid_signed'",
       "newLine": true,
       "sm": 12,
-      "md": 8
+      "md": 5
+    },
+    "unitGridPower": {
+      "type": "select",
+      "label": "Einheit",
+      "help": "W (Leistungs-Modus) bzw. kWh (Zählerstand-Modus)",
+      "options": [
+        { "value": "auto_w_kwh", "label": "W / kWh" },
+        { "value": "kw_wh", "label": "kW / Wh" }
+      ],
+      "default": "auto_w_kwh",
+      "hidden": "data.sourceMode !== 'grid_signed'",
+      "sm": 12,
+      "md": 3
     },
     "gridSignPositive": {
       "type": "select",

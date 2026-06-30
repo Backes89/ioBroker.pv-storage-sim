@@ -1,7 +1,7 @@
 {
   "common": {
     "name": "pv-storage-sim",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "title": "PV Storage Simulation",
     "titleLang": {
       "en": "PV Storage Simulation",
@@ -52,6 +52,11 @@
     "idGridExport": "",
     "idGridPower": "",
     "gridSignPositive": "import",
+    "unitPv": "auto_w_kwh",
+    "unitConsumption": "auto_w_kwh",
+    "unitGridImport": "auto_w_kwh",
+    "unitGridExport": "auto_w_kwh",
+    "unitGridPower": "auto_w_kwh",
     "intervalSec": 30,
     "capacityKwh": 10,
     "minSocPercent": 5,

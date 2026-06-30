@@ -31,5 +31,19 @@ Einheiten-Auswahlfeld (W/kW bzw. Wh/kWh), das einen Umrechnungsfaktor setzt.
   der States (history/influxdb/sql-Adapter) bzw. eigenes Ringbuffer-Logging.
 - Pragmatischer erster Schritt: Admin-Tab mit aktuellen Kennzahlen + einfachem Tages-Chart.
 
+## Bekannte Vereinfachungen im Rechenmodell
+
+Bewusst offen gelassene Punkte (aus dem README hierher übernommen):
+
+- Leistungs-Modus integriert rechteckig (aktueller Wert × Intervall), keine Trapez-Mittelung
+- keine Speicheralterung / Kapazitätsverlust über die Jahre
+- keine Strompreissteigerung, keine Finanzierung/Darlehen (Amortisation ist linear geschätzt)
+- echter Autarkiegrad nur näherungsweise (`batteryCoverage`)
+
+## Erledigt
+
+- ✅ Datenquelle „ein Datenpunkt mit Vorzeichen" (`grid_signed`) — v0.0.2
+- ✅ Einheit (W/kW bzw. kWh/Wh) je Datenpunkt auswählbar — v0.0.3
+
 ---
 _Erfasst am 2026-06-30._

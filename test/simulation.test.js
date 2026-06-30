@@ -2,7 +2,7 @@
 
 const { test } = require('node:test');
 const assert = require('node:assert');
-const { stepBattery, splitSignedPower } = require('../lib/simulation');
+const { stepBattery, splitSignedPower, unitFactor } = require('../lib/simulation');
 
 const base = {
     capacityWh: 10000,
@@ -69,4 +69,19 @@ test('Vorzeichen-Zähler: umgekehrte Konvention', () => {
 
 test('Vorzeichen-Zähler: Null ergibt weder Bezug noch Einspeisung', () => {
     assert.deepStrictEqual(splitSignedPower(0, true), { surplusWh: 0, deficitWh: 0 });
+});
+
+test('Einheit-Faktor: Leistungs-Modus W (Standard) und kW', () => {
+    assert.strictEqual(unitFactor('auto_w_kwh', 'power'), 1);
+    assert.strictEqual(unitFactor('kw_wh', 'power'), 1000); // kW -> W
+});
+
+test('Einheit-Faktor: Zählerstand-Modus kWh (Standard) und Wh', () => {
+    assert.strictEqual(unitFactor('auto_w_kwh', 'energy'), 1);
+    assert.strictEqual(unitFactor('kw_wh', 'energy'), 0.001); // Wh -> kWh
+});
+
+test('Einheit-Faktor: unbekannt/leer fällt auf Standard zurück', () => {
+    assert.strictEqual(unitFactor(undefined, 'power'), 1);
+    assert.strictEqual(unitFactor('', 'energy'), 1);
 });

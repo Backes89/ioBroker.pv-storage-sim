@@ -1,7 +1,7 @@
 'use strict';
 
 const utils = require('@iobroker/adapter-core');
-const { stepBattery, splitSignedPower } = require('./lib/simulation');
+const { stepBattery, splitSignedPower, unitFactor } = require('./lib/simulation');
 
 // Definition aller vom Adapter angelegten States: [id, name, unit, role, type]
 const STATE_DEFS = [
@@ -66,12 +66,17 @@ class PvStorageSim extends utils.Adapter {
         // bei einem vorzeichenbehafteten Zähler: ist positiv = Netzbezug (Standard) oder = Einspeisung?
         this.gridSignImportPositive = c.gridSignPositive !== 'export';
 
+        // Umrechnungsfaktor je Datenpunkt (W/kW bzw. kWh/Wh), abhängig vom Eingabe-Modus
+        const f = (unitCfgKey) => unitFactor(c[unitCfgKey], this.inputMode);
         if (this.sourceMode === 'grid_meter') {
             this.ids = { import: c.idGridImport, export: c.idGridExport };
+            this.factors = { import: f('unitGridImport'), export: f('unitGridExport') };
         } else if (this.sourceMode === 'grid_signed') {
             this.ids = { grid: c.idGridPower };
+            this.factors = { grid: f('unitGridPower') };
         } else {
             this.ids = { pv: c.idPv, cons: c.idConsumption };
+            this.factors = { pv: f('unitPv'), cons: f('unitConsumption') };
         }
 
         const missing = Object.entries(this.ids).filter(([, v]) => !v).map(([k]) => k);
@@ -175,11 +180,13 @@ class PvStorageSim extends utils.Adapter {
      */
     async readEnergy(key, id, dtH) {
         const st = await this.getForeignStateAsync(id);
-        const val = st && typeof st.val === 'number' ? st.val : null;
-        if (val === null) {
+        const raw = st && typeof st.val === 'number' ? st.val : null;
+        if (raw === null) {
             this.log.warn(`Datenpunkt ${id} liefert keinen numerischen Wert.`);
             return 0;
         }
+        // auf interne Basis-Einheit umrechnen (W bzw. kWh)
+        const val = raw * (this.factors[key] || 1);
 
         if (this.inputMode === 'power') {
             return Math.max(val, 0) * dtH;
@@ -200,11 +207,13 @@ class PvStorageSim extends utils.Adapter {
      */
     async readSignedEnergy(key, id, dtH) {
         const st = await this.getForeignStateAsync(id);
-        const val = st && typeof st.val === 'number' ? st.val : null;
-        if (val === null) {
+        const raw = st && typeof st.val === 'number' ? st.val : null;
+        if (raw === null) {
             this.log.warn(`Datenpunkt ${id} liefert keinen numerischen Wert.`);
             return 0;
         }
+        // auf interne Basis-Einheit umrechnen (W bzw. kWh), Vorzeichen bleibt erhalten
+        const val = raw * (this.factors[key] || 1);
 
         if (this.inputMode === 'power') {
             return val * dtH; // signierte Leistung -> signierte Energie

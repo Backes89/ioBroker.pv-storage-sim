@@ -25,6 +25,9 @@ und die Ersparnis — und damit eine grobe Amortisationsschätzung.
 
 So lassen sich die meisten Setups abbilden, egal ob Smartmeter, Wechselrichter oder Shelly 3EM.
 
+**Einheit je Datenpunkt** – pro Datenpunkt ist wählbar, ob er in `W` bzw. `kWh` (Standard) oder
+in `kW` bzw. `Wh` liefert. So lassen sich Geräte mit unterschiedlichen Einheiten mischen.
+
 ## Wichtige Ausgabe-Datenpunkte
 
 | State | Bedeutung |
@@ -59,12 +62,8 @@ npm test                       # Unit-Tests der Simulationslogik
 
 ## Bekannte Vereinfachungen / TODO
 
-- Leistungs-Modus integriert rechteckig (aktueller Wert × Intervall), keine Trapez-Mittelung
-- keine Speicheralterung / Kapazitätsverlust über die Jahre
-- keine Strompreissteigerung, keine Finanzierung/Darlehen (Amortisation ist linear geschätzt)
-- echter Autarkiegrad nur näherungsweise (`batteryCoverage`)
-
-Diese Punkte sind bewusst als nächste Ausbaustufen offen gelassen.
+Offene Punkte und geplante Erweiterungen werden in [TODO.md](TODO.md) gepflegt
+(u. a. bekannte Vereinfachungen des Rechenmodells und Ideen wie eine Web-Visualisierung).
 
 ## Lizenz
 
