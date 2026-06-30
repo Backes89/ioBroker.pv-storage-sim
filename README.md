@@ -82,6 +82,10 @@ Offene Punkte und geplante Erweiterungen werden in [TODO.md](TODO.md) gepflegt
 
 ## Changelog
 
+### 0.0.10 (2026-06-30)
+- Netz-Chart bidirektional: Einspeisung unterhalb der Null-Linie, zusätzlich Einspeisung
+  mit/ohne Speicher; Null-Linie in der Mitte, Tabelle/Tooltip zeigen Einspeisung negativ
+
 ### 0.0.9 (2026-06-30)
 - Auswertungs-Tab nutzt die volle Fensterbreite und einen höheren Chart
 

@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "pv-storage-sim",
-    "version": "0.0.9",
+    "version": "0.0.10",
     "news": {
+      "0.0.10": {
+        "en": "Grid chart now bidirectional: feed-in shown below zero, plus feed-in with/without storage; zero line in the middle.",
+        "de": "Netz-Chart jetzt bidirektional: Einspeisung unterhalb der Null-Linie, zusätzlich Einspeisung mit/ohne Speicher; Null-Linie in der Mitte."
+      },
       "0.0.9": {
         "en": "Evaluation tab uses the full window width and a taller chart.",
         "de": "Auswertungs-Tab nutzt die volle Fensterbreite und einen höheren Chart."

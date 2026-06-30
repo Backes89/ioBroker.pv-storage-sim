@@ -27,7 +27,7 @@
         .card { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:14px; }
         .main { display:flex; gap:14px; align-items:stretch; }
         .chart-card { flex:1 1 0; min-width:0; }
-        .table-card { flex:0 0 420px; max-width:420px; padding:0; display:flex; flex-direction:column; }
+        .table-card { flex:0 0 500px; max-width:500px; padding:0; display:flex; flex-direction:column; }
         @media (max-width:900px) { .main { flex-direction:column; } .table-card { flex-basis:auto; max-width:none; } }
         .chart-wrap { position:relative; width:100%; height:600px; }
         .chart-wrap canvas { position:absolute; inset:0; width:100%; height:100%; display:block; }
@@ -167,8 +167,10 @@ function seriesConfig() {
     }
     return {
         areas: [
-            { path: 'live.gridImportOrigW', name: 'Netzbezug ohne Speicher', short: 'o. Sp.', unit: 'W', color: 'rgba(229,115,115,0.35)', stroke: '#d98b8b' },
-            { path: 'live.gridImportSimW', name: 'Netzbezug mit Speicher', short: 'm. Sp.', unit: 'W', color: 'rgba(211,47,47,0.55)', stroke: '#c62828' }
+            { path: 'live.gridImportOrigW', name: 'Netzbezug ohne Speicher', short: 'Bez. o.Sp.', unit: 'W', color: 'rgba(229,115,115,0.30)', stroke: '#d98b8b' },
+            { path: 'live.gridImportSimW', name: 'Netzbezug mit Speicher', short: 'Bez. m.Sp.', unit: 'W', color: 'rgba(211,47,47,0.55)', stroke: '#c62828' },
+            { path: 'live.gridExportOrigW', name: 'Einspeisung ohne Speicher', short: 'Einsp. o.Sp.', unit: 'W', color: 'rgba(120,170,220,0.30)', stroke: '#9bbce0', negate: true },
+            { path: 'live.gridExportSimW', name: 'Einspeisung mit Speicher', short: 'Einsp. m.Sp.', unit: 'W', color: 'rgba(33,110,200,0.50)', stroke: '#1f6ec8', negate: true }
         ],
         lines: [
             { path: 'battery.soc.percent', name: 'Ladestand', short: 'SoC', unit: '%', color: '#4caf50', axis: 'right' }
@@ -258,7 +260,8 @@ function renderTable(cfg, rows) {
     tableRows = sel;
     document.querySelector('#tbl tbody').innerHTML = sel.map(function (r) {
         return '<tr data-ts="' + r.ts + '"><td>' + hhmm(r.ts) + '</td>' + series.map(function (s) {
-            var v = r.vals[s.path]; return '<td>' + (v == null ? '–' : Math.round(v)) + '</td>';
+            var v = r.vals[s.path]; var d = (v == null) ? null : (s.negate ? -v : v);
+            return '<td>' + (d == null ? '–' : Math.round(d)) + '</td>';
         }).join('') + '</tr>';
     }).join('');
     document.getElementById('tblInfo').textContent = sel.length ? (sel.length + ' Zeilen') : '';
@@ -278,8 +281,10 @@ function sizeCanvas(cv) {
 }
 function xPixG(ts) { return geom.padL + (ts - geom.x0) / (geom.x1 - geom.x0) * geom.plotW; }
 function yG(series, val) {
-    if (series.axis === 'right') return geom.padT + geom.plotH - Math.max(0, Math.min(val, 100)) / 100 * geom.plotH;
-    return geom.padT + geom.plotH - Math.max(0, Math.min(val, geom.leftMax)) / geom.leftMax * geom.plotH;
+    if (series && series.axis === 'right') return geom.padT + geom.plotH - Math.max(0, Math.min(val, 100)) / 100 * geom.plotH;
+    var v = (series && series.negate) ? -val : val;       // Einspeisung nach unten
+    v = Math.max(geom.lo, Math.min(geom.hi, v));
+    return geom.padT + (geom.hi - v) / (geom.hi - geom.lo) * geom.plotH;
 }
 
 function drawChart(cfg, x0, x1) {
@@ -296,18 +301,24 @@ function drawChart(cfg, x0, x1) {
     var plotW = cssW - padL - padR, plotH = cssH - padT - padB;
     if (plotW <= 0 || plotH <= 0) return;
 
-    var leftMax = 100;
-    cfg.areas.forEach(function (sr) { sr.data.forEach(function (p) { if (p.val > leftMax) leftMax = p.val; }); });
-    cfg.lines.forEach(function (sr) { if (sr.axis !== 'right') sr.data.forEach(function (p) { if (p.val > leftMax) leftMax = p.val; }); });
-    leftMax = niceCeil(leftMax);
+    var maxAbs = 100, hasNeg = false;
+    function consider(v) { if (Math.abs(v) > maxAbs) maxAbs = Math.abs(v); if (v < -1e-9) hasNeg = true; }
+    cfg.areas.forEach(function (sr) { sr.data.forEach(function (p) { consider(sr.negate ? -p.val : p.val); }); });
+    cfg.lines.forEach(function (sr) { if (sr.axis !== 'right') sr.data.forEach(function (p) { consider(p.val); }); });
+    var hi = niceCeil(maxAbs), lo = hasNeg ? -hi : 0;
 
-    geom = { padL: padL, padT: padT, plotW: plotW, plotH: plotH, x0: x0, x1: x1, leftMax: leftMax };
+    geom = { padL: padL, padT: padT, plotW: plotW, plotH: plotH, x0: x0, x1: x1, lo: lo, hi: hi, leftMax: hi };
+    geom.zeroY = padT + (hi - 0) / (hi - lo) * plotH;
 
-    ctx.strokeStyle = border; ctx.fillStyle = muted; ctx.lineWidth = 1; ctx.font = '11px Segoe UI, Arial'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = muted; ctx.lineWidth = 1; ctx.font = '11px Segoe UI, Arial'; ctx.textBaseline = 'middle';
     for (var i = 0; i <= 4; i++) {
         var yy = padT + plotH * i / 4;
+        var wv = hi - (hi - lo) * i / 4;
+        var isZero = hasNeg && Math.abs(wv) < 1e-6;
+        ctx.strokeStyle = isZero ? muted : border; ctx.lineWidth = isZero ? 1.4 : 1;
         ctx.beginPath(); ctx.moveTo(padL, yy); ctx.lineTo(padL + plotW, yy); ctx.stroke();
-        ctx.textAlign = 'right'; ctx.fillText(Math.round(leftMax * (1 - i / 4)) + ' W', padL - 6, yy);
+        ctx.fillStyle = muted;
+        ctx.textAlign = 'right'; ctx.fillText(Math.round(wv) + ' W', padL - 6, yy);
         ctx.textAlign = 'left'; ctx.fillText(Math.round(100 * (1 - i / 4)) + '%', padL + plotW + 6, yy);
     }
     ctx.textAlign = 'center'; ctx.textBaseline = 'top';
@@ -377,9 +388,9 @@ function drawCross(m) {
 function showTip(m, rect) {
     var series = curCfg.areas.concat(curCfg.lines);
     var html = '<div class="t-time">' + hhmm(m.ts) + ' Uhr</div>' + series.map(function (sr) {
-        var v = m.vals[sr.path];
+        var v = m.vals[sr.path]; var d = (v == null) ? null : (sr.negate ? -v : v);
         return '<div class="t-row"><i class="swatch" style="width:10px;height:10px;background:' + (sr.stroke || sr.color) +
-            '"></i>' + sr.name + ': <b>' + (v == null ? '–' : Math.round(v) + ' ' + sr.unit) + '</b></div>';
+            '"></i>' + sr.name + ': <b>' + (d == null ? '–' : Math.round(d) + ' ' + sr.unit) + '</b></div>';
     }).join('');
     tipEl.innerHTML = html;
     tipEl.style.display = 'block';
