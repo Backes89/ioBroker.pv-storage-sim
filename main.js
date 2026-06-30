@@ -1,7 +1,7 @@
 'use strict';
 
 const utils = require('@iobroker/adapter-core');
-const { stepBattery } = require('./lib/simulation');
+const { stepBattery, splitSignedPower } = require('./lib/simulation');
 
 // Definition aller vom Adapter angelegten States: [id, name, unit, role, type]
 const STATE_DEFS = [
@@ -61,12 +61,18 @@ class PvStorageSim extends utils.Adapter {
         this.priceFeedIn = (Number(c.priceFeedInCt) || 0) / 100; // €/kWh
         this.investment = Number(c.investmentEur) || 0;
         this.inputMode = c.inputMode === 'energy' ? 'energy' : 'power';
-        this.sourceMode = c.sourceMode === 'grid_meter' ? 'grid_meter' : 'pv_consumption';
+        this.sourceMode = ['grid_meter', 'grid_signed'].includes(c.sourceMode) ? c.sourceMode : 'pv_consumption';
         this.intervalSec = Math.max(Number(c.intervalSec) || 30, 5);
+        // bei einem vorzeichenbehafteten Zähler: ist positiv = Netzbezug (Standard) oder = Einspeisung?
+        this.gridSignImportPositive = c.gridSignPositive !== 'export';
 
-        this.ids = this.sourceMode === 'grid_meter'
-            ? { import: c.idGridImport, export: c.idGridExport }
-            : { pv: c.idPv, cons: c.idConsumption };
+        if (this.sourceMode === 'grid_meter') {
+            this.ids = { import: c.idGridImport, export: c.idGridExport };
+        } else if (this.sourceMode === 'grid_signed') {
+            this.ids = { grid: c.idGridPower };
+        } else {
+            this.ids = { pv: c.idPv, cons: c.idConsumption };
+        }
 
         const missing = Object.entries(this.ids).filter(([, v]) => !v).map(([k]) => k);
         if (missing.length) {
@@ -138,6 +144,9 @@ class PvStorageSim extends utils.Adapter {
         if (this.sourceMode === 'grid_meter') {
             surplusWh = await this.readEnergy('export', this.ids.export, dtH);
             deficitWh = await this.readEnergy('import', this.ids.import, dtH);
+        } else if (this.sourceMode === 'grid_signed') {
+            const netWh = await this.readSignedEnergy('grid', this.ids.grid, dtH);
+            ({ surplusWh, deficitWh } = splitSignedPower(netWh, this.gridSignImportPositive));
         } else {
             const pv = await this.readEnergy('pv', this.ids.pv, dtH);
             const cons = await this.readEnergy('cons', this.ids.cons, dtH);
@@ -182,6 +191,30 @@ class PvStorageSim extends utils.Adapter {
         if (last === undefined) return 0; // erster Messwert: noch keine Basis -> kein Delta
         const deltaKwh = val - last;
         return deltaKwh > 0 ? deltaKwh * 1000 : 0; // Zählerreset / negative Werte ignorieren
+    }
+
+    /**
+     * Wie readEnergy, aber für einen vorzeichenbehafteten Netz-Datenpunkt (ein Zähler für
+     * beide Richtungen). Liefert die Netto-Energie (Wh) MIT Vorzeichen; das Aufteilen in
+     * Bezug/Einspeisung übernimmt splitSignedPower().
+     */
+    async readSignedEnergy(key, id, dtH) {
+        const st = await this.getForeignStateAsync(id);
+        const val = st && typeof st.val === 'number' ? st.val : null;
+        if (val === null) {
+            this.log.warn(`Datenpunkt ${id} liefert keinen numerischen Wert.`);
+            return 0;
+        }
+
+        if (this.inputMode === 'power') {
+            return val * dtH; // signierte Leistung -> signierte Energie
+        }
+
+        // energy: signiertes Delta des (Netto-)Zählerstands
+        const last = this.lastValues[key];
+        this.lastValues[key] = val;
+        if (last === undefined) return 0;
+        return (val - last) * 1000;
     }
 
     async accumulate(r, chargedKwh, dischargedKwh, benefit, surplusWh, deficitWh) {

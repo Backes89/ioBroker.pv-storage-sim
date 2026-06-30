@@ -18,7 +18,10 @@ und die Ersparnis — und damit eine grobe Amortisationsschätzung.
 
 **Datenquelle** (`sourceMode`)
 - `pv_consumption` – Datenpunkte für PV-Erzeugung + Hausverbrauch
-- `grid_meter` – Datenpunkte für Netzbezug + Einspeisung (Zweirichtungszähler)
+- `grid_meter` – zwei Datenpunkte für Netzbezug + Einspeisung (jeweils positiv)
+- `grid_signed` – **ein** Datenpunkt mit Vorzeichen (Bezug/Einspeisung über das Vorzeichen),
+  z. B. OBIS `16.7.0` „Gesamtwirkleistung". Über `gridSignPositive` lässt sich einstellen,
+  ob positiv = Netzbezug (Standard) oder positiv = Einspeisung bedeutet.
 
 So lassen sich die meisten Setups abbilden, egal ob Smartmeter, Wechselrichter oder Shelly 3EM.
 

@@ -2,7 +2,7 @@
 
 const { test } = require('node:test');
 const assert = require('node:assert');
-const { stepBattery } = require('../lib/simulation');
+const { stepBattery, splitSignedPower } = require('../lib/simulation');
 
 const base = {
     capacityWh: 10000,
@@ -53,4 +53,20 @@ test('Wirkungsgrad verringert die nutzbare Energie', () => {
     const charged = stepBattery({ surplusWh: 1000, deficitWh: 0, socWh: 0 }, p);
     // 1000 Wh aus dem Überschuss -> nur 950 Wh im Speicher
     assert.ok(Math.abs(charged.socWh - 950) < 1e-6);
+});
+
+test('Vorzeichen-Zähler: positiv = Netzbezug (Standard)', () => {
+    // positiver Wert -> Defizit (Bezug), kein Überschuss
+    assert.deepStrictEqual(splitSignedPower(800, true), { surplusWh: 0, deficitWh: 800 });
+    // negativer Wert -> Überschuss (Einspeisung), kein Defizit
+    assert.deepStrictEqual(splitSignedPower(-2633, true), { surplusWh: 2633, deficitWh: 0 });
+});
+
+test('Vorzeichen-Zähler: umgekehrte Konvention', () => {
+    assert.deepStrictEqual(splitSignedPower(800, false), { surplusWh: 800, deficitWh: 0 });
+    assert.deepStrictEqual(splitSignedPower(-2633, false), { surplusWh: 0, deficitWh: 2633 });
+});
+
+test('Vorzeichen-Zähler: Null ergibt weder Bezug noch Einspeisung', () => {
+    assert.deepStrictEqual(splitSignedPower(0, true), { surplusWh: 0, deficitWh: 0 });
 });

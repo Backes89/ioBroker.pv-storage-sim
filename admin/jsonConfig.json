@@ -26,7 +26,8 @@
       "help": "PV + Verbrauch ODER Netzbezug + Einspeisung eines Zweirichtungszählers.",
       "options": [
         { "value": "pv_consumption", "label": "PV-Erzeugung + Hausverbrauch" },
-        { "value": "grid_meter", "label": "Netzbezug + Einspeisung (Zweirichtungszähler)" }
+        { "value": "grid_meter", "label": "Netzbezug + Einspeisung (zwei Datenpunkte)" },
+        { "value": "grid_signed", "label": "Netz – ein Datenpunkt mit Vorzeichen (+/-)" }
       ],
       "default": "pv_consumption",
       "sm": 12,
@@ -61,6 +62,28 @@
       "hidden": "data.sourceMode !== 'grid_meter'",
       "sm": 12,
       "md": 6
+    },
+    "idGridPower": {
+      "type": "objectId",
+      "label": "Datenpunkt Netzleistung (mit Vorzeichen)",
+      "help": "Ein einzelner Datenpunkt, der Bezug und Einspeisung über das Vorzeichen abbildet (z. B. OBIS 16.7.0 Gesamtwirkleistung).",
+      "hidden": "data.sourceMode !== 'grid_signed'",
+      "newLine": true,
+      "sm": 12,
+      "md": 8
+    },
+    "gridSignPositive": {
+      "type": "select",
+      "label": "Vorzeichen-Bedeutung",
+      "help": "Bei den meisten Zählern (OBIS 16.7.0) ist positiv = Netzbezug, negativ = Einspeisung.",
+      "options": [
+        { "value": "import", "label": "Positiv = Netzbezug, negativ = Einspeisung" },
+        { "value": "export", "label": "Positiv = Einspeisung, negativ = Netzbezug" }
+      ],
+      "default": "import",
+      "hidden": "data.sourceMode !== 'grid_signed'",
+      "sm": 12,
+      "md": 4
     },
     "intervalSec": {
       "type": "number",
