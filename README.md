@@ -82,6 +82,10 @@ Offene Punkte und geplante Erweiterungen werden in [TODO.md](TODO.md) gepflegt
 
 ## Changelog
 
+### 0.0.25 (2026-06-30)
+- Perioden-Reset-Logik (Tages-/Monats-/Jahresgrenze beim Neustart) in `lib/period.js`
+  ausgelagert und mit Unit-Tests abgesichert
+
 ### 0.0.24 (2026-06-30)
 - Einheiten-Auswahl je Datenpunkt passt nun zur Eingabeart: `W`/`kW` im Leistungs-Modus,
   `kWh`/`Wh` im Zählerstand-Modus (keine gemischten Dimensionen wie „W / kWh" mehr)

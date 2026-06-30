@@ -2,6 +2,7 @@
 
 const utils = require('@iobroker/adapter-core');
 const { stepBattery, splitSignedPower, unitFactor } = require('./lib/simulation');
+const { periodResets } = require('./lib/period');
 
 // Definition aller vom Adapter angelegten States: [id, name, unit, role, type]
 const STATE_DEFS = [
@@ -144,10 +145,11 @@ class PvStorageSim extends utils.Adapter {
         // Lief der Adapter über eine Tages-/Monats-/Jahresgrenze hinweg nicht, dürfen die
         // persistierten Perioden-Werte nicht in die neue Periode übernommen werden.
         const lastSt = await this.getStateAsync('economics.savingsToday.eur').catch(() => null);
-        const lastD = new Date(lastSt && lastSt.ts ? lastSt.ts : this.startTs);
-        if (lastD.getFullYear() !== this.curYear) this.acc.savingsYear = 0;
-        if (lastD.getMonth() !== this.curMonth || lastD.getFullYear() !== this.curYear) this.acc.savingsMonth = 0;
-        if (lastD.getDate() !== this.today || lastD.getMonth() !== this.curMonth || lastD.getFullYear() !== this.curYear) {
+        const lastTs = lastSt && lastSt.ts ? lastSt.ts : this.startTs;
+        const reset = periodResets(lastTs, now.getTime());
+        if (reset.year) this.acc.savingsYear = 0;
+        if (reset.month) this.acc.savingsMonth = 0;
+        if (reset.day) {
             this.acc.chargedToday = 0;
             this.acc.dischargedToday = 0;
             this.acc.importOrigToday = 0;

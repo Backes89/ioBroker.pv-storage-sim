@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "pv-storage-sim",
-    "version": "0.0.24",
+    "version": "0.0.25",
     "news": {
+      "0.0.25": {
+        "en": "Period-reset logic extracted into a pure function with unit tests (day/month/year boundary on restart).",
+        "de": "Perioden-Reset-Logik in eine reine Funktion mit Unit-Tests ausgelagert (Tages-/Monats-/Jahresgrenze beim Neustart)."
+      },
       "0.0.24": {
         "en": "Unit selection now matches the input type: W/kW for power, kWh/Wh for meter readings (no more mixed dimensions).",
         "de": "Einheiten-Auswahl passt jetzt zur Eingabeart: W/kW bei Leistung, kWh/Wh bei Zählerstand (keine gemischten Dimensionen mehr)."
