@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "pv-storage-sim",
-    "version": "0.0.11",
+    "version": "0.0.12",
     "news": {
+      "0.0.12": {
+        "en": "View switch in the evaluation tab: Compare / With storage / Without storage.",
+        "de": "Ansichts-Umschalter im Auswertungs-Tab: Vergleich / Mit Speicher / Ohne Speicher."
+      },
       "0.0.11": {
         "en": "Series can be toggled by clicking the legend; battery charge/discharge power added as a line.",
         "de": "Serien per Klick auf die Legende ein-/ausblendbar; Speicher-Lade-/Entladeleistung als Linie ergänzt."

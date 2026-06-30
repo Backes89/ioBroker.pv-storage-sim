@@ -82,6 +82,10 @@ Offene Punkte und geplante Erweiterungen werden in [TODO.md](TODO.md) gepflegt
 
 ## Changelog
 
+### 0.0.12 (2026-06-30)
+- Ansichts-Umschalter im Auswertungs-Tab: Vergleich / Mit Speicher / Ohne Speicher
+  (blendet die jeweils passenden Serien automatisch ein/aus)
+
 ### 0.0.11 (2026-06-30)
 - Serien per Klick auf die Legende ein-/ausblendbar (Chart, Tabelle, Tooltip, Achsenskalierung)
 - Speicher-Lade-/Entladeleistung (`live.batteryPowerW`) als Linie ergänzt

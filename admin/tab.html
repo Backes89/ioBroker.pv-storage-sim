@@ -65,6 +65,11 @@
     <div class="bar">
         <h2>☀️🔋 PV-Speicher-Auswertung</h2>
         <div class="spacer"></div>
+        <label>Ansicht <select id="view">
+            <option value="vergleich">Vergleich (beide)</option>
+            <option value="mit">Mit Speicher</option>
+            <option value="ohne">Ohne Speicher</option>
+        </select></label>
         <label>Instanz <select id="instance"></select></label>
         <label>Tag <input type="date" id="day"></label>
         <button id="reload">Aktualisieren</button>
@@ -159,26 +164,26 @@ function seriesConfig() {
     if (sourceMode === 'pv_consumption') {
         return {
             areas: [
-                { path: 'live.pvW', name: 'Erzeugung', short: 'PV', unit: 'W', color: 'rgba(244,196,48,0.55)', stroke: '#e0a800' },
-                { path: 'live.directUseW', name: 'Direktverbrauch', short: 'Direkt', unit: 'W', color: 'rgba(77,182,217,0.55)', stroke: '#3aa0c0' }
+                { path: 'live.pvW', name: 'Erzeugung', short: 'PV', unit: 'W', scen: 'both', color: 'rgba(244,196,48,0.55)', stroke: '#e0a800' },
+                { path: 'live.directUseW', name: 'Direktverbrauch', short: 'Direkt', unit: 'W', scen: 'both', color: 'rgba(77,182,217,0.55)', stroke: '#3aa0c0' }
             ],
             lines: [
-                { path: 'live.consumptionW', name: 'Verbrauch', short: 'Verbr.', unit: 'W', color: '#7a7a1f', axis: 'left' },
-                { path: 'live.batteryPowerW', name: 'Speicher (+lädt/−entlädt)', short: 'Speicher', unit: 'W', color: '#ff9800', axis: 'left' },
-                { path: 'battery.soc.percent', name: 'Ladestand', short: 'SoC', unit: '%', color: '#4caf50', axis: 'right' }
+                { path: 'live.consumptionW', name: 'Verbrauch', short: 'Verbr.', unit: 'W', scen: 'both', color: '#7a7a1f', axis: 'left' },
+                { path: 'live.batteryPowerW', name: 'Speicher (+lädt/−entlädt)', short: 'Speicher', unit: 'W', scen: 'sim', color: '#ff9800', axis: 'left' },
+                { path: 'battery.soc.percent', name: 'Ladestand', short: 'SoC', unit: '%', scen: 'sim', color: '#4caf50', axis: 'right' }
             ]
         };
     }
     return {
         areas: [
-            { path: 'live.gridImportOrigW', name: 'Netzbezug ohne Speicher', short: 'Bez. o.Sp.', unit: 'W', color: 'rgba(229,115,115,0.30)', stroke: '#d98b8b' },
-            { path: 'live.gridImportSimW', name: 'Netzbezug mit Speicher', short: 'Bez. m.Sp.', unit: 'W', color: 'rgba(211,47,47,0.55)', stroke: '#c62828' },
-            { path: 'live.gridExportOrigW', name: 'Einspeisung ohne Speicher', short: 'Einsp. o.Sp.', unit: 'W', color: 'rgba(120,170,220,0.30)', stroke: '#9bbce0', negate: true },
-            { path: 'live.gridExportSimW', name: 'Einspeisung mit Speicher', short: 'Einsp. m.Sp.', unit: 'W', color: 'rgba(33,110,200,0.50)', stroke: '#1f6ec8', negate: true }
+            { path: 'live.gridImportOrigW', name: 'Netzbezug ohne Speicher', short: 'Bez. o.Sp.', unit: 'W', scen: 'orig', color: 'rgba(229,115,115,0.30)', stroke: '#d98b8b' },
+            { path: 'live.gridImportSimW', name: 'Netzbezug mit Speicher', short: 'Bez. m.Sp.', unit: 'W', scen: 'sim', color: 'rgba(211,47,47,0.55)', stroke: '#c62828' },
+            { path: 'live.gridExportOrigW', name: 'Einspeisung ohne Speicher', short: 'Einsp. o.Sp.', unit: 'W', scen: 'orig', color: 'rgba(120,170,220,0.30)', stroke: '#9bbce0', negate: true },
+            { path: 'live.gridExportSimW', name: 'Einspeisung mit Speicher', short: 'Einsp. m.Sp.', unit: 'W', scen: 'sim', color: 'rgba(33,110,200,0.50)', stroke: '#1f6ec8', negate: true }
         ],
         lines: [
-            { path: 'live.batteryPowerW', name: 'Speicher (+lädt/−entlädt)', short: 'Speicher', unit: 'W', color: '#ff9800', axis: 'left' },
-            { path: 'battery.soc.percent', name: 'Ladestand', short: 'SoC', unit: '%', color: '#4caf50', axis: 'right' }
+            { path: 'live.batteryPowerW', name: 'Speicher (+lädt/−entlädt)', short: 'Speicher', unit: 'W', scen: 'sim', color: '#ff9800', axis: 'left' },
+            { path: 'battery.soc.percent', name: 'Ladestand', short: 'SoC', unit: '%', scen: 'sim', color: '#4caf50', axis: 'right' }
         ]
     };
 }
@@ -365,6 +370,16 @@ function applyVisibility() {
     renderLegend(curCfg);
     onLeave();
 }
+
+// Voreinstellung der Sichtbarkeit nach Szenario (Vergleich / nur mit / nur ohne Speicher)
+function applyViewMode(mode) {
+    if (!curCfg) return;
+    curCfg.areas.concat(curCfg.lines).forEach(function (s) {
+        if (mode === 'mit') hiddenSet[s.path] = (s.scen === 'orig');
+        else if (mode === 'ohne') hiddenSet[s.path] = (s.scen === 'sim');
+        else delete hiddenSet[s.path];
+    });
+}
 function showOverlay(text) { document.getElementById('overlay').textContent = text || ''; }
 
 // ---- Hover / Crosshair --------------------------------------------------------------------
@@ -439,6 +454,7 @@ window.addEventListener('DOMContentLoaded', function () {
     document.getElementById('instance').addEventListener('change', function (e) { curInst = parseInt(e.target.value, 10); refresh(); });
     document.getElementById('day').addEventListener('change', refresh);
     document.getElementById('reload').addEventListener('click', refresh);
+    document.getElementById('view').addEventListener('change', function (e) { applyViewMode(e.target.value); applyVisibility(); });
     document.getElementById('legend').addEventListener('click', function (e) {
         var sp = e.target.closest('span.leg'); if (!sp) return;
         var p = sp.getAttribute('data-path'); hiddenSet[p] = !hiddenSet[p]; applyVisibility();
