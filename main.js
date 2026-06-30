@@ -3,6 +3,7 @@
 const utils = require('@iobroker/adapter-core');
 const { stepBattery, splitSignedPower, unitFactor } = require('./lib/simulation');
 const { periodResets } = require('./lib/period');
+const { accumulateStep } = require('./lib/accumulation');
 
 // Definition aller vom Adapter angelegten States: [id, name, unit, role, type]
 const STATE_DEFS = [
@@ -275,25 +276,18 @@ class PvStorageSim extends utils.Adapter {
     }
 
     async accumulate(r, chargedKwh, dischargedKwh, benefit, surplusWh, deficitWh) {
-        const a = this.acc;
-        a.chargedToday += chargedKwh;
-        a.dischargedToday += dischargedKwh;
-        a.importOrigToday += deficitWh / 1000;
-        a.importSimToday += r.gridImportWh / 1000;
-        a.exportOrigToday += surplusWh / 1000;
-        a.exportSimToday += r.gridExportWh / 1000;
-        a.savingsToday += benefit;
-        a.savingsMonth += benefit;
-        a.savingsYear += benefit;
-
-        this.totals.chargedTotal += chargedKwh;
-        this.totals.dischargedTotal += dischargedKwh;
-        this.totals.savingsTotal += benefit;
-
-        const coverage = a.importOrigToday > 0 ? (a.dischargedToday / a.importOrigToday) * 100 : 0;
         const daysElapsed = Math.max((Date.now() - this.startTs) / 86400000, 1 / 24);
-        const annualSavings = (this.totals.savingsTotal / daysElapsed) * 365;
-        const amort = annualSavings > 0 && this.investment > 0 ? this.investment / annualSavings : 0;
+        const res = accumulateStep(
+            { acc: this.acc, totals: this.totals },
+            { chargedKwh, dischargedKwh, benefit, deficitWh, surplusWh, gridImportWh: r.gridImportWh, gridExportWh: r.gridExportWh },
+            { daysElapsed, investment: this.investment },
+        );
+        // neue Werte in die bestehenden Objekte übernehmen (Identität bleibt erhalten)
+        Object.assign(this.acc, res.acc);
+        Object.assign(this.totals, res.totals);
+        const a = this.acc;
+        const coverage = res.coverage;
+        const amort = res.amortizationYears;
 
         const round = (v, dec) => Math.round(v * 10 ** dec) / 10 ** dec;
         const set = (id, val, dec = 3) => this.setStateAsync(id, { val: round(val, dec), ack: true });

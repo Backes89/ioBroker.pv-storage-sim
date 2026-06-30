@@ -82,6 +82,10 @@ Offene Punkte und geplante Erweiterungen werden in [TODO.md](TODO.md) gepflegt
 
 ## Changelog
 
+### 0.0.26 (2026-06-30)
+- Akkumulations-Logik (Tages-/Gesamtsummen, Speicher-Deckung, Amortisation) in
+  `lib/accumulation.js` als reine Funktion ausgelagert und mit Unit-Tests abgesichert
+
 ### 0.0.25 (2026-06-30)
 - Perioden-Reset-Logik (Tages-/Monats-/Jahresgrenze beim Neustart) in `lib/period.js`
   ausgelagert und mit Unit-Tests abgesichert

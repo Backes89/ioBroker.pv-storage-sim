@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "pv-storage-sim",
-    "version": "0.0.25",
+    "version": "0.0.26",
     "news": {
+      "0.0.26": {
+        "en": "Accumulation logic extracted into a pure, tested function (totals, coverage, amortization).",
+        "de": "Akkumulations-Logik in eine reine, getestete Funktion ausgelagert (Summen, Speicher-Deckung, Amortisation)."
+      },
       "0.0.25": {
         "en": "Period-reset logic extracted into a pure function with unit tests (day/month/year boundary on restart).",
         "de": "Perioden-Reset-Logik in eine reine Funktion mit Unit-Tests ausgelagert (Tages-/Monats-/Jahresgrenze beim Neustart)."
