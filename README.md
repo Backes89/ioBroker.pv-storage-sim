@@ -82,6 +82,10 @@ Offene Punkte und geplante Erweiterungen werden in [TODO.md](TODO.md) gepflegt
 
 ## Changelog
 
+### 0.0.21 (2026-06-30)
+- Modusabhängige Datenpunkte: `live.pvW`/`live.consumptionW`/`live.directUseW` werden nur im
+  Modus PV+Verbrauch angelegt; in den Netz-Modi entfallen sie (waren dort immer 0)
+
 ### 0.0.20 (2026-06-30)
 - Optionale seichte Glättung der Tageskurve per Schalter (gleitender Mittelwert); Tabelle und
   Tooltip zeigen weiterhin die exakten Rohwerte

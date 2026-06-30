@@ -42,6 +42,9 @@ const OBSOLETE_STATES = [
     'live.gridImportOrigW', 'live.gridImportSimW', 'live.gridExportOrigW', 'live.gridExportSimW',
 ];
 
+// Nur im Modus PV+Verbrauch sinnvoll; in den Netz-Modi werden sie nicht angelegt (dort immer 0).
+const PV_ONLY_STATES = ['live.pvW', 'live.consumptionW', 'live.directUseW'];
+
 class PvStorageSim extends utils.Adapter {
     constructor(options) {
         super({ ...options, name: 'pv-storage-sim' });
@@ -100,7 +103,9 @@ class PvStorageSim extends utils.Adapter {
         }
 
         await this.createStates();
-        for (const id of OBSOLETE_STATES) await this.delObjectAsync(id).catch(() => {});
+        // veraltete + im aktuellen Modus nutzlose States entfernen
+        const toRemove = OBSOLETE_STATES.concat(this.sourceMode === 'pv_consumption' ? [] : PV_ONLY_STATES);
+        for (const id of toRemove) await this.delObjectAsync(id).catch(() => {});
 
         // persistierte Werte wiederherstellen (Neustart mitten am Tag soll Werte nicht verlieren)
         this.socWh = (await this.getNumber('battery.soc.kWh')) * 1000 || this.p.minSocWh;
@@ -312,18 +317,21 @@ class PvStorageSim extends utils.Adapter {
     async publishLive(r, dtH, pvWh, consWh, surplusWh, deficitWh) {
         if (dtH <= 0) return;
         const w = (wh) => Math.round(wh / dtH);
-        const pvW = pvWh !== null ? w(pvWh) : 0;
-        const consW = consWh !== null ? w(consWh) : 0;
-        const directW = pvWh !== null ? w(Math.min(pvWh, consWh)) : 0;
 
-        await Promise.all([
-            this.setStateAsync('live.pvW', { val: pvW, ack: true }),
-            this.setStateAsync('live.consumptionW', { val: consW, ack: true }),
-            this.setStateAsync('live.directUseW', { val: directW, ack: true }),
+        const writes = [
             this.setStateAsync('live.gridNetOrigW', { val: w(deficitWh - surplusWh), ack: true }),
             this.setStateAsync('live.gridNetSimW', { val: w(r.gridImportWh - r.gridExportWh), ack: true }),
             this.setStateAsync('live.batteryPowerW', { val: w(r.chargedWh - r.dischargedWh), ack: true }),
-        ]);
+        ];
+        // PV/Verbrauch/Direktverbrauch nur im Modus PV+Verbrauch (sonst nicht bekannt)
+        if (pvWh !== null) {
+            writes.push(
+                this.setStateAsync('live.pvW', { val: w(pvWh), ack: true }),
+                this.setStateAsync('live.consumptionW', { val: w(consWh), ack: true }),
+                this.setStateAsync('live.directUseW', { val: w(Math.min(pvWh, consWh)), ack: true }),
+            );
+        }
+        await Promise.all(writes);
     }
 
     async resetDaily(d) {
@@ -346,7 +354,9 @@ class PvStorageSim extends utils.Adapter {
     }
 
     async createStates() {
+        const isPv = this.sourceMode === 'pv_consumption';
         for (const [id, name, unit, role, type] of STATE_DEFS) {
+            if (!isPv && PV_ONLY_STATES.includes(id)) continue; // im Netz-Modus nicht anlegen
             await this.setObjectNotExistsAsync(id, {
                 type: 'state',
                 common: {

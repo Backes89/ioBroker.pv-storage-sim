@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "pv-storage-sim",
-    "version": "0.0.20",
+    "version": "0.0.21",
     "news": {
+      "0.0.21": {
+        "en": "Mode-aware states: live.pv/consumption/directUse are only created in PV+consumption mode (removed in grid modes where they are always 0).",
+        "de": "Modusabhängige States: live.pv/consumption/directUse werden nur im PV+Verbrauch-Modus angelegt (in den Netz-Modi entfernt, dort immer 0)."
+      },
       "0.0.20": {
         "en": "Optional light smoothing for the day chart (toggle); table and tooltip keep exact raw values.",
         "de": "Optionale seichte Glättung der Tageskurve (Schalter); Tabelle und Tooltip bleiben bei den exakten Rohwerten."
