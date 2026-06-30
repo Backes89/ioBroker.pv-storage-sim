@@ -83,8 +83,9 @@ class PvStorageSim extends utils.Adapter {
         // bei einem vorzeichenbehafteten Zähler: ist positiv = Netzbezug (Standard) oder = Einspeisung?
         this.gridSignImportPositive = c.gridSignPositive !== 'export';
 
-        // Umrechnungsfaktor je Datenpunkt (W/kW bzw. kWh/Wh), abhängig vom Eingabe-Modus
-        const f = (unitCfgKey) => unitFactor(c[unitCfgKey], this.inputMode);
+        // Umrechnungsfaktor je Datenpunkt; je nach Eingabeart wird das passende Einheitenfeld gelesen
+        const suffix = this.inputMode === 'power' ? 'Power' : 'Energy';
+        const f = (base) => unitFactor(c[base + suffix]);
         if (this.sourceMode === 'grid_meter') {
             this.ids = { import: c.idGridImport, export: c.idGridExport };
             this.factors = { import: f('unitGridImport'), export: f('unitGridExport') };

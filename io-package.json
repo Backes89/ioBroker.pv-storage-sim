@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "pv-storage-sim",
-    "version": "0.0.23",
+    "version": "0.0.24",
     "news": {
+      "0.0.24": {
+        "en": "Unit selection now matches the input type: W/kW for power, kWh/Wh for meter readings (no more mixed dimensions).",
+        "de": "Einheiten-Auswahl passt jetzt zur Eingabeart: W/kW bei Leistung, kWh/Wh bei Zählerstand (keine gemischten Dimensionen mehr)."
+      },
       "0.0.23": {
         "en": "Removal of obsolete/mode-specific states only happens if they exist and is now logged.",
         "de": "Entfernen veralteter/modusspezifischer Datenpunkte nur noch wenn vorhanden und jetzt protokolliert."
@@ -151,11 +155,16 @@
     "idGridExport": "",
     "idGridPower": "",
     "gridSignPositive": "import",
-    "unitPv": "auto_w_kwh",
-    "unitConsumption": "auto_w_kwh",
-    "unitGridImport": "auto_w_kwh",
-    "unitGridExport": "auto_w_kwh",
-    "unitGridPower": "auto_w_kwh",
+    "unitPvPower": "W",
+    "unitPvEnergy": "kWh",
+    "unitConsumptionPower": "W",
+    "unitConsumptionEnergy": "kWh",
+    "unitGridImportPower": "W",
+    "unitGridImportEnergy": "kWh",
+    "unitGridExportPower": "W",
+    "unitGridExportEnergy": "kWh",
+    "unitGridPowerPower": "W",
+    "unitGridPowerEnergy": "kWh",
     "intervalSec": 30,
     "capacityKwh": 10,
     "minSocPercent": 5,

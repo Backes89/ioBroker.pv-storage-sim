@@ -41,16 +41,21 @@
       "sm": 12,
       "md": 5
     },
-    "unitPv": {
+    "unitPvPower": {
       "type": "select",
       "label": "Einheit",
-      "help": "W (Leistungs-Modus) bzw. kWh (Zählerstand-Modus)",
-      "options": [
-        { "value": "auto_w_kwh", "label": "W / kWh" },
-        { "value": "kw_wh", "label": "kW / Wh" }
-      ],
-      "default": "auto_w_kwh",
-      "hidden": "data.sourceMode !== 'pv_consumption'",
+      "options": [ { "value": "W", "label": "W" }, { "value": "kW", "label": "kW" } ],
+      "default": "W",
+      "hidden": "data.sourceMode !== 'pv_consumption' || data.inputMode !== 'power'",
+      "sm": 12,
+      "md": 3
+    },
+    "unitPvEnergy": {
+      "type": "select",
+      "label": "Einheit",
+      "options": [ { "value": "kWh", "label": "kWh" }, { "value": "Wh", "label": "Wh" } ],
+      "default": "kWh",
+      "hidden": "data.sourceMode !== 'pv_consumption' || data.inputMode !== 'energy'",
       "sm": 12,
       "md": 3
     },
@@ -62,16 +67,21 @@
       "sm": 12,
       "md": 5
     },
-    "unitConsumption": {
+    "unitConsumptionPower": {
       "type": "select",
       "label": "Einheit",
-      "help": "W (Leistungs-Modus) bzw. kWh (Zählerstand-Modus)",
-      "options": [
-        { "value": "auto_w_kwh", "label": "W / kWh" },
-        { "value": "kw_wh", "label": "kW / Wh" }
-      ],
-      "default": "auto_w_kwh",
-      "hidden": "data.sourceMode !== 'pv_consumption'",
+      "options": [ { "value": "W", "label": "W" }, { "value": "kW", "label": "kW" } ],
+      "default": "W",
+      "hidden": "data.sourceMode !== 'pv_consumption' || data.inputMode !== 'power'",
+      "sm": 12,
+      "md": 3
+    },
+    "unitConsumptionEnergy": {
+      "type": "select",
+      "label": "Einheit",
+      "options": [ { "value": "kWh", "label": "kWh" }, { "value": "Wh", "label": "Wh" } ],
+      "default": "kWh",
+      "hidden": "data.sourceMode !== 'pv_consumption' || data.inputMode !== 'energy'",
       "sm": 12,
       "md": 3
     },
@@ -83,16 +93,21 @@
       "sm": 12,
       "md": 5
     },
-    "unitGridImport": {
+    "unitGridImportPower": {
       "type": "select",
       "label": "Einheit",
-      "help": "W (Leistungs-Modus) bzw. kWh (Zählerstand-Modus)",
-      "options": [
-        { "value": "auto_w_kwh", "label": "W / kWh" },
-        { "value": "kw_wh", "label": "kW / Wh" }
-      ],
-      "default": "auto_w_kwh",
-      "hidden": "data.sourceMode !== 'grid_meter'",
+      "options": [ { "value": "W", "label": "W" }, { "value": "kW", "label": "kW" } ],
+      "default": "W",
+      "hidden": "data.sourceMode !== 'grid_meter' || data.inputMode !== 'power'",
+      "sm": 12,
+      "md": 3
+    },
+    "unitGridImportEnergy": {
+      "type": "select",
+      "label": "Einheit",
+      "options": [ { "value": "kWh", "label": "kWh" }, { "value": "Wh", "label": "Wh" } ],
+      "default": "kWh",
+      "hidden": "data.sourceMode !== 'grid_meter' || data.inputMode !== 'energy'",
       "sm": 12,
       "md": 3
     },
@@ -104,16 +119,21 @@
       "sm": 12,
       "md": 5
     },
-    "unitGridExport": {
+    "unitGridExportPower": {
       "type": "select",
       "label": "Einheit",
-      "help": "W (Leistungs-Modus) bzw. kWh (Zählerstand-Modus)",
-      "options": [
-        { "value": "auto_w_kwh", "label": "W / kWh" },
-        { "value": "kw_wh", "label": "kW / Wh" }
-      ],
-      "default": "auto_w_kwh",
-      "hidden": "data.sourceMode !== 'grid_meter'",
+      "options": [ { "value": "W", "label": "W" }, { "value": "kW", "label": "kW" } ],
+      "default": "W",
+      "hidden": "data.sourceMode !== 'grid_meter' || data.inputMode !== 'power'",
+      "sm": 12,
+      "md": 3
+    },
+    "unitGridExportEnergy": {
+      "type": "select",
+      "label": "Einheit",
+      "options": [ { "value": "kWh", "label": "kWh" }, { "value": "Wh", "label": "Wh" } ],
+      "default": "kWh",
+      "hidden": "data.sourceMode !== 'grid_meter' || data.inputMode !== 'energy'",
       "sm": 12,
       "md": 3
     },
@@ -126,16 +146,21 @@
       "sm": 12,
       "md": 5
     },
-    "unitGridPower": {
+    "unitGridPowerPower": {
       "type": "select",
       "label": "Einheit",
-      "help": "W (Leistungs-Modus) bzw. kWh (Zählerstand-Modus)",
-      "options": [
-        { "value": "auto_w_kwh", "label": "W / kWh" },
-        { "value": "kw_wh", "label": "kW / Wh" }
-      ],
-      "default": "auto_w_kwh",
-      "hidden": "data.sourceMode !== 'grid_signed'",
+      "options": [ { "value": "W", "label": "W" }, { "value": "kW", "label": "kW" } ],
+      "default": "W",
+      "hidden": "data.sourceMode !== 'grid_signed' || data.inputMode !== 'power'",
+      "sm": 12,
+      "md": 3
+    },
+    "unitGridPowerEnergy": {
+      "type": "select",
+      "label": "Einheit",
+      "options": [ { "value": "kWh", "label": "kWh" }, { "value": "Wh", "label": "Wh" } ],
+      "default": "kWh",
+      "hidden": "data.sourceMode !== 'grid_signed' || data.inputMode !== 'energy'",
       "sm": 12,
       "md": 3
     },
