@@ -77,6 +77,7 @@
             <option value="mit">Mit Speicher</option>
             <option value="ohne">Ohne Speicher</option>
         </select></label>
+        <label id="smoothWrap" title="Seichte Glättung der Chart-Kurven (Tabelle bleibt exakt)"><input type="checkbox" id="smooth"> Glättung</label>
         <label>Instanz <select id="instance"></select></label>
         <label id="dayWrap">Tag <button id="dayPrev" class="nav" title="Tag zurück">◀</button><input type="date" id="day"><button id="dayNext" class="nav" title="Tag vor">▶</button><button id="dayToday" class="nav">Heute</button></label>
         <button id="reload">Aktualisieren</button>
@@ -107,10 +108,22 @@
 
 var socket = null, instances = [], curInst = 0, sourceMode = 'pv_consumption';
 var curCfg = null, merged = [], tableRows = [], geom = null, hiddenSet = {};
-var periodMode = 'tag', capacityKwh = 10;
+var periodMode = 'tag', capacityKwh = 10, smoothOn = false;
 var wrap, crossCanvas, tipEl;
 
 function isHidden(s) { return !!hiddenSet[s.path]; }
+
+// Seichte Glättung (zentrierter gleitender Mittelwert) – nur für die Chart-Darstellung.
+function smoothData(data, win) {
+    if (!data || data.length < 3 || win < 2) return data;
+    var half = Math.floor(win / 2), out = [];
+    for (var i = 0; i < data.length; i++) {
+        var sum = 0, cnt = 0;
+        for (var j = Math.max(0, i - half); j <= Math.min(data.length - 1, i + half); j++) { sum += data[j].val; cnt++; }
+        out.push({ ts: data[i].ts, val: sum / cnt });
+    }
+    return out;
+}
 
 function setStatus(t) { document.getElementById('status').textContent = t; }
 
@@ -211,6 +224,7 @@ function fetchConfig() {
 
 function setPeriodUI() {
     document.getElementById('viewWrap').style.display = (periodMode === 'tag') ? '' : 'none';
+    document.getElementById('smoothWrap').style.display = (periodMode === 'tag') ? '' : 'none';
     document.getElementById('dayWrap').style.display = (periodMode === 'prognose') ? 'none' : '';
     document.getElementById('legend').style.display = (periodMode === 'tag') ? '' : 'none';
     var titles = { tag: 'Werte über den Tag', monat: 'Ersparnis je Tag', prognose: 'Prognose je Jahr' };
@@ -501,10 +515,13 @@ function drawChart(cfg, x0, x1) {
     var plotW = cssW - padL - padR, plotH = cssH - padT - padB;
     if (plotW <= 0 || plotH <= 0) return;
 
+    // Zeichenreihe je Serie (optional geglättet); Tabelle/Hover nutzen weiter die Rohdaten.
+    cfg.areas.concat(cfg.lines).forEach(function (sr) { sr._draw = smoothOn ? smoothData(sr.data, 5) : sr.data; });
+
     var maxAbs = 100, hasNeg = false;
     function consider(v) { if (Math.abs(v) > maxAbs) maxAbs = Math.abs(v); if (v < -1e-9) hasNeg = true; }
-    cfg.areas.forEach(function (sr) { if (isHidden(sr)) return; sr.data.forEach(function (p) { consider(sr.negate ? -p.val : p.val); }); });
-    cfg.lines.forEach(function (sr) { if (isHidden(sr) || sr.axis === 'right') return; sr.data.forEach(function (p) { consider(p.val); }); });
+    cfg.areas.forEach(function (sr) { if (isHidden(sr)) return; sr._draw.forEach(function (p) { consider(sr.negate ? -p.val : p.val); }); });
+    cfg.lines.forEach(function (sr) { if (isHidden(sr) || sr.axis === 'right') return; sr._draw.forEach(function (p) { consider(p.val); }); });
     var hi = niceCeil(maxAbs), lo = hasNeg ? -hi : 0;
 
     geom = { padL: padL, padT: padT, plotW: plotW, plotH: plotH, x0: x0, x1: x1, lo: lo, hi: hi, leftMax: hi };
@@ -529,30 +546,32 @@ function drawChart(cfg, x0, x1) {
     }
 
     cfg.areas.forEach(function (sr) {
-        if (isHidden(sr) || !sr.data.length) return;
+        if (isHidden(sr) || !sr._draw.length) return;
         if (sr.splitSign) { drawSplitArea(ctx, sr); return; }
-        ctx.beginPath(); ctx.moveTo(xPixG(sr.data[0].ts), yG({}, 0));
-        sr.data.forEach(function (p) { ctx.lineTo(xPixG(p.ts), yG(sr, p.val)); });
-        ctx.lineTo(xPixG(sr.data[sr.data.length - 1].ts), yG({}, 0)); ctx.closePath();
+        var dd = sr._draw;
+        ctx.beginPath(); ctx.moveTo(xPixG(dd[0].ts), yG({}, 0));
+        dd.forEach(function (p) { ctx.lineTo(xPixG(p.ts), yG(sr, p.val)); });
+        ctx.lineTo(xPixG(dd[dd.length - 1].ts), yG({}, 0)); ctx.closePath();
         ctx.fillStyle = sr.color; ctx.fill();
         if (sr.stroke) { ctx.strokeStyle = sr.stroke; ctx.lineWidth = 1.2; ctx.beginPath();
-            sr.data.forEach(function (p, k) { var X = xPixG(p.ts), Y = yG(sr, p.val); k ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); }); ctx.stroke(); }
+            dd.forEach(function (p, k) { var X = xPixG(p.ts), Y = yG(sr, p.val); k ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); }); ctx.stroke(); }
     });
     cfg.lines.forEach(function (sr) {
-        if (isHidden(sr) || !sr.data.length) return;
+        if (isHidden(sr) || !sr._draw.length) return;
         ctx.strokeStyle = sr.color; ctx.lineWidth = 2; ctx.beginPath();
-        sr.data.forEach(function (p, k) { var X = xPixG(p.ts), Y = yG(sr, p.val); k ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); }); ctx.stroke();
+        sr._draw.forEach(function (p, k) { var X = xPixG(p.ts), Y = yG(sr, p.val); k ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); }); ctx.stroke();
     });
     ctx.strokeStyle = border; ctx.lineWidth = 1; ctx.strokeRect(padL, padT, plotW, plotH);
 }
 
 // Eine vorzeichenbehaftete Saldo-Reihe als zwei Flächen: positiv (Bezug) rot, negativ (Einspeisung) blau.
 function drawSplitArea(ctx, sr) {
+    var dd = sr._draw || sr.data;
     [[function (v) { return Math.max(v, 0); }, sr.posColor], [function (v) { return Math.min(v, 0); }, sr.negColor]].forEach(function (part) {
         var clamp = part[0];
-        ctx.beginPath(); ctx.moveTo(xPixG(sr.data[0].ts), geom.zeroY);
-        sr.data.forEach(function (p) { ctx.lineTo(xPixG(p.ts), yG({}, clamp(p.val))); });
-        ctx.lineTo(xPixG(sr.data[sr.data.length - 1].ts), geom.zeroY); ctx.closePath();
+        ctx.beginPath(); ctx.moveTo(xPixG(dd[0].ts), geom.zeroY);
+        dd.forEach(function (p) { ctx.lineTo(xPixG(p.ts), yG({}, clamp(p.val))); });
+        ctx.lineTo(xPixG(dd[dd.length - 1].ts), geom.zeroY); ctx.closePath();
         ctx.fillStyle = part[1]; ctx.fill();
     });
 }
@@ -663,6 +682,7 @@ window.addEventListener('DOMContentLoaded', function () {
     document.getElementById('day').addEventListener('change', refresh);
     document.getElementById('reload').addEventListener('click', refresh);
     document.getElementById('view').addEventListener('change', function (e) { applyViewMode(e.target.value); applyVisibility(); });
+    document.getElementById('smooth').addEventListener('change', function (e) { smoothOn = e.target.checked; if (periodMode === 'tag') applyVisibility(); });
     document.getElementById('period').addEventListener('change', function (e) { periodMode = e.target.value; onLeave(); refresh(); });
     document.getElementById('dayPrev').addEventListener('click', function () { shiftDay(-1); });
     document.getElementById('dayNext').addEventListener('click', function () { shiftDay(1); });

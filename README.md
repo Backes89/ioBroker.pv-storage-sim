@@ -82,6 +82,10 @@ Offene Punkte und geplante Erweiterungen werden in [TODO.md](TODO.md) gepflegt
 
 ## Changelog
 
+### 0.0.20 (2026-06-30)
+- Optionale seichte Glättung der Tageskurve per Schalter (gleitender Mittelwert); Tabelle und
+  Tooltip zeigen weiterhin die exakten Rohwerte
+
 ### 0.0.19 (2026-06-30)
 - Aufräumen: die redundanten `live.gridImport*/Export*W`-States entfernt (durch `live.gridNet*`
   ersetzt); alte Objekte werden beim Adapterstart automatisch gelöscht

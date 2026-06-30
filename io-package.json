@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "pv-storage-sim",
-    "version": "0.0.19",
+    "version": "0.0.20",
     "news": {
+      "0.0.20": {
+        "en": "Optional light smoothing for the day chart (toggle); table and tooltip keep exact raw values.",
+        "de": "Optionale seichte Glättung der Tageskurve (Schalter); Tabelle und Tooltip bleiben bei den exakten Rohwerten."
+      },
       "0.0.19": {
         "en": "Cleanup: removed the redundant live.gridImport*/Export* states (replaced by live.gridNet*); old objects are deleted automatically on start.",
         "de": "Aufräumen: redundante live.gridImport*/Export*-States entfernt (durch live.gridNet* ersetzt); alte Objekte werden beim Start automatisch gelöscht."
