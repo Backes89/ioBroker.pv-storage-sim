@@ -82,6 +82,10 @@ Offene Punkte und geplante Erweiterungen werden in [TODO.md](TODO.md) gepflegt
 
 ## Changelog
 
+### 0.0.11 (2026-06-30)
+- Serien per Klick auf die Legende ein-/ausblendbar (Chart, Tabelle, Tooltip, Achsenskalierung)
+- Speicher-Lade-/Entladeleistung (`live.batteryPowerW`) als Linie ergänzt
+
 ### 0.0.10 (2026-06-30)
 - Netz-Chart bidirektional: Einspeisung unterhalb der Null-Linie, zusätzlich Einspeisung
   mit/ohne Speicher; Null-Linie in der Mitte, Tabelle/Tooltip zeigen Einspeisung negativ

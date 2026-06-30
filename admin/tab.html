@@ -33,7 +33,8 @@
         .chart-wrap canvas { position:absolute; inset:0; width:100%; height:100%; display:block; }
         #cross { pointer-events:none; }
         .legend { display:flex; gap:16px; flex-wrap:wrap; margin-top:10px; font-size:13px; color:var(--muted); }
-        .legend span { display:inline-flex; align-items:center; gap:6px; }
+        .legend span.leg { display:inline-flex; align-items:center; gap:6px; cursor:pointer; user-select:none; }
+        .legend span.leg.off { opacity:0.4; text-decoration:line-through; }
         .swatch { width:14px; height:14px; border-radius:3px; display:inline-block; }
         .overlay { position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
             text-align:center; color:var(--muted); font-size:14px; padding:20px; pointer-events:none; }
@@ -93,8 +94,10 @@
 'use strict';
 
 var socket = null, instances = [], curInst = 0, sourceMode = 'pv_consumption';
-var curCfg = null, merged = [], tableRows = [], geom = null;
+var curCfg = null, merged = [], tableRows = [], geom = null, hiddenSet = {};
 var wrap, crossCanvas, tipEl;
+
+function isHidden(s) { return !!hiddenSet[s.path]; }
 
 function setStatus(t) { document.getElementById('status').textContent = t; }
 
@@ -161,6 +164,7 @@ function seriesConfig() {
             ],
             lines: [
                 { path: 'live.consumptionW', name: 'Verbrauch', short: 'Verbr.', unit: 'W', color: '#7a7a1f', axis: 'left' },
+                { path: 'live.batteryPowerW', name: 'Speicher (+lädt/−entlädt)', short: 'Speicher', unit: 'W', color: '#ff9800', axis: 'left' },
                 { path: 'battery.soc.percent', name: 'Ladestand', short: 'SoC', unit: '%', color: '#4caf50', axis: 'right' }
             ]
         };
@@ -173,6 +177,7 @@ function seriesConfig() {
             { path: 'live.gridExportSimW', name: 'Einspeisung mit Speicher', short: 'Einsp. m.Sp.', unit: 'W', color: 'rgba(33,110,200,0.50)', stroke: '#1f6ec8', negate: true }
         ],
         lines: [
+            { path: 'live.batteryPowerW', name: 'Speicher (+lädt/−entlädt)', short: 'Speicher', unit: 'W', color: '#ff9800', axis: 'left' },
             { path: 'battery.soc.percent', name: 'Ladestand', short: 'SoC', unit: '%', color: '#4caf50', axis: 'right' }
         ]
     };
@@ -250,7 +255,7 @@ function buildMerged(cfg) {
 }
 
 function renderTable(cfg, rows) {
-    var series = cfg.areas.concat(cfg.lines);
+    var series = cfg.areas.concat(cfg.lines).filter(function (s) { return !isHidden(s); });
     document.querySelector('#tbl thead').innerHTML = '<tr><th>Zeit</th>' +
         series.map(function (s) { return '<th>' + s.short + '<br><span style="font-weight:400">' + s.unit + '</span></th>'; }).join('') + '</tr>';
     var step = Math.max(1, Math.ceil(rows.length / 48));
@@ -303,8 +308,8 @@ function drawChart(cfg, x0, x1) {
 
     var maxAbs = 100, hasNeg = false;
     function consider(v) { if (Math.abs(v) > maxAbs) maxAbs = Math.abs(v); if (v < -1e-9) hasNeg = true; }
-    cfg.areas.forEach(function (sr) { sr.data.forEach(function (p) { consider(sr.negate ? -p.val : p.val); }); });
-    cfg.lines.forEach(function (sr) { if (sr.axis !== 'right') sr.data.forEach(function (p) { consider(p.val); }); });
+    cfg.areas.forEach(function (sr) { if (isHidden(sr)) return; sr.data.forEach(function (p) { consider(sr.negate ? -p.val : p.val); }); });
+    cfg.lines.forEach(function (sr) { if (isHidden(sr) || sr.axis === 'right') return; sr.data.forEach(function (p) { consider(p.val); }); });
     var hi = niceCeil(maxAbs), lo = hasNeg ? -hi : 0;
 
     geom = { padL: padL, padT: padT, plotW: plotW, plotH: plotH, x0: x0, x1: x1, lo: lo, hi: hi, leftMax: hi };
@@ -329,7 +334,7 @@ function drawChart(cfg, x0, x1) {
     }
 
     cfg.areas.forEach(function (sr) {
-        if (!sr.data.length) return;
+        if (isHidden(sr) || !sr.data.length) return;
         ctx.beginPath(); ctx.moveTo(xPixG(sr.data[0].ts), yG({}, 0));
         sr.data.forEach(function (p) { ctx.lineTo(xPixG(p.ts), yG(sr, p.val)); });
         ctx.lineTo(xPixG(sr.data[sr.data.length - 1].ts), yG({}, 0)); ctx.closePath();
@@ -338,7 +343,7 @@ function drawChart(cfg, x0, x1) {
             sr.data.forEach(function (p, k) { var X = xPixG(p.ts), Y = yG(sr, p.val); k ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); }); ctx.stroke(); }
     });
     cfg.lines.forEach(function (sr) {
-        if (!sr.data.length) return;
+        if (isHidden(sr) || !sr.data.length) return;
         ctx.strokeStyle = sr.color; ctx.lineWidth = 2; ctx.beginPath();
         sr.data.forEach(function (p, k) { var X = xPixG(p.ts), Y = yG(sr, p.val); k ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); }); ctx.stroke();
     });
@@ -346,11 +351,19 @@ function drawChart(cfg, x0, x1) {
 }
 
 function renderLegend(cfg) {
-    var items = cfg.areas.map(function (s) { return { name: s.name, color: s.stroke || s.color }; })
-        .concat(cfg.lines.map(function (s) { return { name: s.name, color: s.color }; }));
-    document.getElementById('legend').innerHTML = items.map(function (it) {
-        return '<span><i class="swatch" style="background:' + it.color + '"></i>' + it.name + '</span>';
+    var all = cfg.areas.concat(cfg.lines);
+    document.getElementById('legend').innerHTML = all.map(function (s) {
+        return '<span class="leg' + (isHidden(s) ? ' off' : '') + '" data-path="' + s.path + '">' +
+            '<i class="swatch" style="background:' + (s.stroke || s.color) + '"></i>' + s.name + '</span>';
     }).join('');
+}
+
+function applyVisibility() {
+    if (!curCfg || !window._lastB) return;
+    drawChart(curCfg, window._lastB.start, window._lastB.end);
+    renderTable(curCfg, merged);
+    renderLegend(curCfg);
+    onLeave();
 }
 function showOverlay(text) { document.getElementById('overlay').textContent = text || ''; }
 
@@ -379,6 +392,7 @@ function drawCross(m) {
     ctx.beginPath(); ctx.moveTo(X, geom.padT); ctx.lineTo(X, geom.padT + geom.plotH); ctx.stroke();
     ctx.setLineDash([]);
     curCfg.areas.concat(curCfg.lines).forEach(function (sr) {
+        if (isHidden(sr)) return;
         var v = m.vals[sr.path]; if (v == null) return;
         var Y = yG(sr, v);
         ctx.fillStyle = sr.stroke || sr.color; ctx.beginPath(); ctx.arc(X, Y, 3.5, 0, 2 * Math.PI); ctx.fill();
@@ -386,7 +400,7 @@ function drawCross(m) {
     });
 }
 function showTip(m, rect) {
-    var series = curCfg.areas.concat(curCfg.lines);
+    var series = curCfg.areas.concat(curCfg.lines).filter(function (s) { return !isHidden(s); });
     var html = '<div class="t-time">' + hhmm(m.ts) + ' Uhr</div>' + series.map(function (sr) {
         var v = m.vals[sr.path]; var d = (v == null) ? null : (sr.negate ? -v : v);
         return '<div class="t-row"><i class="swatch" style="width:10px;height:10px;background:' + (sr.stroke || sr.color) +
@@ -425,6 +439,10 @@ window.addEventListener('DOMContentLoaded', function () {
     document.getElementById('instance').addEventListener('change', function (e) { curInst = parseInt(e.target.value, 10); refresh(); });
     document.getElementById('day').addEventListener('change', refresh);
     document.getElementById('reload').addEventListener('click', refresh);
+    document.getElementById('legend').addEventListener('click', function (e) {
+        var sp = e.target.closest('span.leg'); if (!sp) return;
+        var p = sp.getAttribute('data-path'); hiddenSet[p] = !hiddenSet[p]; applyVisibility();
+    });
     window.addEventListener('resize', function () { if (window._lastCfg) drawChart(window._lastCfg, window._lastB.start, window._lastB.end); });
 
     var d = new Date();
