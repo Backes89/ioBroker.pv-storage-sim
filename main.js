@@ -128,6 +128,23 @@ class PvStorageSim extends utils.Adapter {
         this.curYear = now.getFullYear();
         this.lastTick = Date.now();
 
+        // Lief der Adapter über eine Tages-/Monats-/Jahresgrenze hinweg nicht, dürfen die
+        // persistierten Perioden-Werte nicht in die neue Periode übernommen werden.
+        const lastSt = await this.getStateAsync('economics.savingsToday.eur').catch(() => null);
+        const lastD = new Date(lastSt && lastSt.ts ? lastSt.ts : this.startTs);
+        if (lastD.getFullYear() !== this.curYear) this.acc.savingsYear = 0;
+        if (lastD.getMonth() !== this.curMonth || lastD.getFullYear() !== this.curYear) this.acc.savingsMonth = 0;
+        if (lastD.getDate() !== this.today || lastD.getMonth() !== this.curMonth || lastD.getFullYear() !== this.curYear) {
+            this.acc.chargedToday = 0;
+            this.acc.dischargedToday = 0;
+            this.acc.importOrigToday = 0;
+            this.acc.importSimToday = 0;
+            this.acc.exportOrigToday = 0;
+            this.acc.exportSimToday = 0;
+            this.acc.savingsToday = 0;
+            this.log.debug('Persistierte Tageswerte stammen aus einer vergangenen Periode – zurückgesetzt.');
+        }
+
         await this.setStateAsync('info.connection', { val: true, ack: true });
         this.timer = this.setInterval(
             () => this.tick().catch(e => this.log.error(`tick: ${e.message}`)),

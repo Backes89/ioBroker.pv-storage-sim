@@ -83,6 +83,10 @@ Offene Punkte und geplante Erweiterungen werden in [TODO.md](TODO.md) gepflegt
 
 ## Changelog
 
+### 0.0.18 (2026-06-30)
+- Bugfix: Tages-/Monats-/Jahreswerte werden nach einem Neustart über eine Datumsgrenze hinweg
+  korrekt zurückgesetzt, statt veraltete Werte in die neue Periode zu übernehmen
+
 ### 0.0.17 (2026-06-30)
 - Prognose-Zeitachse auf max. 40 Jahre begrenzt (verhindert unbrauchbare Darstellung bei
   sehr kleiner hochgerechneter Jahresersparnis)
