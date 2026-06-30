@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "pv-storage-sim",
-    "version": "0.0.14",
+    "version": "0.0.15",
     "news": {
+      "0.0.15": {
+        "en": "Table/tooltip use carry-forward instead of nearest value when merging series, so import and feed-in no longer appear together in the same row.",
+        "de": "Tabelle/Tooltip nutzen beim Zusammenführen den letzten gültigen Wert statt des nächsten – Bezug und Einspeisung erscheinen nicht mehr zusammen in einer Zeile."
+      },
       "0.0.14": {
         "en": "Day view uses raw values instead of averaging, so import and feed-in no longer appear at the same time (averaging artifact).",
         "de": "Tagesansicht nutzt Rohwerte statt Mittelung – Netzbezug und Einspeisung erscheinen nicht mehr gleichzeitig (Mittelungs-Artefakt)."

@@ -82,6 +82,10 @@ Offene Punkte und geplante Erweiterungen werden in [TODO.md](TODO.md) gepflegt
 
 ## Changelog
 
+### 0.0.15 (2026-06-30)
+- Tabelle/Tooltip führen die Reihen per „letztem gültigen Wert" (Carry-forward) statt
+  „nächstem Wert" zusammen – Bezug und Einspeisung erscheinen nicht mehr zusammen in einer Zeile
+
 ### 0.0.14 (2026-06-30)
 - Tagesansicht nutzt Rohwerte statt Mittelung – Netzbezug und Einspeisung erscheinen nicht
   mehr scheinbar gleichzeitig (war ein Mittelungs-Artefakt, kein Logikfehler)

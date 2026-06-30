@@ -431,18 +431,20 @@ function pad2(n) { return (n < 10 ? '0' : '') + n; }
 function hhmm(ts) { var d = new Date(ts); return pad2(d.getHours()) + ':' + pad2(d.getMinutes()); }
 
 // ---- Daten zusammenführen (für Tabelle + Hover) -------------------------------------------
-function nearestVal(data, ts) {
-    if (!data || !data.length) return null;
-    var best = null, bd = Infinity;
-    for (var i = 0; i < data.length; i++) { var d = Math.abs(data[i].ts - ts); if (d < bd) { bd = d; best = data[i].val; } }
-    return best;
+// Letzter bekannter Wert zum Zeitpunkt ts (Carry-forward). Daten sind aufsteigend sortiert.
+// Vor dem ersten Punkt: null. So spiegelt jede Zeile genau EINEN Tick wider -> Bezug/Einspeisung schliessen sich aus.
+function stepVal(data, ts) {
+    if (!data || !data.length || data[0].ts > ts) return null;
+    var lo = 0, hi = data.length - 1, res = null;
+    while (lo <= hi) { var mid = (lo + hi) >> 1; if (data[mid].ts <= ts) { res = data[mid].val; lo = mid + 1; } else hi = mid - 1; }
+    return res;
 }
 function buildMerged(cfg) {
     var series = cfg.areas.concat(cfg.lines), ref = null;
     series.forEach(function (s) { if (!ref || (s.data && s.data.length > ref.data.length)) ref = s; });
     if (!ref || !ref.data.length) return [];
     return ref.data.map(function (p) {
-        var vals = {}; series.forEach(function (s) { vals[s.path] = nearestVal(s.data, p.ts); });
+        var vals = {}; series.forEach(function (s) { vals[s.path] = stepVal(s.data, p.ts); });
         return { ts: p.ts, vals: vals };
     });
 }
