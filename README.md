@@ -39,6 +39,13 @@ in `kW` bzw. `Wh` liefert. So lassen sich Geräte mit unterschiedlichen Einheite
 | `economics.savingsToday/Month/Year/Total.eur` | Ersparnis |
 | `economics.batteryCoverageToday.percent` | wie viel des Bezugs der Speicher deckt |
 | `economics.amortizationYears` | grobe Amortisationsschätzung |
+| `live.pvW` / `live.consumptionW` / `live.directUseW` | momentane Leistungen (nur Modus PV+Verbrauch) |
+| `live.gridImportSimW` / `live.gridExportSimW` | momentaner Netzbezug / Einspeisung mit Speicher |
+| `live.batteryPowerW` | momentane Speicherleistung (+lädt / −entlädt) |
+
+> **Hinweis für die grafische Auswertung:** Die `live.*`-Datenpunkte liefern momentane
+> Leistungen in W. Für Verlaufs-Diagramme muss auf diesen States (und `battery.soc.percent`)
+> ein History-Logging (`history`, `sql` oder `influxdb`) aktiviert werden.
 
 ## Rechenmodell
 

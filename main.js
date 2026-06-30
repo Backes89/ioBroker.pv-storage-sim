@@ -26,6 +26,14 @@ const STATE_DEFS = [
     ['economics.batteryCoverageToday.percent', 'Speicher-Deckung des Bezugs (heute)', '%', 'value', 'number'],
     ['economics.amortizationYears', 'Amortisationsdauer (Schätzung)', 'Jahre', 'value', 'number'],
     ['economics._startTs', 'Startzeitpunkt der Simulation', 'ms', 'value.time', 'number'],
+
+    // Momentane Leistungen (W) für die grafische Auswertung / WebUI – hier History-Logging aktivieren
+    ['live.pvW', 'PV-Erzeugung (aktuell)', 'W', 'value.power.produced', 'number'],
+    ['live.consumptionW', 'Hausverbrauch (aktuell)', 'W', 'value.power.consumption', 'number'],
+    ['live.directUseW', 'Direktverbrauch (aktuell)', 'W', 'value.power', 'number'],
+    ['live.gridImportSimW', 'Netzbezug mit Speicher (aktuell)', 'W', 'value.power', 'number'],
+    ['live.gridExportSimW', 'Einspeisung mit Speicher (aktuell)', 'W', 'value.power', 'number'],
+    ['live.batteryPowerW', 'Speicher-Leistung (+lädt / −entlädt)', 'W', 'value.power', 'number'],
 ];
 
 class PvStorageSim extends utils.Adapter {
@@ -146,6 +154,8 @@ class PvStorageSim extends utils.Adapter {
         // Überschuss & Defizit für dieses Intervall ermitteln (Wh)
         let surplusWh = 0;
         let deficitWh = 0;
+        let pvWh = null;   // nur im Modus PV+Verbrauch bekannt (für die Visualisierung)
+        let consWh = null;
         if (this.sourceMode === 'grid_meter') {
             surplusWh = await this.readEnergy('export', this.ids.export, dtH);
             deficitWh = await this.readEnergy('import', this.ids.import, dtH);
@@ -153,9 +163,9 @@ class PvStorageSim extends utils.Adapter {
             const netWh = await this.readSignedEnergy('grid', this.ids.grid, dtH);
             ({ surplusWh, deficitWh } = splitSignedPower(netWh, this.gridSignImportPositive));
         } else {
-            const pv = await this.readEnergy('pv', this.ids.pv, dtH);
-            const cons = await this.readEnergy('cons', this.ids.cons, dtH);
-            const net = pv - cons;
+            pvWh = await this.readEnergy('pv', this.ids.pv, dtH);
+            consWh = await this.readEnergy('cons', this.ids.cons, dtH);
+            const net = pvWh - consWh;
             surplusWh = Math.max(net, 0);
             deficitWh = Math.max(-net, 0);
         }
@@ -171,6 +181,7 @@ class PvStorageSim extends utils.Adapter {
         const benefit = dischargedKwh * this.priceImport - chargedKwh * this.priceFeedIn;
 
         await this.accumulate(r, chargedKwh, dischargedKwh, benefit, surplusWh, deficitWh);
+        await this.publishLive(r, dtH, pvWh, consWh);
     }
 
     /**
@@ -267,6 +278,27 @@ class PvStorageSim extends utils.Adapter {
             set('economics.savingsTotal.eur', this.totals.savingsTotal, 2),
             set('economics.batteryCoverageToday.percent', coverage, 1),
             set('economics.amortizationYears', amort, 1),
+        ]);
+    }
+
+    /**
+     * Schreibt die momentanen Leistungen (W) für die grafische Auswertung.
+     * pvWh/consWh sind nur im Modus PV+Verbrauch bekannt; sonst 0 (Netz-Modi liefern nur das Saldo).
+     */
+    async publishLive(r, dtH, pvWh, consWh) {
+        if (dtH <= 0) return;
+        const w = (wh) => Math.round(wh / dtH);
+        const pvW = pvWh !== null ? w(pvWh) : 0;
+        const consW = consWh !== null ? w(consWh) : 0;
+        const directW = pvWh !== null ? w(Math.min(pvWh, consWh)) : 0;
+
+        await Promise.all([
+            this.setStateAsync('live.pvW', { val: pvW, ack: true }),
+            this.setStateAsync('live.consumptionW', { val: consW, ack: true }),
+            this.setStateAsync('live.directUseW', { val: directW, ack: true }),
+            this.setStateAsync('live.gridImportSimW', { val: w(r.gridImportWh), ack: true }),
+            this.setStateAsync('live.gridExportSimW', { val: w(r.gridExportWh), ack: true }),
+            this.setStateAsync('live.batteryPowerW', { val: w(r.chargedWh - r.dischargedWh), ack: true }),
         ]);
     }
 

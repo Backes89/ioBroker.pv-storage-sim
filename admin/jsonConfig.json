@@ -241,6 +241,17 @@
       "default": 7000,
       "sm": 12,
       "md": 4
+    },
+
+    "_headerViz": {
+      "type": "header",
+      "size": 2,
+      "text": "Grafische Auswertung / WebUI"
+    },
+    "_vizHint": {
+      "type": "staticText",
+      "text": "Für die Verlaufs-Diagramme werden Zeitreihen benötigt. Aktiviere dazu ein History-Logging (Adapter 'history', 'sql' oder 'influxdb') auf den live.*-Datenpunkten dieser Instanz (z. B. live.pvW, live.consumptionW, live.gridImportSimW) sowie auf battery.soc.percent. Ohne Logging zeigt die Auswertung nur den aktuellen Wert, keinen Verlauf.",
+      "sm": 12
     }
   }
 }

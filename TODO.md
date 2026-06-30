@@ -17,19 +17,23 @@ Einheiten-Auswahlfeld (W/kW bzw. Wh/kWh), das einen Umrechnungsfaktor setzt.
 - Sinnvolle Defaults: power=W, energy=kWh (entspricht heutigem Verhalten → abwärtskompatibel).
 - jsonConfig.json: kleines `select` neben jedem `objectId`-Feld; io-package.json: native Defaults.
 
-## 2. Eigene Web-Seite zur Visualisierung
+## 2. Eigene Web-Seite zur Visualisierung (in Arbeit)
 
-**Idee:** Wie manche Adapter eine aufrufbare Web-Oberfläche mit schöner Darstellung
-(SoC-Verlauf, Ersparnis über Zeit, Bezug mit/ohne Speicher, Amortisations-Prognose).
+**Idee:** Aufrufbare Web-Oberfläche im bekannten ASUE-Stil (Tageskurven: Erzeugung gelb,
+Verbrauch-Linie, Direktverbrauch hellblau, Ladestand), dazu Ersparnis/Amortisation.
 
-**Umsetzungs-Notizen / Optionen:**
-- **Variante A – Admin-Tab:** zusätzlicher Reiter über `common.adminTab` / `tab_m.html`.
-  Bleibt im Admin, kein extra Webserver nötig.
-- **Variante B – eigenes `www/`-Verzeichnis:** statische Seite, vom `web`-Adapter unter
-  `http://<ip>:8082/pv-storage-sim/` ausgeliefert; Live-Werte via socket.io (iobroker-ws).
-- Charts z. B. mit Chart.js (leichtgewichtig). Für historische Verläufe braucht es Logging
-  der States (history/influxdb/sql-Adapter) bzw. eigenes Ringbuffer-Logging.
-- Pragmatischer erster Schritt: Admin-Tab mit aktuellen Kennzahlen + einfachem Tages-Chart.
+**Fundament steht (v0.0.4):**
+- ✅ `live.*`-Datenpunkte mit momentanen Leistungen (W) als Chart-Datenquelle
+- ✅ History-Hinweis in der Admin-Config (User muss Logging aktivieren)
+
+**Noch offen – das eigentliche UI:**
+- **Variante A – Admin-Tab:** Reiter über `common.adminTab` / `tab_m.html`. Bleibt im Admin,
+  nutzt dessen Socket, kein extra Webserver. Schnellster Weg zum funktionierenden Chart.
+- **Variante B – eigenes `www/`-Verzeichnis:** standalone Seite, vom `web`-Adapter unter
+  `http://<ip>:8082/pv-storage-sim/` ausgeliefert; Live-Werte via socket.io.
+- Charts mit Chart.js. Historie via `getHistory`/`sendTo` an den History-Adapter.
+- Chart passt sich dem `sourceMode` an: voller Erzeugung/Verbrauch/Direktverbrauch-Chart nur
+  bei `pv_consumption`; bei Netz-Modi Netzbezug real vs. simuliert + Ladestand.
 
 ## Bekannte Vereinfachungen im Rechenmodell
 
