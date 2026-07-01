@@ -82,6 +82,10 @@ Offene Punkte und geplante Erweiterungen werden in [TODO.md](TODO.md) gepflegt
 
 ## Changelog
 
+### 0.0.32 (2026-06-30)
+- Speicher-Vorlagen um die neuere **Huawei LUNA2000 S1**-Serie ergänzt (7 / 14 / 21 kWh,
+  7-kWh-Module)
+
 ### 0.0.31 (2026-06-30)
 - Speicher-Vorlagen (`storageTemplate`): Hersteller/Modell auswählen (Huawei LUNA2000, BYD HVS,
   Tesla Powerwall 2, LG RESU, sonnen, E3/DC …) und die technischen Specs übernehmen. Die Werte

@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "pv-storage-sim",
-    "version": "0.0.31",
+    "version": "0.0.32",
     "news": {
+      "0.0.32": {
+        "en": "Added Huawei LUNA2000 S1 templates (7/14/21 kWh, newer 7 kWh modules).",
+        "de": "Huawei LUNA2000 S1-Vorlagen ergänzt (7/14/21 kWh, neuere 7-kWh-Module)."
+      },
       "0.0.31": {
         "en": "Storage templates: pick a manufacturer/model to prefill technical specs (representative values, please verify); 'custom' keeps manual entry.",
         "de": "Speicher-Vorlagen: Hersteller/Modell wählen und technische Specs übernehmen (repräsentative Werte, bitte prüfen); 'Eigene Werte' bleibt manuell."
