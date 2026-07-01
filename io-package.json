@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "pv-storage-sim",
-    "version": "0.0.28",
+    "version": "0.0.29",
     "news": {
+      "0.0.29": {
+        "en": "Day chart: zoom into a time range by dragging with the mouse; reset via button or double-click.",
+        "de": "Tages-Chart: per Maus einen Zeitbereich aufziehen zum Reinzoomen; Zurücksetzen per Button oder Doppelklick."
+      },
       "0.0.28": {
         "en": "KPI 'savings' now reflects the selected day (from savingsTotal history) instead of always today.",
         "de": "KPI 'Ersparnis' bezieht sich jetzt auf den angezeigten Tag (aus der savingsTotal-Historie) statt immer auf heute."

@@ -81,6 +81,7 @@
         <label>Instanz <select id="instance"></select></label>
         <label id="dayWrap">Tag <button id="dayPrev" class="nav" title="Tag zurück">◀</button><input type="date" id="day"><button id="dayNext" class="nav" title="Tag vor">▶</button><button id="dayToday" class="nav">Heute</button></label>
         <button id="reload">Aktualisieren</button>
+        <button id="zoomReset" style="display:none" title="Zoom aufheben (oder Doppelklick im Chart)">Zoom zurücksetzen</button>
     </div>
     <div class="status" id="status">Verbinde…</div>
 
@@ -109,7 +110,27 @@
 var socket = null, instances = [], curInst = 0, sourceMode = 'pv_consumption';
 var curCfg = null, merged = [], tableRows = [], geom = null, hiddenSet = {};
 var periodMode = 'tag', capacityKwh = 10, smoothOn = false;
+var zoom = null, dragging = false, dragStartX = null;
 var wrap, crossCanvas, tipEl;
+
+function clampX(x) { return Math.max(geom.padL, Math.min(geom.padL + geom.plotW, x)); }
+function tsAtX(x) { return geom.x0 + (x - geom.padL) / geom.plotW * (geom.x1 - geom.x0); }
+function clearZoom() { zoom = null; var b = document.getElementById('zoomReset'); if (b) b.style.display = 'none'; }
+function resetZoom() {
+    if (!zoom) return;
+    clearZoom();
+    if (window._lastCfg) drawChart(window._lastCfg, window._lastB.start, window._lastB.end);
+    onLeave();
+}
+function drawSelection(a, b) {
+    var s = sizeCanvas(crossCanvas), ctx = s.ctx;
+    ctx.clearRect(0, 0, s.w, s.h);
+    var lo = Math.min(a, b), hi = Math.max(a, b);
+    ctx.fillStyle = 'rgba(120,160,255,0.20)';
+    ctx.fillRect(lo, geom.padT, hi - lo, geom.plotH);
+    ctx.strokeStyle = 'rgba(120,160,255,0.85)'; ctx.lineWidth = 1;
+    ctx.strokeRect(lo, geom.padT, hi - lo, geom.plotH);
+}
 
 function isHidden(s) { return !!hiddenSet[s.path]; }
 
@@ -225,6 +246,7 @@ function fetchConfig() {
 function setPeriodUI() {
     document.getElementById('viewWrap').style.display = (periodMode === 'tag') ? '' : 'none';
     document.getElementById('smoothWrap').style.display = (periodMode === 'tag') ? '' : 'none';
+    document.getElementById('zoomReset').style.display = (periodMode === 'tag' && zoom) ? '' : 'none';
     document.getElementById('dayWrap').style.display = (periodMode === 'prognose') ? 'none' : '';
     document.getElementById('legend').style.display = (periodMode === 'tag') ? '' : 'none';
     var titles = { tag: 'Werte über den Tag', monat: 'Ersparnis je Tag', prognose: 'Prognose je Jahr' };
@@ -411,7 +433,7 @@ function renderRows(headers, rows, highlightLast) {
 
 function ddmm(ts) { var d = new Date(ts); return pad2(d.getDate()) + '.' + pad2(d.getMonth() + 1) + '.'; }
 function setDayInput(d) { document.getElementById('day').value = d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
-function shiftDay(delta) { var el = document.getElementById('day'); var d = el.value ? new Date(el.value + 'T00:00:00') : new Date(); d.setDate(d.getDate() + delta); setDayInput(d); refresh(); }
+function shiftDay(delta) { var el = document.getElementById('day'); var d = el.value ? new Date(el.value + 'T00:00:00') : new Date(); d.setDate(d.getDate() + delta); clearZoom(); setDayInput(d); refresh(); }
 
 function selectedDayIsToday() {
     var v = document.getElementById('day').value;
@@ -514,6 +536,19 @@ function niceCeil(v) {
     var mag = Math.pow(10, Math.floor(Math.log10(v))), n = v / mag;
     return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10) * mag;
 }
+// Zeitraster-Beschriftungen für das sichtbare Fenster [x0,x1] (passt Schrittweite dem Zoom an)
+function timeTicks(x0, x1) {
+    var steps = [5, 15, 30, 60, 120, 180, 360, 720].map(function (m) { return m * 60000; });
+    var span = x1 - x0, step = steps[steps.length - 1];
+    for (var i = 0; i < steps.length; i++) { if (span / steps[i] <= 8) { step = steps[i]; break; } }
+    var d0 = new Date(x0), midnight = new Date(d0.getFullYear(), d0.getMonth(), d0.getDate()).getTime();
+    var first = Math.ceil((x0 - midnight) / step) * step + midnight, out = [];
+    for (var t = first; t <= x1; t += step) {
+        var d = new Date(t);
+        out.push({ ts: t, label: pad2(d.getHours()) + ':' + pad2(d.getMinutes()) });
+    }
+    return out;
+}
 function sizeCanvas(cv) {
     var dpr = window.devicePixelRatio || 1, w = cv.clientWidth, h = cv.clientHeight;
     cv.width = w * dpr; cv.height = h * dpr;
@@ -551,7 +586,8 @@ function drawChart(cfg, x0, x1) {
     cfg.lines.forEach(function (sr) { if (isHidden(sr) || sr.axis === 'right') return; sr._draw.forEach(function (p) { consider(p.val); }); });
     var hi = niceCeil(maxAbs), lo = hasNeg ? -hi : 0;
 
-    geom = { padL: padL, padT: padT, plotW: plotW, plotH: plotH, x0: x0, x1: x1, lo: lo, hi: hi, leftMax: hi };
+    var vx0 = zoom ? zoom.start : x0, vx1 = zoom ? zoom.end : x1; // Zoomfenster oder voller Tag
+    geom = { padL: padL, padT: padT, plotW: plotW, plotH: plotH, x0: vx0, x1: vx1, lo: lo, hi: hi, leftMax: hi };
     geom.zeroY = padT + (hi - 0) / (hi - lo) * plotH;
 
     ctx.fillStyle = muted; ctx.lineWidth = 1; ctx.font = '11px Segoe UI, Arial'; ctx.textBaseline = 'middle';
@@ -566,12 +602,13 @@ function drawChart(cfg, x0, x1) {
         ctx.textAlign = 'left'; ctx.fillText(Math.round(100 * (1 - i / 4)) + '%', padL + plotW + 6, yy);
     }
     ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-    for (var h = 0; h <= 24; h += 3) {
-        var xx = padL + plotW * h / 24;
+    timeTicks(vx0, vx1).forEach(function (tk) {
+        var xx = xPixG(tk.ts);
         ctx.beginPath(); ctx.moveTo(xx, padT); ctx.lineTo(xx, padT + plotH); ctx.strokeStyle = border; ctx.stroke();
-        ctx.fillStyle = muted; ctx.fillText(pad2(h) + ':00', xx, padT + plotH + 5);
-    }
+        ctx.fillStyle = muted; ctx.fillText(tk.label, xx, padT + plotH + 5);
+    });
 
+    ctx.save(); ctx.beginPath(); ctx.rect(padL, padT, plotW, plotH); ctx.clip(); // Serien auf den Plotbereich begrenzen (Zoom)
     cfg.areas.forEach(function (sr) {
         if (isHidden(sr) || !sr._draw.length) return;
         if (sr.splitSign) { drawSplitArea(ctx, sr); return; }
@@ -588,6 +625,7 @@ function drawChart(cfg, x0, x1) {
         ctx.strokeStyle = sr.color; ctx.lineWidth = 2; ctx.beginPath();
         sr._draw.forEach(function (p, k) { var X = xPixG(p.ts), Y = yG(sr, p.val); k ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); }); ctx.stroke();
     });
+    ctx.restore(); // Clip aufheben
     ctx.strokeStyle = border; ctx.lineWidth = 1; ctx.strokeRect(padL, padT, plotW, plotH);
 }
 
@@ -641,9 +679,11 @@ function nearestMergedIdx(ts) {
     return best;
 }
 function onMove(e) {
-    if (periodMode !== 'tag' || !geom || !merged.length || !curCfg) return;
+    if (periodMode !== 'tag' || !geom) return;
     var rect = wrap.getBoundingClientRect();
     var cssX = e.clientX - rect.left;
+    if (dragging) { drawSelection(dragStartX, clampX(cssX)); return; } // Aufziehen des Zoom-Bereichs
+    if (!merged.length || !curCfg) return;
     if (cssX < geom.padL || cssX > geom.padL + geom.plotW) { onLeave(); return; }
     var ts = geom.x0 + (cssX - geom.padL) / geom.plotW * (geom.x1 - geom.x0);
     var m = merged[nearestMergedIdx(ts)];
@@ -703,17 +743,37 @@ window.addEventListener('DOMContentLoaded', function () {
     crossCanvas = document.getElementById('cross');
     tipEl = document.getElementById('tip');
     wrap.addEventListener('mousemove', onMove);
-    wrap.addEventListener('mouseleave', onLeave);
+    wrap.addEventListener('mouseleave', function () { if (!dragging) onLeave(); });
+    // Brush-to-Zoom: Bereich mit gedrückter Maus aufziehen
+    wrap.addEventListener('mousedown', function (e) {
+        if (periodMode !== 'tag' || !geom) return;
+        var x = e.clientX - wrap.getBoundingClientRect().left;
+        if (x < geom.padL || x > geom.padL + geom.plotW) return;
+        dragging = true; dragStartX = x; if (tipEl) tipEl.style.display = 'none';
+        e.preventDefault();
+    });
+    window.addEventListener('mouseup', function (e) {
+        if (!dragging) return;
+        dragging = false;
+        var x = clampX(e.clientX - wrap.getBoundingClientRect().left);
+        sizeCanvas(crossCanvas).ctx.clearRect(0, 0, crossCanvas.clientWidth, crossCanvas.clientHeight);
+        if (Math.abs(x - dragStartX) < 6) return; // zu kleiner Bereich -> wie Klick ignorieren
+        zoom = { start: Math.min(tsAtX(dragStartX), tsAtX(x)), end: Math.max(tsAtX(dragStartX), tsAtX(x)) };
+        document.getElementById('zoomReset').style.display = '';
+        if (window._lastCfg) drawChart(window._lastCfg, window._lastB.start, window._lastB.end);
+    });
+    wrap.addEventListener('dblclick', function () { resetZoom(); });
 
-    document.getElementById('instance').addEventListener('change', function (e) { curInst = parseInt(e.target.value, 10); refresh(); });
-    document.getElementById('day').addEventListener('change', refresh);
+    document.getElementById('instance').addEventListener('change', function (e) { curInst = parseInt(e.target.value, 10); clearZoom(); refresh(); });
+    document.getElementById('day').addEventListener('change', function () { clearZoom(); refresh(); });
     document.getElementById('reload').addEventListener('click', refresh);
+    document.getElementById('zoomReset').addEventListener('click', resetZoom);
     document.getElementById('view').addEventListener('change', function (e) { applyViewMode(e.target.value); applyVisibility(); });
     document.getElementById('smooth').addEventListener('change', function (e) { smoothOn = e.target.checked; if (periodMode === 'tag') applyVisibility(); });
-    document.getElementById('period').addEventListener('change', function (e) { periodMode = e.target.value; onLeave(); refresh(); });
+    document.getElementById('period').addEventListener('change', function (e) { periodMode = e.target.value; clearZoom(); onLeave(); refresh(); });
     document.getElementById('dayPrev').addEventListener('click', function () { shiftDay(-1); });
     document.getElementById('dayNext').addEventListener('click', function () { shiftDay(1); });
-    document.getElementById('dayToday').addEventListener('click', function () { setDayInput(new Date()); refresh(); });
+    document.getElementById('dayToday').addEventListener('click', function () { clearZoom(); setDayInput(new Date()); refresh(); });
     document.getElementById('legend').addEventListener('click', function (e) {
         var sp = e.target.closest('span.leg'); if (!sp) return;
         var p = sp.getAttribute('data-path'); hiddenSet[p] = !hiddenSet[p]; applyVisibility();

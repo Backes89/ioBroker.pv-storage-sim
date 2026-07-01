@@ -82,6 +82,10 @@ Offene Punkte und geplante Erweiterungen werden in [TODO.md](TODO.md) gepflegt
 
 ## Changelog
 
+### 0.0.29 (2026-06-30)
+- Tages-Chart: Reinzoomen per Maus-Aufziehen eines Zeitbereichs (Brush-to-Zoom); Zurücksetzen
+  über Button „Zoom zurücksetzen" oder Doppelklick. Zeitachse passt die Schrittweite an.
+
 ### 0.0.28 (2026-06-30)
 - KPI „Ersparnis" bezieht sich beim Blättern auf den **angezeigten Tag** (berechnet aus der
   `savingsTotal`-Historie); für heute weiterhin der Live-Wert
