@@ -4,6 +4,7 @@ const utils = require('@iobroker/adapter-core');
 const { stepBattery, splitSignedPower, unitFactor } = require('./lib/simulation');
 const { periodResets } = require('./lib/period');
 const { accumulateStep } = require('./lib/accumulation');
+const { dayChartSvg, barsSvg, kpiCardSvg, fmtDE } = require('./lib/svg');
 
 // Definition aller vom Adapter angelegten States: [id, name, unit, role, type]
 const STATE_DEFS = [
@@ -37,6 +38,12 @@ const STATE_DEFS = [
     ['live.gridNetOrigW', 'Netz-Saldo ohne Speicher (+Bezug/−Einsp.)', 'W', 'value.power', 'number'],
     ['live.gridNetSimW', 'Netz-Saldo mit Speicher (+Bezug/−Einsp.)', 'W', 'value.power', 'number'],
     ['live.batteryPowerW', 'Speicher-Leistung (+lädt / −entlädt)', 'W', 'value.power', 'number'],
+
+    // Fertige SVG-Charts als Datenpunkt – direkt in beliebigen Dashboards (VIS, eigene Web-Apps …) anzeigbar
+    ['charts.todaySvg', 'Tagesverlauf (SVG)', '', 'html', 'string'],
+    ['charts.savingsMonthSvg', 'Ersparnis pro Tag (SVG)', '', 'html', 'string'],
+    ['charts.kpiCardSvg', 'Kennzahlen-Kachel (SVG)', '', 'html', 'string'],
+    ['charts._dailyHistory', 'Tages-Ersparnis-Historie (intern)', '', 'json', 'string'],
 ];
 
 // States, die es in früheren Versionen gab und die beim Start entfernt werden (durch gridNet* ersetzt).
@@ -161,6 +168,13 @@ class PvStorageSim extends utils.Adapter {
             this.log.debug('Persistierte Tageswerte stammen aus einer vergangenen Periode – zurückgesetzt.');
         }
 
+        // Chart-Daten: In-Memory-Tagespuffer + persistierte Tages-Ersparnis-Historie
+        this.dayBuffer = [];
+        this.lastSvgTs = 0;
+        const dh = await this.getStateAsync('charts._dailyHistory').catch(() => null);
+        try { this.dailySavings = JSON.parse(dh && dh.val ? dh.val : '[]'); } catch { this.dailySavings = []; }
+        if (!Array.isArray(this.dailySavings)) this.dailySavings = [];
+
         await this.setStateAsync('info.connection', { val: true, ack: true });
         this.timer = this.setInterval(
             () => this.tick().catch(e => this.log.error(`tick: ${e.message}`)),
@@ -220,6 +234,20 @@ class PvStorageSim extends utils.Adapter {
 
         await this.accumulate(r, chargedKwh, dischargedKwh, benefit, surplusWh, deficitWh);
         await this.publishLive(r, dtH, pvWh, consWh, surplusWh, deficitWh);
+
+        // Chart-Tagespuffer füllen und die SVG-Datenpunkte gedrosselt (alle 2 Min.) aktualisieren
+        const wNow = (wh) => Math.round(wh / dtH);
+        this.dayBuffer.push({
+            ts: now,
+            netOrig: wNow(deficitWh - surplusWh),
+            netSim: wNow(r.gridImportWh - r.gridExportWh),
+            batt: wNow(r.chargedWh - r.dischargedWh),
+            soc: Math.round((this.socWh / this.p.capacityWh) * 1000) / 10,
+        });
+        if (now - this.lastSvgTs >= 120000) {
+            this.lastSvgTs = now;
+            await this.renderCharts().catch(e => this.log.warn(`renderCharts: ${e.message}`));
+        }
     }
 
     /**
@@ -336,7 +364,42 @@ class PvStorageSim extends utils.Adapter {
         await Promise.all(writes);
     }
 
+    /** Rendert die SVG-Chart-Datenpunkte aus dem Tagespuffer + der Ersparnis-Historie. */
+    async renderCharts() {
+        const now = new Date();
+        const start = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+        const map = (k) => this.dayBuffer.map(b => ({ ts: b.ts, val: b[k] }));
+        const daySvg = dayChartSvg({
+            start, end: start + 86400000,
+            netOrig: map('netOrig'), netSim: map('netSim'), batt: map('batt'), soc: map('soc'),
+        });
+
+        const daily = this.dailySavings.slice(-29).concat([{ day: start, val: Math.round(this.acc.savingsToday * 100) / 100 }]);
+        const monthSvg = barsSvg(daily);
+
+        const amort = await this.getNumber('economics.amortizationYears');
+        const kpiSvg = kpiCardSvg([
+            { label: 'Ladestand', value: Math.round((this.socWh / this.p.capacityWh) * 100) + ' %' },
+            { label: 'Ersparnis heute', value: fmtDE(this.acc.savingsToday, 2) + ' €' },
+            { label: 'Ersparnis gesamt', value: fmtDE(this.totals.savingsTotal, 2) + ' €' },
+            { label: 'Amortisation', value: amort ? fmtDE(amort, 1) + ' J' : '–' },
+        ]);
+
+        await Promise.all([
+            this.setStateAsync('charts.todaySvg', { val: daySvg, ack: true }),
+            this.setStateAsync('charts.savingsMonthSvg', { val: monthSvg, ack: true }),
+            this.setStateAsync('charts.kpiCardSvg', { val: kpiSvg, ack: true }),
+        ]);
+    }
+
     async resetDaily(d) {
+        // abgeschlossenen Tag in die persistente Ersparnis-Historie schreiben (für die Monats-Balken)
+        const endedDay = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime() - 86400000;
+        this.dailySavings.push({ day: endedDay, val: Math.round(this.acc.savingsToday * 100) / 100 });
+        if (this.dailySavings.length > 60) this.dailySavings.shift();
+        await this.setStateAsync('charts._dailyHistory', { val: JSON.stringify(this.dailySavings), ack: true }).catch(() => {});
+        this.dayBuffer = [];
+
         this.acc.chargedToday = 0;
         this.acc.dischargedToday = 0;
         this.acc.importOrigToday = 0;

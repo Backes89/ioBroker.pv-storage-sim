@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "pv-storage-sim",
-    "version": "0.0.29",
+    "version": "0.0.30",
     "news": {
+      "0.0.30": {
+        "en": "New SVG chart states (charts.todaySvg, savingsMonthSvg, kpiCardSvg) for easy display in any dashboard (VIS etc.), rendered without an extra adapter.",
+        "de": "Neue SVG-Chart-Datenpunkte (charts.todaySvg, savingsMonthSvg, kpiCardSvg) zur einfachen Anzeige in beliebigen Dashboards (VIS usw.), ohne Zusatz-Adapter gerendert."
+      },
       "0.0.29": {
         "en": "Day chart: zoom into a time range by dragging with the mouse; reset via button or double-click.",
         "de": "Tages-Chart: per Maus einen Zeitbereich aufziehen zum Reinzoomen; Zurücksetzen per Button oder Doppelklick."

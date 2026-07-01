@@ -82,6 +82,12 @@ Offene Punkte und geplante Erweiterungen werden in [TODO.md](TODO.md) gepflegt
 
 ## Changelog
 
+### 0.0.30 (2026-06-30)
+- Neue SVG-Chart-Datenpunkte `charts.todaySvg` (Tagesverlauf), `charts.savingsMonthSvg`
+  (Ersparnis/Tag) und `charts.kpiCardSvg` (Kennzahlen-Kachel) — fertige SVGs zur Anzeige in
+  beliebigen Dashboards (VIS, eigene Web-Apps …), gerendert aus einem In-Memory-Tagespuffer
+  ohne Zusatz-Adapter. Aktualisierung alle ~2 Minuten.
+
 ### 0.0.29 (2026-06-30)
 - Tages-Chart: Reinzoomen per Maus-Aufziehen eines Zeitbereichs (Brush-to-Zoom); Zurücksetzen
   über Button „Zoom zurücksetzen" oder Doppelklick. Zeitachse passt die Schrittweite an.
