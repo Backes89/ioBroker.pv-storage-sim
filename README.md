@@ -82,6 +82,10 @@ Offene Punkte und geplante Erweiterungen werden in [TODO.md](TODO.md) gepflegt
 
 ## Changelog
 
+### 0.0.33 (2026-06-30)
+- Speicher-Vorlagen-Dropdown zeigt die hinterlegten Werte (Kapazität · Lade-/Entladeleistung ·
+  Wirkungsgrad) direkt im Auswahl-Namen
+
 ### 0.0.32 (2026-06-30)
 - Speicher-Vorlagen um die neuere **Huawei LUNA2000 S1**-Serie ergänzt (7 / 14 / 21 kWh,
   7-kWh-Module)

@@ -195,27 +195,27 @@
     "storageTemplate": {
       "type": "select",
       "label": "Speicher-Vorlage",
-      "help": "Vorlage mit technischen Richtwerten wählen – die Werte sind REPRÄSENTATIV, bitte am Datenblatt prüfen. Für abweichende/eigene Werte 'Eigene Werte' wählen.",
+      "help": "Angaben je Vorlage: Kapazität · max. Lade-/Entladeleistung · Roundtrip-Wirkungsgrad. Die Werte sind REPRÄSENTATIV, bitte am Datenblatt prüfen. Für abweichende/eigene Werte 'Eigene Werte' wählen.",
       "options": [
         { "value": "custom", "label": "Eigene Werte (manuell)" },
-        { "value": "huawei_luna2000_5", "label": "Huawei LUNA2000 – 5 kWh" },
-        { "value": "huawei_luna2000_10", "label": "Huawei LUNA2000 – 10 kWh" },
-        { "value": "huawei_luna2000_15", "label": "Huawei LUNA2000 – 15 kWh" },
-        { "value": "huawei_luna2000_7_s1", "label": "Huawei LUNA2000 S1 – 7 kWh" },
-        { "value": "huawei_luna2000_14_s1", "label": "Huawei LUNA2000 S1 – 14 kWh" },
-        { "value": "huawei_luna2000_21_s1", "label": "Huawei LUNA2000 S1 – 21 kWh" },
-        { "value": "byd_hvs_5_1", "label": "BYD Battery-Box HVS 5.1" },
-        { "value": "byd_hvs_7_7", "label": "BYD Battery-Box HVS 7.7" },
-        { "value": "byd_hvs_10_2", "label": "BYD Battery-Box HVS 10.2" },
-        { "value": "tesla_powerwall_2", "label": "Tesla Powerwall 2" },
-        { "value": "lg_resu10h", "label": "LG RESU10H" },
-        { "value": "sonnen_10_11", "label": "sonnenBatterie 10 (11 kWh)" },
-        { "value": "e3dc_s10_e_13", "label": "E3/DC S10 E (13 kWh)" }
+        { "value": "huawei_luna2000_5", "label": "Huawei LUNA2000 – 5 kWh · 2,5 kW · η 95 %" },
+        { "value": "huawei_luna2000_10", "label": "Huawei LUNA2000 – 10 kWh · 5 kW · η 95 %" },
+        { "value": "huawei_luna2000_15", "label": "Huawei LUNA2000 – 15 kWh · 5 kW · η 95 %" },
+        { "value": "huawei_luna2000_7_s1", "label": "Huawei LUNA2000 S1 – 7 kWh · 3,5 kW · η 95 %" },
+        { "value": "huawei_luna2000_14_s1", "label": "Huawei LUNA2000 S1 – 14 kWh · 5 kW · η 95 %" },
+        { "value": "huawei_luna2000_21_s1", "label": "Huawei LUNA2000 S1 – 21 kWh · 5 kW · η 95 %" },
+        { "value": "byd_hvs_5_1", "label": "BYD Battery-Box HVS 5.1 · 5,1 kWh · 3 kW · η 95 %" },
+        { "value": "byd_hvs_7_7", "label": "BYD Battery-Box HVS 7.7 · 7,7 kWh · 4,5 kW · η 95 %" },
+        { "value": "byd_hvs_10_2", "label": "BYD Battery-Box HVS 10.2 · 10,2 kWh · 6 kW · η 95 %" },
+        { "value": "tesla_powerwall_2", "label": "Tesla Powerwall 2 · 13,5 kWh · 5 kW · η 90 %" },
+        { "value": "lg_resu10h", "label": "LG RESU10H · 9,8 kWh · 5 kW · η 95 %" },
+        { "value": "sonnen_10_11", "label": "sonnenBatterie 10 · 11 kWh · 4,6 kW · η 90 %" },
+        { "value": "e3dc_s10_e_13", "label": "E3/DC S10 E · 13 kWh · 4,5 kW · η 90 %" }
       ],
       "default": "custom",
       "newLine": true,
       "sm": 12,
-      "md": 6
+      "md": 8
     },
     "capacityKwh": {
       "type": "number",

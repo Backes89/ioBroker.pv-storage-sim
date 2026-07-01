@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "pv-storage-sim",
-    "version": "0.0.32",
+    "version": "0.0.33",
     "news": {
+      "0.0.33": {
+        "en": "Storage template dropdown now shows the stored specs (capacity, charge/discharge power, efficiency) in the option label.",
+        "de": "Speicher-Vorlagen-Dropdown zeigt die hinterlegten Werte (Kapazität, Lade-/Entladeleistung, Wirkungsgrad) direkt im Namen an."
+      },
       "0.0.32": {
         "en": "Added Huawei LUNA2000 S1 templates (7/14/21 kWh, newer 7 kWh modules).",
         "de": "Huawei LUNA2000 S1-Vorlagen ergänzt (7/14/21 kWh, neuere 7-kWh-Module)."
