@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "pv-storage-sim",
-    "version": "0.0.27",
+    "version": "0.0.28",
     "news": {
+      "0.0.28": {
+        "en": "KPI 'savings' now reflects the selected day (from savingsTotal history) instead of always today.",
+        "de": "KPI 'Ersparnis' bezieht sich jetzt auf den angezeigten Tag (aus der savingsTotal-Historie) statt immer auf heute."
+      },
       "0.0.27": {
         "en": "Added package validation tests (version/name consistency, news, required fields, referenced files, config<->native keys).",
         "de": "Paketvalidierungs-Tests ergänzt (Versions-/Namens-Konsistenz, News, Pflichtfelder, referenzierte Dateien, Config<->native-Keys)."

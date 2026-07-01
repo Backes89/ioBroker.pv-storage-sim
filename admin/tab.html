@@ -413,9 +413,36 @@ function ddmm(ts) { var d = new Date(ts); return pad2(d.getDate()) + '.' + pad2(
 function setDayInput(d) { document.getElementById('day').value = d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
 function shiftDay(delta) { var el = document.getElementById('day'); var d = el.value ? new Date(el.value + 'T00:00:00') : new Date(); d.setDate(d.getDate() + delta); setDayInput(d); refresh(); }
 
+function selectedDayIsToday() {
+    var v = document.getElementById('day').value;
+    var t = new Date();
+    return !v || v === (t.getFullYear() + '-' + pad2(t.getMonth() + 1) + '-' + pad2(t.getDate()));
+}
+
+// Ersparnis des angezeigten Tages: heute live aus savingsToday, sonst aus der
+// savingsTotal-Historie (Differenz Tagesende − Tagesanfang).
+function daySavings() {
+    if (periodMode !== 'tag' || selectedDayIsToday()) {
+        return getStateVal('economics.savingsToday.eur').then(function (v) {
+            return { val: v, label: 'Ersparnis heute' };
+        });
+    }
+    var b = dayBounds();
+    var qEnd = Math.min(b.end, Date.now());
+    return getHistory('economics.savingsTotal.eur', b.start - 86400000, qEnd).then(function (pts) {
+        var label = 'Ersparnis (' + ddmm(b.start) + ')';
+        if (!pts.length) return { val: null, label: label };
+        var cumStart = stepVal(pts, b.start);
+        if (cumStart === null) cumStart = pts[0].val;
+        var cumEnd = stepVal(pts, qEnd);
+        var val = (cumEnd !== null && cumStart !== null) ? cumEnd - cumStart : null;
+        return { val: val, label: label };
+    });
+}
+
 function loadKpis() {
     return Promise.all([
-        getStateVal('battery.soc.percent'), getStateVal('economics.savingsToday.eur'),
+        getStateVal('battery.soc.percent'), daySavings(),
         getStateVal('grid.importOriginalToday.kWh'), getStateVal('grid.importSimulatedToday.kWh'),
         getStateVal('economics.savingsTotal.eur'), getStateVal('economics.amortizationYears'),
         getStateVal('battery.chargedToday.kWh'), getStateVal('battery.dischargedToday.kWh'),
@@ -425,7 +452,7 @@ function loadKpis() {
         var cycles = (v[9] != null && capacityKwh > 0) ? v[9] / capacityKwh : null;
         var kpis = [
             { label: 'Ladestand', value: fmt(v[0], 0, ' %') },
-            { label: 'Ersparnis heute', value: fmt(v[1], 2, ' €') },
+            { label: v[1].label, value: fmt(v[1].val, 2, ' €') },
             { label: 'Ersparnis gesamt', value: fmt(v[4], 2, ' €') },
             { label: 'Netzbezug heute', value: fmt(v[3], 1, ' kWh'), sub: saved != null ? ('−' + saved.toFixed(1) + ' kWh ggü. ohne Speicher') : '' },
             { label: 'Speicher-Deckung heute', value: fmt(v[8], 0, ' %') },

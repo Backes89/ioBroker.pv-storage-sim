@@ -82,6 +82,10 @@ Offene Punkte und geplante Erweiterungen werden in [TODO.md](TODO.md) gepflegt
 
 ## Changelog
 
+### 0.0.28 (2026-06-30)
+- KPI „Ersparnis" bezieht sich beim Blättern auf den **angezeigten Tag** (berechnet aus der
+  `savingsTotal`-Historie); für heute weiterhin der Live-Wert
+
 ### 0.0.27 (2026-06-30)
 - Paketvalidierungs-Tests (`test/package.test.js`): Versions-/Namens-Konsistenz, News-Eintrag,
   Pflichtfelder, Existenz referenzierter Dateien, Abgleich jsonConfig ↔ native-Defaults
