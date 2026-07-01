@@ -203,31 +203,46 @@ function getStateVal(path) {
     return emitP('getState', [id(path)]).then(function (s) { return s && typeof s.val === 'number' ? s.val : null; })
         .catch(function () { return null; });
 }
+function getStateStr(path) {
+    return emitP('getState', [id(path)]).then(function (s) { return s && s.val != null ? String(s.val) : null; })
+        .catch(function () { return null; });
+}
+function loadIntraday() {
+    return getStateStr('charts._intradayBuffer').then(function (json) {
+        try { return JSON.parse(json || '[]'); } catch (e) { return []; }
+    });
+}
+function fetchHistoryAll(all, start, end) {
+    // Rohwerte (keine Mittelung): Momentanwerte, Bezug/Einspeisung schliessen sich aus
+    return Promise.all(all.map(function (s) {
+        return getHistory(s.path, start, end, { aggregate: 'none', count: 3000 }).then(function (data) { s.data = data; });
+    }));
+}
 
 function seriesConfig() {
     if (sourceMode === 'pv_consumption') {
         return {
             areas: [
-                { path: 'live.pvW', name: 'Erzeugung', short: 'PV', unit: 'W', scen: 'both', color: 'rgba(244,196,48,0.55)', stroke: '#e0a800' },
-                { path: 'live.directUseW', name: 'Direktverbrauch', short: 'Direkt', unit: 'W', scen: 'both', color: 'rgba(77,182,217,0.55)', stroke: '#3aa0c0' }
+                { path: 'live.pvW', buf: 'pv', name: 'Erzeugung', short: 'PV', unit: 'W', scen: 'both', color: 'rgba(244,196,48,0.55)', stroke: '#e0a800' },
+                { path: 'live.directUseW', buf: 'direct', name: 'Direktverbrauch', short: 'Direkt', unit: 'W', scen: 'both', color: 'rgba(77,182,217,0.55)', stroke: '#3aa0c0' }
             ],
             lines: [
-                { path: 'live.consumptionW', name: 'Verbrauch', short: 'Verbr.', unit: 'W', scen: 'both', color: '#7a7a1f', axis: 'left' },
-                { path: 'live.batteryPowerW', name: 'Speicher (+lädt/−entlädt)', short: 'Speicher', unit: 'W', scen: 'sim', color: '#ff9800', axis: 'left' },
-                { path: 'battery.soc.percent', name: 'Ladestand', short: 'SoC', unit: '%', scen: 'sim', color: '#4caf50', axis: 'right' }
+                { path: 'live.consumptionW', buf: 'cons', name: 'Verbrauch', short: 'Verbr.', unit: 'W', scen: 'both', color: '#7a7a1f', axis: 'left' },
+                { path: 'live.batteryPowerW', buf: 'batt', name: 'Speicher (+lädt/−entlädt)', short: 'Speicher', unit: 'W', scen: 'sim', color: '#ff9800', axis: 'left' },
+                { path: 'battery.soc.percent', buf: 'soc', name: 'Ladestand', short: 'SoC', unit: '%', scen: 'sim', color: '#4caf50', axis: 'right' }
             ]
         };
     }
     return {
         areas: [
-            { path: 'live.gridNetOrigW', name: 'Netz ohne Speicher (+Bezug/−Einsp.)', short: 'Netz o.Sp.', unit: 'W', scen: 'orig', splitSign: true,
+            { path: 'live.gridNetOrigW', buf: 'netOrig', name: 'Netz ohne Speicher (+Bezug/−Einsp.)', short: 'Netz o.Sp.', unit: 'W', scen: 'orig', splitSign: true,
                 posColor: 'rgba(229,115,115,0.30)', posStroke: '#d98b8b', negColor: 'rgba(120,170,220,0.30)', negStroke: '#9bbce0' },
-            { path: 'live.gridNetSimW', name: 'Netz mit Speicher (+Bezug/−Einsp.)', short: 'Netz m.Sp.', unit: 'W', scen: 'sim', splitSign: true,
+            { path: 'live.gridNetSimW', buf: 'netSim', name: 'Netz mit Speicher (+Bezug/−Einsp.)', short: 'Netz m.Sp.', unit: 'W', scen: 'sim', splitSign: true,
                 posColor: 'rgba(211,47,47,0.55)', posStroke: '#c62828', negColor: 'rgba(33,110,200,0.50)', negStroke: '#1f6ec8' }
         ],
         lines: [
-            { path: 'live.batteryPowerW', name: 'Speicher (+lädt/−entlädt)', short: 'Speicher', unit: 'W', scen: 'sim', color: '#ff9800', axis: 'left' },
-            { path: 'battery.soc.percent', name: 'Ladestand', short: 'SoC', unit: '%', scen: 'sim', color: '#4caf50', axis: 'right' }
+            { path: 'live.batteryPowerW', buf: 'batt', name: 'Speicher (+lädt/−entlädt)', short: 'Speicher', unit: 'W', scen: 'sim', color: '#ff9800', axis: 'left' },
+            { path: 'battery.soc.percent', buf: 'soc', name: 'Ladestand', short: 'SoC', unit: '%', scen: 'sim', color: '#4caf50', axis: 'right' }
         ]
     };
 }
@@ -267,10 +282,20 @@ function refreshDay() {
     fetchConfig().then(function () {
         var cfg = seriesConfig();
         var all = cfg.areas.concat(cfg.lines);
-        // Rohwerte (keine Mittelung): Momentanwerte -> Bezug und Einspeisung schliessen sich gegenseitig aus
-        return Promise.all(all.map(function (s) {
-            return getHistory(s.path, b.start, queryEnd, { aggregate: 'none', count: 3000 }).then(function (data) { s.data = data; return s; });
-        })).then(function () { return cfg; });
+        // Für HEUTE den dichten Intraday-Puffer des Adapters nutzen (lückenlos, kein History-Relog nötig);
+        // für vergangene Tage die History (Rohwerte).
+        if (selectedDayIsToday()) {
+            return loadIntraday().then(function (buf) {
+                if (buf && buf.length) {
+                    all.forEach(function (s) {
+                        s.data = s.buf ? buf.map(function (x) { return { ts: x.ts, val: x[s.buf] }; }).filter(function (p) { return p.val != null; }) : [];
+                    });
+                    return cfg;
+                }
+                return fetchHistoryAll(all, b.start, queryEnd).then(function () { return cfg; });
+            });
+        }
+        return fetchHistoryAll(all, b.start, queryEnd).then(function () { return cfg; });
     }).then(function (cfg) {
         curCfg = cfg;
         merged = buildMerged(cfg);

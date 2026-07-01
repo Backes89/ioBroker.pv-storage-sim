@@ -82,6 +82,12 @@ Offene Punkte und geplante Erweiterungen werden in [TODO.md](TODO.md) gepflegt
 
 ## Changelog
 
+### 0.0.34 (2026-06-30)
+- Tages-Chart (heute) im Admin-Tab nutzt den dichten Intraday-Puffer des Adapters statt der
+  History → lückenlose Kurve ohne „lineare" Interpolation, ohne History-Relog-Einstellung
+- Speicher-Vorlagen: die technischen Werte (Kapazität, max. Lade-/Entladeleistung getrennt,
+  Wirkungsgrad) werden jetzt als Info-Text **unter** dem Dropdown angezeigt statt im Namen
+
 ### 0.0.33 (2026-06-30)
 - Speicher-Vorlagen-Dropdown zeigt die hinterlegten Werte (Kapazität · Lade-/Entladeleistung ·
   Wirkungsgrad) direkt im Auswahl-Namen

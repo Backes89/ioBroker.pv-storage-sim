@@ -45,6 +45,7 @@ const STATE_DEFS = [
     ['charts.savingsMonthSvg', 'Ersparnis pro Tag (SVG)', '', 'html', 'string'],
     ['charts.kpiCardSvg', 'Kennzahlen-Kachel (SVG)', '', 'html', 'string'],
     ['charts._dailyHistory', 'Tages-Ersparnis-Historie (intern)', '', 'json', 'string'],
+    ['charts._intradayBuffer', 'Intraday-Puffer heute (intern, für den Admin-Chart)', '', 'json', 'string'],
 ];
 
 // States, die es in früheren Versionen gab und die beim Start entfernt werden (durch gridNet* ersetzt).
@@ -254,6 +255,9 @@ class PvStorageSim extends utils.Adapter {
             netSim: wNow(r.gridImportWh - r.gridExportWh),
             batt: wNow(r.chargedWh - r.dischargedWh),
             soc: Math.round((this.socWh / this.p.capacityWh) * 1000) / 10,
+            pv: pvWh !== null ? wNow(pvWh) : null,
+            cons: consWh !== null ? wNow(consWh) : null,
+            direct: pvWh !== null ? wNow(Math.min(pvWh, consWh)) : null,
         });
         if (now - this.lastSvgTs >= 120000) {
             this.lastSvgTs = now;
@@ -396,10 +400,20 @@ class PvStorageSim extends utils.Adapter {
             { label: 'Amortisation', value: amort ? fmtDE(amort, 1) + ' J' : '–' },
         ]);
 
+        // dichten Intraday-Puffer (heute) für den Admin-Chart bereitstellen – auf max. 720 Punkte reduziert
+        const maxPts = 720;
+        let stored = this.dayBuffer;
+        if (stored.length > maxPts) {
+            const step = Math.ceil(stored.length / maxPts);
+            stored = stored.filter((_, i) => i % step === 0);
+            if (stored[stored.length - 1] !== this.dayBuffer[this.dayBuffer.length - 1]) stored.push(this.dayBuffer[this.dayBuffer.length - 1]);
+        }
+
         await Promise.all([
             this.setStateAsync('charts.todaySvg', { val: daySvg, ack: true }),
             this.setStateAsync('charts.savingsMonthSvg', { val: monthSvg, ack: true }),
             this.setStateAsync('charts.kpiCardSvg', { val: kpiSvg, ack: true }),
+            this.setStateAsync('charts._intradayBuffer', { val: JSON.stringify(stored), ack: true }),
         ]);
     }
 

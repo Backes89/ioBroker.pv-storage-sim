@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "pv-storage-sim",
-    "version": "0.0.33",
+    "version": "0.0.34",
     "news": {
+      "0.0.34": {
+        "en": "Day chart for today now uses the adapter's dense intraday buffer (gap-free, no history relog needed). Storage template specs shown below the dropdown (charge/discharge separately) instead of in the label.",
+        "de": "Tages-Chart für heute nutzt den dichten Intraday-Puffer des Adapters (lückenlos, kein History-Relog nötig). Vorlagen-Werte werden unter dem Dropdown angezeigt (Lade-/Entladeleistung getrennt) statt im Namen."
+      },
       "0.0.33": {
         "en": "Storage template dropdown now shows the stored specs (capacity, charge/discharge power, efficiency) in the option label.",
         "de": "Speicher-Vorlagen-Dropdown zeigt die hinterlegten Werte (Kapazität, Lade-/Entladeleistung, Wirkungsgrad) direkt im Namen an."

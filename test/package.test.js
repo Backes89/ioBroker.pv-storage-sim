@@ -68,6 +68,16 @@ test('storageTemplate-Optionen decken sich mit den Vorlagen (+custom)', () => {
     assert.deepStrictEqual(opts, expected);
 });
 
+test('jede Vorlage hat einen Info-Text mit den korrekten Leistungswerten', () => {
+    for (const [key, s] of Object.entries(TEMPLATES)) {
+        const info = jsonConfig.items['_tplInfo_' + key];
+        assert.ok(info && info.type === 'staticText', `_tplInfo_${key} fehlt`);
+        assert.ok(info.hidden && info.hidden.includes("'" + key + "'"), `_tplInfo_${key}: hidden-Bezug fehlt`);
+        assert.ok(info.text.includes(String(s.maxChargeW)), `_tplInfo_${key}: Ladeleistung fehlt`);
+        assert.ok(info.text.includes(String(s.maxDischargeW)), `_tplInfo_${key}: Entladeleistung fehlt`);
+    }
+});
+
 test('instanceObjects sind wohlgeformt', () => {
     assert.ok(Array.isArray(io.instanceObjects), 'instanceObjects fehlt');
     for (const obj of io.instanceObjects) {
