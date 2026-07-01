@@ -192,11 +192,34 @@
       "size": 2,
       "text": "Speicher"
     },
+    "storageTemplate": {
+      "type": "select",
+      "label": "Speicher-Vorlage",
+      "help": "Vorlage mit technischen Richtwerten wählen – die Werte sind REPRÄSENTATIV, bitte am Datenblatt prüfen. Für abweichende/eigene Werte 'Eigene Werte' wählen.",
+      "options": [
+        { "value": "custom", "label": "Eigene Werte (manuell)" },
+        { "value": "huawei_luna2000_5", "label": "Huawei LUNA2000 – 5 kWh" },
+        { "value": "huawei_luna2000_10", "label": "Huawei LUNA2000 – 10 kWh" },
+        { "value": "huawei_luna2000_15", "label": "Huawei LUNA2000 – 15 kWh" },
+        { "value": "byd_hvs_5_1", "label": "BYD Battery-Box HVS 5.1" },
+        { "value": "byd_hvs_7_7", "label": "BYD Battery-Box HVS 7.7" },
+        { "value": "byd_hvs_10_2", "label": "BYD Battery-Box HVS 10.2" },
+        { "value": "tesla_powerwall_2", "label": "Tesla Powerwall 2" },
+        { "value": "lg_resu10h", "label": "LG RESU10H" },
+        { "value": "sonnen_10_11", "label": "sonnenBatterie 10 (11 kWh)" },
+        { "value": "e3dc_s10_e_13", "label": "E3/DC S10 E (13 kWh)" }
+      ],
+      "default": "custom",
+      "newLine": true,
+      "sm": 12,
+      "md": 6
+    },
     "capacityKwh": {
       "type": "number",
       "label": "Kapazität (kWh)",
       "min": 0.1,
       "default": 10,
+      "hidden": "data.storageTemplate !== 'custom'",
       "newLine": true,
       "sm": 12,
       "md": 4
@@ -207,6 +230,7 @@
       "min": 0,
       "max": 50,
       "default": 5,
+      "hidden": "data.storageTemplate !== 'custom'",
       "sm": 12,
       "md": 4
     },
@@ -216,6 +240,7 @@
       "min": 1,
       "max": 100,
       "default": 90,
+      "hidden": "data.storageTemplate !== 'custom'",
       "sm": 12,
       "md": 4
     },
@@ -224,6 +249,7 @@
       "label": "Max. Ladeleistung (W)",
       "min": 0,
       "default": 3000,
+      "hidden": "data.storageTemplate !== 'custom'",
       "newLine": true,
       "sm": 12,
       "md": 6
@@ -233,6 +259,7 @@
       "label": "Max. Entladeleistung (W)",
       "min": 0,
       "default": 3000,
+      "hidden": "data.storageTemplate !== 'custom'",
       "sm": 12,
       "md": 6
     },

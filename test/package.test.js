@@ -12,6 +12,7 @@ const root = path.join(__dirname, '..');
 const pkg = require('../package.json');
 const io = require('../io-package.json');
 const jsonConfig = require('../admin/jsonConfig.json');
+const { TEMPLATES } = require('../lib/templates');
 
 test('Versionen in package.json und io-package.json stimmen überein', () => {
     assert.strictEqual(pkg.version, io.common.version, 'version mismatch package.json <-> io-package.json');
@@ -59,6 +60,12 @@ test('jeder native-Default hat ein UI-Feld und umgekehrt', () => {
     const missingInUi = native.filter((k) => !items.includes(k));
     assert.deepStrictEqual(missingInNative, [], `UI-Felder ohne native-Default: ${missingInNative}`);
     assert.deepStrictEqual(missingInUi, [], `native-Defaults ohne UI-Feld: ${missingInUi}`);
+});
+
+test('storageTemplate-Optionen decken sich mit den Vorlagen (+custom)', () => {
+    const opts = jsonConfig.items.storageTemplate.options.map((o) => o.value).sort();
+    const expected = ['custom'].concat(Object.keys(TEMPLATES)).sort();
+    assert.deepStrictEqual(opts, expected);
 });
 
 test('instanceObjects sind wohlgeformt', () => {

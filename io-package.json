@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "pv-storage-sim",
-    "version": "0.0.30",
+    "version": "0.0.31",
     "news": {
+      "0.0.31": {
+        "en": "Storage templates: pick a manufacturer/model to prefill technical specs (representative values, please verify); 'custom' keeps manual entry.",
+        "de": "Speicher-Vorlagen: Hersteller/Modell wählen und technische Specs übernehmen (repräsentative Werte, bitte prüfen); 'Eigene Werte' bleibt manuell."
+      },
       "0.0.30": {
         "en": "New SVG chart states (charts.todaySvg, savingsMonthSvg, kpiCardSvg) for easy display in any dashboard (VIS etc.), rendered without an extra adapter.",
         "de": "Neue SVG-Chart-Datenpunkte (charts.todaySvg, savingsMonthSvg, kpiCardSvg) zur einfachen Anzeige in beliebigen Dashboards (VIS usw.), ohne Zusatz-Adapter gerendert."
@@ -190,6 +194,7 @@
     "unitGridPowerPower": "W",
     "unitGridPowerEnergy": "kWh",
     "intervalSec": 30,
+    "storageTemplate": "custom",
     "capacityKwh": 10,
     "minSocPercent": 5,
     "roundTripEff": 90,

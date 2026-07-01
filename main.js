@@ -5,6 +5,7 @@ const { stepBattery, splitSignedPower, unitFactor } = require('./lib/simulation'
 const { periodResets } = require('./lib/period');
 const { accumulateStep } = require('./lib/accumulation');
 const { dayChartSvg, barsSvg, kpiCardSvg, fmtDE } = require('./lib/svg');
+const { resolveStorage } = require('./lib/templates');
 
 // Definition aller vom Adapter angelegten States: [id, name, unit, role, type]
 const STATE_DEFS = [
@@ -69,19 +70,29 @@ class PvStorageSim extends utils.Adapter {
         await this.setStateAsync('info.connection', { val: false, ack: true }).catch(() => {});
 
         const c = this.config;
-        const capWh = (Number(c.capacityKwh) || 10) * 1000;
-        const eff = Math.sqrt(Math.min(Math.max(Number(c.roundTripEff) || 90, 1), 100) / 100);
+        // Speicher-Vorlage (Hersteller/Modell) oder eigene Werte
+        const tpl = resolveStorage(c.storageTemplate);
+        const spec = tpl || {
+            capacityKwh: Number(c.capacityKwh) || 10,
+            maxChargeW: Number(c.maxChargeW) || 3000,
+            maxDischargeW: Number(c.maxDischargeW) || 3000,
+            minSocPercent: Number(c.minSocPercent) || 5,
+            roundTripEff: Number(c.roundTripEff) || 90,
+        };
+        const capWh = spec.capacityKwh * 1000;
+        const eff = Math.sqrt(Math.min(Math.max(spec.roundTripEff, 1), 100) / 100);
 
         this.p = {
             capacityWh: capWh,
-            minSocWh: ((Number(c.minSocPercent) || 5) / 100) * capWh,
-            maxChargeW: Number(c.maxChargeW) || 3000,
-            maxDischargeW: Number(c.maxDischargeW) || 3000,
+            minSocWh: (spec.minSocPercent / 100) * capWh,
+            maxChargeW: spec.maxChargeW,
+            maxDischargeW: spec.maxDischargeW,
             maxChargeWh: 0,    // wird je Intervall gesetzt
             maxDischargeWh: 0, // wird je Intervall gesetzt
             chargeEff: eff,
             dischargeEff: eff,
         };
+        if (tpl) this.log.info(`Speicher-Vorlage aktiv: ${tpl.label} (${spec.capacityKwh} kWh, Laden/Entladen ${spec.maxChargeW}/${spec.maxDischargeW} W).`);
 
         this.priceImport = (Number(c.priceImportCt) || 0) / 100; // €/kWh
         this.priceFeedIn = (Number(c.priceFeedInCt) || 0) / 100; // €/kWh

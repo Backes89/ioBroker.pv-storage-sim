@@ -82,6 +82,11 @@ Offene Punkte und geplante Erweiterungen werden in [TODO.md](TODO.md) gepflegt
 
 ## Changelog
 
+### 0.0.31 (2026-06-30)
+- Speicher-Vorlagen (`storageTemplate`): Hersteller/Modell auswählen (Huawei LUNA2000, BYD HVS,
+  Tesla Powerwall 2, LG RESU, sonnen, E3/DC …) und die technischen Specs übernehmen. Die Werte
+  sind **repräsentativ – bitte am Datenblatt prüfen**; „Eigene Werte" bleibt für manuelle Eingabe.
+
 ### 0.0.30 (2026-06-30)
 - Neue SVG-Chart-Datenpunkte `charts.todaySvg` (Tagesverlauf), `charts.savingsMonthSvg`
   (Ersparnis/Tag) und `charts.kpiCardSvg` (Kennzahlen-Kachel) — fertige SVGs zur Anzeige in
