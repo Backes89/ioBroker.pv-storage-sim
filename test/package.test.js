@@ -85,13 +85,22 @@ test('storageTemplate-Optionen decken sich mit den Vorlagen (+custom)', () => {
     assert.deepStrictEqual(opts, expected);
 });
 
-test('jede Vorlage hat einen Info-Text mit den korrekten Leistungswerten', () => {
+test('jede Vorlage hat einen Info-Text mit den korrekten Leistungs-/Standby-Werten', () => {
     for (const [key, s] of Object.entries(TEMPLATES)) {
         const info = jsonConfig.items['_tplInfo_' + key];
         assert.ok(info && info.type === 'staticText', `_tplInfo_${key} fehlt`);
         assert.ok(info.hidden && info.hidden.includes("'" + key + "'"), `_tplInfo_${key}: hidden-Bezug fehlt`);
-        assert.ok(info.text.includes(String(s.maxChargeW)), `_tplInfo_${key}: Ladeleistung fehlt`);
-        assert.ok(info.text.includes(String(s.maxDischargeW)), `_tplInfo_${key}: Entladeleistung fehlt`);
+        const txt = JSON.stringify(info.text);
+        assert.ok(txt.includes(String(s.maxChargeW)), `_tplInfo_${key}: Ladeleistung fehlt`);
+        assert.ok(txt.includes(String(s.maxDischargeW)), `_tplInfo_${key}: Entladeleistung fehlt`);
+        assert.ok(txt.includes('~' + s.standbyW + ' W'), `_tplInfo_${key}: Standby fehlt`);
+        assert.ok(info.text.en && info.text.de, `_tplInfo_${key}: en/de fehlt`);
+    }
+});
+
+test('Vorlagen enthalten einen Standby-Wert', () => {
+    for (const [key, s] of Object.entries(TEMPLATES)) {
+        assert.ok(typeof s.standbyW === 'number' && s.standbyW >= 0 && s.standbyW <= 100, `${key}: standbyW unplausibel`);
     }
 });
 

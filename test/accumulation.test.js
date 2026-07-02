@@ -2,7 +2,7 @@
 
 const { test } = require('node:test');
 const assert = require('node:assert');
-const { accumulateStep } = require('../lib/accumulation');
+const { accumulateStep, amortYears } = require('../lib/accumulation');
 
 const close = (a, b, eps = 1e-9) => assert.ok(Math.abs(a - b) < eps, `${a} ≈ ${b}`);
 
@@ -75,6 +75,32 @@ test('Amortisation 0 ohne Investition', () => {
         { daysElapsed: 10, investment: 0 },
     );
     close(r.amortizationYears, 0);
+});
+
+test('Amortisation wird unterhalb der Mindest-Datenbasis nicht ausgewiesen', () => {
+    const r = accumulateStep(
+        zeroState(),
+        { chargedKwh: 0, dischargedKwh: 0, benefit: 20, deficitWh: 0, surplusWh: 0, gridImportWh: 0, gridExportWh: 0 },
+        { daysElapsed: 10, investment: 7000, minDays: 14 },
+    );
+    close(r.amortizationYears, 0);
+});
+
+test('amortYears: Preissteigerung verkürzt die Amortisation (geometrische Reihe)', () => {
+    // linear: 7000/730 ≈ 9.589 Jahre
+    close(amortYears(730, 7000, 0), 7000 / 730, 1e-9);
+    // 3 %/Jahr: Y = ln(1 + 7000*0.03/730) / ln(1.03) ≈ 8.553 Jahre
+    const y = amortYears(730, 7000, 3);
+    assert.ok(Math.abs(y - 8.553) < 0.01, `erwartet ~8.553, war ${y}`);
+    // Probe: kumulierte Ersparnis nach y Jahren entspricht der Investition
+    const cum = 730 * (Math.pow(1.03, y) - 1) / 0.03;
+    close(cum, 7000, 0.01);
+});
+
+test('amortYears: 0 bei fehlender Ersparnis oder Investition', () => {
+    close(amortYears(0, 7000, 3), 0);
+    close(amortYears(-5, 7000, 0), 0);
+    close(amortYears(500, 0, 3), 0);
 });
 
 test('reine Funktion: Eingaben werden nicht mutiert', () => {

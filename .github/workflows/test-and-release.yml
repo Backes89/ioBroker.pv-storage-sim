@@ -1,0 +1,51 @@
+name: Test
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request: {}
+
+jobs:
+  unit:
+    name: Unit- & Pakettests (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ['18.x', '20.x', '22.x']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - run: npm ci
+      - name: Unit-Tests (node:test)
+        run: npm run test:unit
+      - name: Offizielle Paketvalidierung (@iobroker/testing)
+        run: npm run test:package
+
+  integration:
+    name: Adapter-Integrationstest (js-controller)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+      - run: npm ci
+      - name: Integrationstest (@iobroker/testing)
+        run: npm run test:integration
+
+  repochecker:
+    # Informativ: prüft den GitHub-Stand gegen die Regeln des offiziellen ioBroker-Repos.
+    # continue-on-error, weil der Checker den bereits gepushten master prüft (Race bei PRs)
+    # und Warnungen enthält, die erst zur Veröffentlichung relevant sind.
+    name: ioBroker Repo-Checker (informativ)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+      - run: npx --yes @iobroker/repochecker https://github.com/Backes89/ioBroker.pv-storage-sim

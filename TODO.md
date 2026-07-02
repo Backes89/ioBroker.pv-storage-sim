@@ -34,13 +34,23 @@ Einheiten-Auswahlfeld (W/kW bzw. Wh/kWh), das einen Umrechnungsfaktor setzt.
 - Optional zusätzlich eine standalone `www/`-Seite (web-Adapter) zum Teilen/Vollbild.
 - Tooltips/Hover-Werte am Chart, Export als PNG/CSV.
 
+## Geplante nächste Schritte
+
+- **Instanz-Vergleich** (zwei Speichergrößen nebeneinander): heute schon über zwei Instanzen
+  möglich; offen ist eine Vergleichsansicht im Auswertungs-Tab (Instanz A vs. B).
+- **Dynamische Strompreise** (Tibber & Co.): Preis aus Datenpunkt statt Festwert — bewusst
+  auf später verschoben (ändert auch die Speicherstrategie-Frage).
+- Auswertungs-Tab (tab.html) übersetzen (aktuell deutsch; Admin-Config ist zweisprachig).
+- Vorlagen-Specs mit echten Datenblatt-Werten verifizieren (aktuell Richtwerte).
+
 ## Bekannte Vereinfachungen im Rechenmodell
 
-Bewusst offen gelassene Punkte (aus dem README hierher übernommen):
+Bewusst offen gelassene Punkte:
 
-- Leistungs-Modus integriert rechteckig (aktueller Wert × Intervall), keine Trapez-Mittelung
+- Leistungs-Modus (Polling) integriert rechteckig (aktueller Wert × Intervall); der
+  ereignisbasierte Lesemodus integriert zeitgewichtet je Wertänderung
 - keine Speicheralterung / Kapazitätsverlust über die Jahre
-- keine Strompreissteigerung, keine Finanzierung/Darlehen (Amortisation ist linear geschätzt)
+- keine Finanzierung/Darlehen in der Amortisation (Strompreissteigerung ist seit 0.0.37 drin)
 - echter Autarkiegrad nur näherungsweise (`batteryCoverage`)
 
 ## Erledigt

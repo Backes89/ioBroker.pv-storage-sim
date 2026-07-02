@@ -85,3 +85,33 @@ test('Einheit-Faktor: unbekannt/leer fällt auf Standard zurück', () => {
     assert.strictEqual(unitFactor(undefined), 1);
     assert.strictEqual(unitFactor(''), 1);
 });
+
+test('Standby wird aus dem Speicher gedeckt, solange er über der Reserve liegt', () => {
+    const r = stepBattery({ surplusWh: 0, deficitWh: 0, socWh: 5000 }, { ...base, standbyWh: 100 });
+    assert.strictEqual(r.socWh, 4900);
+    assert.strictEqual(r.standbyBattWh, 100);
+    assert.strictEqual(r.standbyGridWh, 0);
+    assert.strictEqual(r.gridImportWh, 0);
+});
+
+test('Standby fällt auf Netzbezug zurück, wenn der Speicher an der Reserve ist', () => {
+    const r = stepBattery({ surplusWh: 0, deficitWh: 0, socWh: 500 }, { ...base, standbyWh: 100 });
+    assert.strictEqual(r.socWh, 500);
+    assert.strictEqual(r.standbyBattWh, 0);
+    assert.strictEqual(r.standbyGridWh, 100);
+    assert.strictEqual(r.gridImportWh, 100);
+});
+
+test('Standby teilt sich auf Speicher und Netz auf, wenn die Reserve erreicht wird', () => {
+    const r = stepBattery({ surplusWh: 0, deficitWh: 0, socWh: 550 }, { ...base, standbyWh: 100 });
+    assert.strictEqual(r.socWh, 500);
+    assert.strictEqual(r.standbyBattWh, 50);
+    assert.strictEqual(r.standbyGridWh, 50);
+    assert.strictEqual(r.gridImportWh, 50);
+});
+
+test('ohne standbyWh bleibt alles wie bisher (abwärtskompatibel)', () => {
+    const r = stepBattery({ surplusWh: 1000, deficitWh: 0, socWh: 0 }, base);
+    assert.strictEqual(r.standbyBattWh, 0);
+    assert.strictEqual(r.standbyGridWh, 0);
+});

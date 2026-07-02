@@ -7,45 +7,45 @@ const { accumulateStep } = require('./lib/accumulation');
 const { dayChartSvg, barsSvg, kpiCardSvg, fmtDE } = require('./lib/svg');
 const { resolveStorage } = require('./lib/templates');
 
-// Definition aller vom Adapter angelegten States: [id, name, unit, role, type]
+// Definition aller vom Adapter angelegten States: [id, name{en,de}, unit, role, type]
 const STATE_DEFS = [
-    ['info.connection', 'Verbindung / aktiv', '', 'indicator.connected', 'boolean'],
+    ['info.connection', { en: 'Adapter active', de: 'Verbindung / aktiv' }, '', 'indicator.connected', 'boolean'],
 
-    ['battery.soc.kWh', 'Ladezustand', 'kWh', 'value.energy', 'number'],
-    ['battery.soc.percent', 'Ladezustand', '%', 'value.battery', 'number'],
-    ['battery.chargedToday.kWh', 'Geladen (heute)', 'kWh', 'value.energy', 'number'],
-    ['battery.dischargedToday.kWh', 'Entladen (heute)', 'kWh', 'value.energy', 'number'],
-    ['battery.chargedTotal.kWh', 'Geladen (gesamt)', 'kWh', 'value.energy', 'number'],
-    ['battery.dischargedTotal.kWh', 'Entladen (gesamt)', 'kWh', 'value.energy', 'number'],
+    ['battery.soc.kWh', { en: 'State of charge', de: 'Ladezustand' }, 'kWh', 'value.energy', 'number'],
+    ['battery.soc.percent', { en: 'State of charge', de: 'Ladezustand' }, '%', 'value.battery', 'number'],
+    ['battery.chargedToday.kWh', { en: 'Charged (today)', de: 'Geladen (heute)' }, 'kWh', 'value.energy', 'number'],
+    ['battery.dischargedToday.kWh', { en: 'Discharged (today)', de: 'Entladen (heute)' }, 'kWh', 'value.energy', 'number'],
+    ['battery.chargedTotal.kWh', { en: 'Charged (total)', de: 'Geladen (gesamt)' }, 'kWh', 'value.energy', 'number'],
+    ['battery.dischargedTotal.kWh', { en: 'Discharged (total)', de: 'Entladen (gesamt)' }, 'kWh', 'value.energy', 'number'],
 
-    ['grid.importOriginalToday.kWh', 'Netzbezug ohne Speicher (heute)', 'kWh', 'value.energy', 'number'],
-    ['grid.importSimulatedToday.kWh', 'Netzbezug mit Speicher (heute)', 'kWh', 'value.energy', 'number'],
-    ['grid.exportOriginalToday.kWh', 'Einspeisung ohne Speicher (heute)', 'kWh', 'value.energy', 'number'],
-    ['grid.exportSimulatedToday.kWh', 'Einspeisung mit Speicher (heute)', 'kWh', 'value.energy', 'number'],
+    ['grid.importOriginalToday.kWh', { en: 'Grid import without storage (today)', de: 'Netzbezug ohne Speicher (heute)' }, 'kWh', 'value.energy', 'number'],
+    ['grid.importSimulatedToday.kWh', { en: 'Grid import with storage (today)', de: 'Netzbezug mit Speicher (heute)' }, 'kWh', 'value.energy', 'number'],
+    ['grid.exportOriginalToday.kWh', { en: 'Feed-in without storage (today)', de: 'Einspeisung ohne Speicher (heute)' }, 'kWh', 'value.energy', 'number'],
+    ['grid.exportSimulatedToday.kWh', { en: 'Feed-in with storage (today)', de: 'Einspeisung mit Speicher (heute)' }, 'kWh', 'value.energy', 'number'],
 
-    ['economics.savingsToday.eur', 'Ersparnis (heute)', '€', 'value', 'number'],
-    ['economics.savingsMonth.eur', 'Ersparnis (Monat)', '€', 'value', 'number'],
-    ['economics.savingsYear.eur', 'Ersparnis (Jahr)', '€', 'value', 'number'],
-    ['economics.savingsTotal.eur', 'Ersparnis (gesamt)', '€', 'value', 'number'],
-    ['economics.batteryCoverageToday.percent', 'Speicher-Deckung des Bezugs (heute)', '%', 'value', 'number'],
-    ['economics.amortizationYears', 'Amortisationsdauer (Schätzung)', 'Jahre', 'value', 'number'],
-    ['economics._startTs', 'Startzeitpunkt der Simulation', 'ms', 'value.time', 'number'],
+    ['economics.savingsToday.eur', { en: 'Savings (today)', de: 'Ersparnis (heute)' }, '€', 'value', 'number'],
+    ['economics.savingsMonth.eur', { en: 'Savings (month)', de: 'Ersparnis (Monat)' }, '€', 'value', 'number'],
+    ['economics.savingsYear.eur', { en: 'Savings (year)', de: 'Ersparnis (Jahr)' }, '€', 'value', 'number'],
+    ['economics.savingsTotal.eur', { en: 'Savings (total)', de: 'Ersparnis (gesamt)' }, '€', 'value', 'number'],
+    ['economics.batteryCoverageToday.percent', { en: 'Storage coverage of import (today)', de: 'Speicher-Deckung des Bezugs (heute)' }, '%', 'value', 'number'],
+    ['economics.amortizationYears', { en: 'Amortization (estimate)', de: 'Amortisationsdauer (Schätzung)' }, 'Jahre', 'value', 'number'],
+    ['economics._startTs', { en: 'Simulation start time', de: 'Startzeitpunkt der Simulation' }, 'ms', 'value.time', 'number'],
 
     // Momentane Leistungen (W) für die grafische Auswertung / WebUI – hier History-Logging aktivieren
-    ['live.pvW', 'PV-Erzeugung (aktuell)', 'W', 'value.power.produced', 'number'],
-    ['live.consumptionW', 'Hausverbrauch (aktuell)', 'W', 'value.power.consumption', 'number'],
-    ['live.directUseW', 'Direktverbrauch (aktuell)', 'W', 'value.power', 'number'],
+    ['live.pvW', { en: 'PV generation (current)', de: 'PV-Erzeugung (aktuell)' }, 'W', 'value.power.produced', 'number'],
+    ['live.consumptionW', { en: 'House consumption (current)', de: 'Hausverbrauch (aktuell)' }, 'W', 'value.power.consumption', 'number'],
+    ['live.directUseW', { en: 'Direct use (current)', de: 'Direktverbrauch (aktuell)' }, 'W', 'value.power', 'number'],
     // Netz-Saldo als EIN vorzeichenbehafteter Wert (+ = Bezug, − = Einspeisung) für die Visualisierung
-    ['live.gridNetOrigW', 'Netz-Saldo ohne Speicher (+Bezug/−Einsp.)', 'W', 'value.power', 'number'],
-    ['live.gridNetSimW', 'Netz-Saldo mit Speicher (+Bezug/−Einsp.)', 'W', 'value.power', 'number'],
-    ['live.batteryPowerW', 'Speicher-Leistung (+lädt / −entlädt)', 'W', 'value.power', 'number'],
+    ['live.gridNetOrigW', { en: 'Grid balance without storage (+import/−feed-in)', de: 'Netz-Saldo ohne Speicher (+Bezug/−Einsp.)' }, 'W', 'value.power', 'number'],
+    ['live.gridNetSimW', { en: 'Grid balance with storage (+import/−feed-in)', de: 'Netz-Saldo mit Speicher (+Bezug/−Einsp.)' }, 'W', 'value.power', 'number'],
+    ['live.batteryPowerW', { en: 'Storage power (+charging/−discharging)', de: 'Speicher-Leistung (+lädt / −entlädt)' }, 'W', 'value.power', 'number'],
 
     // Fertige SVG-Charts als Datenpunkt – direkt in beliebigen Dashboards (VIS, eigene Web-Apps …) anzeigbar
-    ['charts.todaySvg', 'Tagesverlauf (SVG)', '', 'html', 'string'],
-    ['charts.savingsMonthSvg', 'Ersparnis pro Tag (SVG)', '', 'html', 'string'],
-    ['charts.kpiCardSvg', 'Kennzahlen-Kachel (SVG)', '', 'html', 'string'],
-    ['charts._dailyHistory', 'Tages-Ersparnis-Historie (intern)', '', 'json', 'string'],
-    ['charts._intradayBuffer', 'Intraday-Puffer heute (intern, für den Admin-Chart)', '', 'json', 'string'],
+    ['charts.todaySvg', { en: 'Day chart (SVG)', de: 'Tagesverlauf (SVG)' }, '', 'html', 'string'],
+    ['charts.savingsMonthSvg', { en: 'Savings per day (SVG)', de: 'Ersparnis pro Tag (SVG)' }, '', 'html', 'string'],
+    ['charts.kpiCardSvg', { en: 'KPI card (SVG)', de: 'Kennzahlen-Kachel (SVG)' }, '', 'html', 'string'],
+    ['charts._dailyHistory', { en: 'Daily savings history (internal)', de: 'Tages-Ersparnis-Historie (intern)' }, '', 'json', 'string'],
+    ['charts._intradayBuffer', { en: 'Intraday buffer today (internal)', de: 'Intraday-Puffer heute (intern)' }, '', 'json', 'string'],
 ];
 
 // States, die es in früheren Versionen gab und die beim Start entfernt werden (durch gridNet* ersetzt).
@@ -62,8 +62,12 @@ class PvStorageSim extends utils.Adapter {
         this.timer = null;
         this.lastValues = {}; // letzte Rohwerte je Quelle (für Zähler-Delta bzw. Leistungs-Integration)
         this.lastTick = null;
+        this.sub = null;        // Ereignis-Puffer je Quelle (nur im Subscribe-Modus)
+        this.sourceTs = {};     // letzter Aktualisierungs-Zeitstempel je Eingangs-Datenpunkt
+        this.staleWarnedAt = {}; // Drosselung der Stale-Warnungen
 
         this.on('ready', this.onReady.bind(this));
+        this.on('stateChange', this.onStateChange.bind(this));
         this.on('unload', this.onUnload.bind(this));
     }
 
@@ -82,6 +86,7 @@ class PvStorageSim extends utils.Adapter {
             maxDischargeW: Number(c.maxDischargeW) || 3000,
             minSocPercent: Number(c.minSocPercent) || 5,
             roundTripEff: Number(c.roundTripEff) || 90,
+            standbyW: Number(c.standbyW) || 0,
         };
         const capWh = spec.capacityKwh * 1000;
         const eff = Math.sqrt(Math.min(Math.max(spec.roundTripEff, 1), 100) / 100);
@@ -91,18 +96,22 @@ class PvStorageSim extends utils.Adapter {
             minSocWh: (spec.minSocPercent / 100) * capWh,
             maxChargeW: spec.maxChargeW,
             maxDischargeW: spec.maxDischargeW,
+            standbyW: spec.standbyW || 0,
             maxChargeWh: 0,    // wird je Intervall gesetzt
             maxDischargeWh: 0, // wird je Intervall gesetzt
+            standbyWh: 0,      // wird je Intervall gesetzt
             chargeEff: eff,
             dischargeEff: eff,
         };
-        if (tpl) this.log.info(`Speicher-Vorlage aktiv: ${tpl.label} (${spec.capacityKwh} kWh, Laden/Entladen ${spec.maxChargeW}/${spec.maxDischargeW} W).`);
+        if (tpl) this.log.info(`Speicher-Vorlage aktiv: ${tpl.label} (${spec.capacityKwh} kWh, Laden/Entladen ${spec.maxChargeW}/${spec.maxDischargeW} W, Standby ${this.p.standbyW} W).`);
 
         this.priceImport = (Number(c.priceImportCt) || 0) / 100; // €/kWh
         this.priceFeedIn = (Number(c.priceFeedInCt) || 0) / 100; // €/kWh
         this.investment = Number(c.investmentEur) || 0;
+        this.priceIncreasePct = Math.max(Number(c.priceIncreasePercent) || 0, 0);
         this.inputMode = c.inputMode === 'energy' ? 'energy' : 'power';
         this.sourceMode = ['grid_meter', 'grid_signed'].includes(c.sourceMode) ? c.sourceMode : 'pv_consumption';
+        this.readMode = c.readMode === 'subscribe' ? 'subscribe' : 'poll';
         this.intervalSec = Math.max(Number(c.intervalSec) || 30, 5);
         // bei einem vorzeichenbehafteten Zähler: ist positiv = Netzbezug (Standard) oder = Einspeisung?
         this.gridSignImportPositive = c.gridSignPositive !== 'export';
@@ -209,6 +218,20 @@ class PvStorageSim extends utils.Adapter {
             this.log.debug('Persistierte Tageswerte stammen aus einer vergangenen Periode – zurückgesetzt.');
         }
 
+        // Ereignisbasiertes Lesen: auf die Quell-Datenpunkte abonnieren; zwischen den Ticks
+        // wird jede Änderung zeitgewichtet aufintegriert (genauer als der Momentanwert je Intervall).
+        if (this.readMode === 'subscribe') {
+            this.sub = {};
+            for (const [key, sid] of Object.entries(this.ids)) {
+                const st = await this.getForeignStateAsync(sid).catch(() => null);
+                const val = st && typeof st.val === 'number' ? st.val * (this.factors[key] || 1) : null;
+                this.sub[key] = { id: sid, val, ts: Date.now(), accWh: 0 };
+                if (st && st.ts) this.sourceTs[key] = st.ts;
+                await this.subscribeForeignStatesAsync(sid);
+            }
+            this.log.info('Ereignisbasiertes Lesen aktiv (Subscribe).');
+        }
+
         await this.setStateAsync('info.connection', { val: true, ack: true });
         this.timer = this.setInterval(
             () => this.tick().catch(e => this.log.error(`tick: ${e.message}`)),
@@ -233,9 +256,10 @@ class PvStorageSim extends utils.Adapter {
             this.today = d.getDate();
         }
 
-        // Leistungsgrenzen in Energie pro Intervall umrechnen
+        // Leistungsgrenzen und Standby in Energie pro Intervall umrechnen
         this.p.maxChargeWh = this.p.maxChargeW * dtH;
         this.p.maxDischargeWh = this.p.maxDischargeW * dtH;
+        this.p.standbyWh = this.p.standbyW * dtH;
 
         // Überschuss & Defizit für dieses Intervall ermitteln (Wh)
         let surplusWh = 0;
@@ -256,6 +280,8 @@ class PvStorageSim extends utils.Adapter {
             deficitWh = Math.max(-net, 0);
         }
 
+        this.checkStaleInputs(now);
+
         // energy-Modus: Delta 0 bedeutet "keine neuen Zählerdaten" -> nichts verrechnen.
         // Im power-Modus ist eine Null-Bilanz dagegen ein echter Messwert und wird normal
         // verarbeitet (sonst blieben live.*-Werte, Puffer und SVG-Charts auf altem Stand stehen).
@@ -266,8 +292,11 @@ class PvStorageSim extends utils.Adapter {
 
         const chargedKwh = r.chargedWh / 1000;
         const dischargedKwh = r.dischargedWh / 1000;
-        // Wirtschaftlicher Nutzen des Speichers = gesparter Netzbezug minus entgangene Einspeisevergütung
-        const benefit = dischargedKwh * this.priceImport - chargedKwh * this.priceFeedIn;
+        // Wirtschaftlicher Nutzen des Speichers = gesparter Netzbezug minus entgangene
+        // Einspeisevergütung minus netzgedeckter Standby-Verbrauch (der batteriegedeckte
+        // Anteil wirkt indirekt: er verbraucht geladene Energie ohne Bezugs-Ersparnis)
+        const benefit = dischargedKwh * this.priceImport - chargedKwh * this.priceFeedIn
+            - (r.standbyGridWh / 1000) * this.priceImport;
 
         await this.accumulate(r, chargedKwh, dischargedKwh, benefit, surplusWh, deficitWh);
         await this.publishLive(r, dtH, pvWh, consWh, surplusWh, deficitWh);
@@ -278,7 +307,7 @@ class PvStorageSim extends utils.Adapter {
             ts: now,
             netOrig: wNow(deficitWh - surplusWh),
             netSim: wNow(r.gridImportWh - r.gridExportWh),
-            batt: wNow(r.chargedWh - r.dischargedWh),
+            batt: wNow(r.chargedWh - r.dischargedWh - r.standbyBattWh),
             soc: Math.round((this.socWh / this.p.capacityWh) * 1000) / 10,
             pv: pvWh !== null ? wNow(pvWh) : null,
             cons: consWh !== null ? wNow(consWh) : null,
@@ -291,19 +320,51 @@ class PvStorageSim extends utils.Adapter {
     }
 
     /**
+     * Liefert den aktuellen (bereits auf die Basis-Einheit umgerechneten) Wert einer Quelle –
+     * je nach Lesemodus aus dem Ereignis-Puffer oder per getForeignState. null = kein Wert.
+     */
+    async readInput(key, id) {
+        if (this.readMode === 'subscribe') {
+            const s = this.sub && this.sub[key];
+            return s && typeof s.val === 'number' ? s.val : null;
+        }
+        const st = await this.getForeignStateAsync(id);
+        if (st && st.ts) this.sourceTs[key] = st.ts;
+        const raw = st && typeof st.val === 'number' ? st.val : null;
+        return raw === null ? null : raw * (this.factors[key] || 1);
+    }
+
+    /**
+     * Subscribe-Modus, power: entnimmt die seit dem letzten Tick zeitgewichtet
+     * aufintegrierte Energie (Wh, signiert) und setzt den Integrator zurück.
+     */
+    drainSubscribedWh(key) {
+        const s = this.sub && this.sub[key];
+        if (!s || typeof s.val !== 'number') return null;
+        const now = Date.now();
+        s.accWh += s.val * Math.max(now - s.ts, 0) / 3600000;
+        s.ts = now;
+        const wh = s.accWh;
+        s.accWh = 0;
+        return wh;
+    }
+
+    /**
      * Liest einen Eingangs-Datenpunkt und liefert die Energie (Wh) für dieses Intervall.
-     * - inputMode 'power':  Wert wird als Leistung in W interpretiert -> W * Stunden = Wh
-     * - inputMode 'energy': Wert wird als kumulierter Zählerstand in kWh interpretiert -> Delta * 1000 = Wh
+     * - inputMode 'power':  Leistung in W -> W * Stunden = Wh (Subscribe: zeitgewichtetes Integral)
+     * - inputMode 'energy': kumulierter Zählerstand in kWh -> Delta * 1000 = Wh
      */
     async readEnergy(key, id, dtH) {
-        const st = await this.getForeignStateAsync(id);
-        const raw = st && typeof st.val === 'number' ? st.val : null;
-        if (raw === null) {
+        if (this.readMode === 'subscribe' && this.inputMode === 'power') {
+            const wh = this.drainSubscribedWh(key);
+            if (wh === null) { this.log.warn(`Datenpunkt ${id} liefert keinen numerischen Wert.`); return 0; }
+            return Math.max(wh, 0);
+        }
+        const val = await this.readInput(key, id);
+        if (val === null) {
             this.log.warn(`Datenpunkt ${id} liefert keinen numerischen Wert.`);
             return 0;
         }
-        // auf interne Basis-Einheit umrechnen (W bzw. kWh)
-        const val = raw * (this.factors[key] || 1);
 
         if (this.inputMode === 'power') {
             return Math.max(val, 0) * dtH;
@@ -323,14 +384,16 @@ class PvStorageSim extends utils.Adapter {
      * Bezug/Einspeisung übernimmt splitSignedPower().
      */
     async readSignedEnergy(key, id, dtH) {
-        const st = await this.getForeignStateAsync(id);
-        const raw = st && typeof st.val === 'number' ? st.val : null;
-        if (raw === null) {
+        if (this.readMode === 'subscribe' && this.inputMode === 'power') {
+            const wh = this.drainSubscribedWh(key);
+            if (wh === null) { this.log.warn(`Datenpunkt ${id} liefert keinen numerischen Wert.`); return 0; }
+            return wh; // signiert
+        }
+        const val = await this.readInput(key, id);
+        if (val === null) {
             this.log.warn(`Datenpunkt ${id} liefert keinen numerischen Wert.`);
             return 0;
         }
-        // auf interne Basis-Einheit umrechnen (W bzw. kWh), Vorzeichen bleibt erhalten
-        const val = raw * (this.factors[key] || 1);
 
         if (this.inputMode === 'power') {
             return val * dtH; // signierte Leistung -> signierte Energie
@@ -343,12 +406,39 @@ class PvStorageSim extends utils.Adapter {
         return (val - last) * 1000;
     }
 
+    /** Subscribe-Modus: Wertänderung eines Quell-Datenpunkts zeitgewichtet aufintegrieren. */
+    onStateChange(id, state) {
+        if (!this.sub || !state || typeof state.val !== 'number') return;
+        for (const [key, s] of Object.entries(this.sub)) {
+            if (s.id !== id) continue;
+            const now = state.ts || Date.now();
+            if (this.inputMode === 'power' && typeof s.val === 'number') {
+                s.accWh += s.val * Math.max(now - s.ts, 0) / 3600000;
+            }
+            s.val = state.val * (this.factors[key] || 1);
+            s.ts = now;
+            this.sourceTs[key] = now;
+        }
+    }
+
+    /** Warnt (gedrosselt, 1×/h), wenn ein Eingangs-Datenpunkt längere Zeit nicht aktualisiert wurde. */
+    checkStaleInputs(now) {
+        const staleMs = Math.max(this.intervalSec * 5000, 10 * 60000); // mind. 10 Min bzw. 5 Intervalle
+        for (const [key, id] of Object.entries(this.ids)) {
+            const ts = this.sourceTs[key];
+            if (!ts || now - ts <= staleMs) continue;
+            if (this.staleWarnedAt[key] && now - this.staleWarnedAt[key] < 3600000) continue;
+            this.staleWarnedAt[key] = now;
+            this.log.warn(`Eingangs-Datenpunkt ${id} wurde seit ${Math.round((now - ts) / 60000)} Minuten nicht aktualisiert – die Simulation rechnet mit dem letzten bekannten Wert.`);
+        }
+    }
+
     async accumulate(r, chargedKwh, dischargedKwh, benefit, surplusWh, deficitWh) {
         const daysElapsed = Math.max((Date.now() - this.startTs) / 86400000, 1 / 24);
         const res = accumulateStep(
             { acc: this.acc, totals: this.totals },
             { chargedKwh, dischargedKwh, benefit, deficitWh, surplusWh, gridImportWh: r.gridImportWh, gridExportWh: r.gridExportWh },
-            { daysElapsed, investment: this.investment },
+            { daysElapsed, investment: this.investment, priceIncreasePct: this.priceIncreasePct, minDays: 14 },
         );
         // neue Werte in die bestehenden Objekte übernehmen (Identität bleibt erhalten)
         Object.assign(this.acc, res.acc);
@@ -391,7 +481,7 @@ class PvStorageSim extends utils.Adapter {
         const writes = [
             this.setStateAsync('live.gridNetOrigW', { val: w(deficitWh - surplusWh), ack: true }),
             this.setStateAsync('live.gridNetSimW', { val: w(r.gridImportWh - r.gridExportWh), ack: true }),
-            this.setStateAsync('live.batteryPowerW', { val: w(r.chargedWh - r.dischargedWh), ack: true }),
+            this.setStateAsync('live.batteryPowerW', { val: w(r.chargedWh - r.dischargedWh - r.standbyBattWh), ack: true }),
         ];
         // PV/Verbrauch/Direktverbrauch nur im Modus PV+Verbrauch (sonst nicht bekannt)
         if (pvWh !== null) {
@@ -484,7 +574,7 @@ class PvStorageSim extends utils.Adapter {
                 // Definition geändert (z. B. Rolle)? -> Objekt migrieren; extendObject
                 // merged nur common und lässt custom-Einstellungen (History) unangetastet.
                 const cc = existed.common || {};
-                if (cc.role !== role || cc.type !== type || (cc.unit || '') !== (unit || '') || cc.name !== name) {
+                if (cc.role !== role || cc.type !== type || (cc.unit || '') !== (unit || '') || JSON.stringify(cc.name) !== JSON.stringify(name)) {
                     await this.extendObjectAsync(id, { common });
                     migrated++;
                 }

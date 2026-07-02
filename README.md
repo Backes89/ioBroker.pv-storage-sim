@@ -62,9 +62,13 @@ Pro Intervall:
 - Defizit = `max(Verbrauch − PV, 0)` bzw. Netzbezug des Zählers
 - Speicher lädt aus Überschuss (begrenzt durch Kapazität & Ladeleistung), Rest wird eingespeist
 - Speicher deckt Defizit (begrenzt durch Ladezustand & Entladeleistung), Rest kommt aus dem Netz
+- **Standby-Verbrauch** des Speichersystems wird aus dem Speicher gedeckt (sonst aus dem Netz)
 - **Nutzen** = gesparter Netzbezug × Bezugspreis − entgangene Einspeisung × Vergütung
+  − netzgedeckter Standby × Bezugspreis
 
-Wirkungsgrad wird je zur Hälfte (√η) beim Laden und Entladen angesetzt.
+Wirkungsgrad wird je zur Hälfte (√η) beim Laden und Entladen angesetzt. Für die
+Amortisations-Schätzung kann eine jährliche **Strompreissteigerung** angenommen werden;
+die Amortisation wird erst ab 14 Tagen Datenbasis ausgewiesen.
 
 ## Installation (Entwicklung)
 
@@ -81,6 +85,24 @@ Offene Punkte und geplante Erweiterungen werden in [TODO.md](TODO.md) gepflegt
 (u. a. bekannte Vereinfachungen des Rechenmodells und Ideen wie eine Web-Visualisierung).
 
 ## Changelog
+
+### 0.0.37 (2026-07-02)
+- **Standby-Verbrauch** des Speichersystems wird simuliert: als Parameter bei „Eigene Werte"
+  und mit Richtwerten in allen Speicher-Vorlagen hinterlegt; Deckung aus dem Speicher,
+  bei leerem Speicher aus dem Netz (fließt in die Wirtschaftlichkeit ein)
+- **Strompreissteigerung (%/Jahr)** konfigurierbar; Amortisations-Schätzung und
+  Prognose-Chart rechnen mit jährlich wachsender Ersparnis (geometrische Reihe)
+- **Amortisation erst ab 14 Tagen Datenbasis** ausgewiesen (davor „–"), weil die
+  Extrapolation der ersten Tage durch die Ladephase stark verzerrt ist
+- **Lesemodus wählbar**: zyklische Abfrage (Standard) oder ereignisbasiert (Subscribe) –
+  ereignisbasiert integriert jede Wertänderung zeitgewichtet und ist bei schnell
+  schwankenden Zählern genauer
+- **Warnung bei eingefrorenen Eingangs-Datenpunkten** (keine Aktualisierung > 10 Min,
+  gedrosselt auf 1×/Stunde)
+- **Zweisprachig (en/de)**: Admin-Konfiguration und alle Datenpunkt-Namen
+- **GitHub-Actions-CI**: Unit-/Pakettests (Node 18/20/22), offizieller Integrationstest
+  mit js-controller, informativer Repo-Checker; neue npm-Skripte
+  `test:unit` / `test:package` / `test:integration`
 
 ### 0.0.36 (2026-07-02)
 - Release-Hygiene: Energie-States (kWh) tragen jetzt die korrekte Rolle `value.energy`;

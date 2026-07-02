@@ -247,7 +247,7 @@ function seriesConfig() {
     };
 }
 
-var refreshTimer = null, investmentEur = 0;
+var refreshTimer = null, investmentEur = 0, priceIncPct = 0;
 
 function fetchConfig() {
     return emitP('getObject', ['system.adapter.pv-storage-sim.' + curInst]).then(function (obj) {
@@ -255,7 +255,21 @@ function fetchConfig() {
         sourceMode = n.sourceMode || 'pv_consumption';
         capacityKwh = Number(n.capacityKwh) || 10;
         investmentEur = Number(n.investmentEur) || 0;
+        priceIncPct = Math.max(Number(n.priceIncreasePercent) || 0, 0);
     }).catch(function () { sourceMode = 'pv_consumption'; });
+}
+
+// kumulierte Ersparnis nach y Jahren bei jährlicher Preissteigerung g % (geometrische Reihe)
+function cumSavings(annual, gPct, years) {
+    var g = (gPct || 0) / 100;
+    if (g <= 0) return annual * years;
+    return annual * (Math.pow(1 + g, years) - 1) / g;
+}
+function amortYears(annual, invest, gPct) {
+    if (!(annual > 0) || !(invest > 0)) return 0;
+    var g = (gPct || 0) / 100;
+    if (g <= 0) return invest / annual;
+    return Math.log(1 + (invest * g) / annual) / Math.log(1 + g);
 }
 
 function setPeriodUI() {
@@ -386,16 +400,24 @@ function refreshForecast() {
         return Promise.all([getStateVal('economics.savingsTotal.eur'), getStateVal('economics._startTs')]);
     }).then(function (v) {
         var total = v[0] || 0, startTs = v[1] || Date.now();
-        var yearsElapsed = (Date.now() - startTs) / (365.25 * 86400000);
-        var annual = yearsElapsed > 0 ? total / yearsElapsed : 0;
-        drawForecast(annual, investmentEur);
+        var daysElapsed = (Date.now() - startTs) / 86400000;
+        if (daysElapsed < 14) {
+            sizeCanvas(document.getElementById('chart')).ctx.clearRect(0, 0, 9999, 9999);
+            renderRows(['Jahr', 'kum. Ersparnis', 'Rest'], [], false);
+            showOverlay('Noch zu wenig Datenbasis für eine belastbare Prognose (mindestens 14 Tage, aktuell ' + Math.floor(daysElapsed) + '). Die Hochrechnung der ersten Tage ist durch die anfängliche Ladephase stark verzerrt.');
+            setStatus('Stand: ' + new Date().toLocaleTimeString());
+            return loadKpis();
+        }
+        var annual = total / (daysElapsed / 365);
+        drawForecast(annual, investmentEur, priceIncPct);
         if (annual > 0 && investmentEur > 0) {
-            var be = investmentEur / annual, rows = [];
+            var be = amortYears(annual, investmentEur, priceIncPct), rows = [];
             for (var y = 0; y <= Math.min(Math.ceil(be) + 2, 40); y++) {
-                rows.push([y + '', fmt(annual * y, 0, ' €'), (annual * y >= investmentEur ? '✓ erreicht' : fmt(investmentEur - annual * y, 0, ' €'))]);
+                var cum = cumSavings(annual, priceIncPct, y);
+                rows.push([y + '', fmt(cum, 0, ' €'), (cum >= investmentEur ? '✓ erreicht' : fmt(investmentEur - cum, 0, ' €'))]);
             }
             renderRows(['Jahr', 'kum. Ersparnis', 'Rest bis Amort.'], rows, false);
-            setStatus('Hochrechnung: ' + fmt(annual, 0, ' €/Jahr') + ' → Amortisation in ~' + fmt(be, 1, ' Jahren'));
+            setStatus('Hochrechnung: ' + fmt(annual, 0, ' €/Jahr') + (priceIncPct ? ' (+' + priceIncPct + ' %/Jahr)' : '') + ' → Amortisation in ~' + fmt(be, 1, ' Jahren'));
         } else {
             renderRows(['Jahr', 'kum. Ersparnis', 'Rest'], [], false);
             setStatus('Stand: ' + new Date().toLocaleTimeString());
@@ -404,7 +426,7 @@ function refreshForecast() {
     }).catch(function (e) { setStatus('Fehler: ' + (e && e.message || e)); });
 }
 
-function drawForecast(annual, invest) {
+function drawForecast(annual, invest, gPct) {
     var s = sizeCanvas(document.getElementById('chart')), ctx = s.ctx, W = s.w, H = s.h;
     sizeCanvas(crossCanvas).ctx.clearRect(0, 0, W, H);
     ctx.clearRect(0, 0, W, H);
@@ -415,9 +437,9 @@ function drawForecast(annual, invest) {
     showOverlay('');
     var css = getComputedStyle(document.documentElement);
     var muted = css.getPropertyValue('--muted').trim() || '#777', border = css.getPropertyValue('--border').trim() || '#ddd';
-    var be = invest > 0 ? invest / annual : 0;
+    var be = amortYears(annual, invest, gPct);
     var maxYears = Math.min(Math.max(Math.ceil(be * 1.3), 5), 40);
-    var yMax = niceCeil(Math.max(invest, annual * maxYears));
+    var yMax = niceCeil(Math.max(invest, cumSavings(annual, gPct, maxYears)));
     var padL = 64, padR = 18, padT = 14, padB = 30, plotW = W - padL - padR, plotH = H - padT - padB;
     var xp = function (yr) { return padL + yr / maxYears * plotW; };
     var yp = function (e) { return padT + (yMax - Math.max(0, Math.min(yMax, e))) / yMax * plotH; };
@@ -437,7 +459,9 @@ function drawForecast(annual, invest) {
         ctx.beginPath(); ctx.moveTo(padL, yp(invest)); ctx.lineTo(padL + plotW, yp(invest)); ctx.stroke(); ctx.setLineDash([]);
         ctx.fillStyle = '#e57373'; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom'; ctx.fillText('Investition ' + Math.round(invest) + ' €', padL + 4, yp(invest) - 3);
     }
-    ctx.strokeStyle = '#4caf50'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(xp(0), yp(0)); ctx.lineTo(xp(maxYears), yp(annual * maxYears)); ctx.stroke();
+    ctx.strokeStyle = '#4caf50'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(xp(0), yp(0));
+    for (var yy2 = 0.25; yy2 <= maxYears; yy2 += 0.25) ctx.lineTo(xp(yy2), yp(cumSavings(annual, gPct, yy2)));
+    ctx.stroke();
     if (be > 0 && be <= maxYears) {
         ctx.fillStyle = '#4caf50'; ctx.beginPath(); ctx.arc(xp(be), yp(invest), 5, 0, 2 * Math.PI); ctx.fill();
         ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.stroke();
