@@ -2,7 +2,7 @@
 
 const utils = require('@iobroker/adapter-core');
 const { stepBattery, splitSignedPower, unitFactor } = require('./lib/simulation');
-const { periodResets } = require('./lib/period');
+const { periodResets, dayStart, previousDayStart } = require('./lib/period');
 const { accumulateStep } = require('./lib/accumulation');
 const { dayChartSvg, barsSvg, kpiCardSvg, fmtDE } = require('./lib/svg');
 const { resolveStorage } = require('./lib/templates');
@@ -73,6 +73,9 @@ class PvStorageSim extends utils.Adapter {
         const c = this.config;
         // Speicher-Vorlage (Hersteller/Modell) oder eigene Werte
         const tpl = resolveStorage(c.storageTemplate);
+        if (!tpl && c.storageTemplate && c.storageTemplate !== 'custom') {
+            this.log.warn(`Unbekannte Speicher-Vorlage '${c.storageTemplate}' – es werden die manuellen Werte verwendet.`);
+        }
         const spec = tpl || {
             capacityKwh: Number(c.capacityKwh) || 10,
             maxChargeW: Number(c.maxChargeW) || 3000,
@@ -134,8 +137,9 @@ class PvStorageSim extends utils.Adapter {
         }
         if (removed) this.log.info(`${removed} nicht mehr benötigte(r) Datenpunkt(e) entfernt.`);
 
-        // persistierte Werte wiederherstellen (Neustart mitten am Tag soll Werte nicht verlieren)
-        this.socWh = (await this.getNumber('battery.soc.kWh')) * 1000 || this.p.minSocWh;
+        // persistierte Werte wiederherstellen (Neustart mitten am Tag soll Werte nicht verlieren);
+        // auf die aktuelle Kapazität geklemmt, falls zwischenzeitlich ein kleinerer Speicher gewählt wurde
+        this.socWh = Math.min((await this.getNumber('battery.soc.kWh')) * 1000 || this.p.minSocWh, this.p.capacityWh);
         this.totals = {
             chargedTotal: await this.getNumber('battery.chargedTotal.kWh'),
             dischargedTotal: await this.getNumber('battery.dischargedTotal.kWh'),
@@ -162,6 +166,23 @@ class PvStorageSim extends utils.Adapter {
         this.curYear = now.getFullYear();
         this.lastTick = Date.now();
 
+        // Chart-Daten: persistierte Tages-Ersparnis-Historie laden (VOR dem Perioden-Reset,
+        // damit ein bei Neustart über Mitternacht beendeter Tag noch gerettet werden kann)
+        this.lastSvgTs = 0;
+        const dh = await this.getStateAsync('charts._dailyHistory').catch(() => null);
+        try { this.dailySavings = JSON.parse(dh && dh.val ? dh.val : '[]'); } catch { this.dailySavings = []; }
+        if (!Array.isArray(this.dailySavings)) this.dailySavings = [];
+
+        // Intraday-Puffer aus dem State wiederherstellen (nur Punkte von heute) – so bleibt
+        // der "heute"-Chart nach einem Neustart mitten am Tag lückenlos.
+        this.dayBuffer = [];
+        const ib = await this.getStateAsync('charts._intradayBuffer').catch(() => null);
+        try {
+            const pts = JSON.parse(ib && ib.val ? ib.val : '[]');
+            const todayStart = dayStart(now);
+            if (Array.isArray(pts)) this.dayBuffer = pts.filter(p => p && typeof p.ts === 'number' && p.ts >= todayStart);
+        } catch { /* Puffer bleibt leer */ }
+
         // Lief der Adapter über eine Tages-/Monats-/Jahresgrenze hinweg nicht, dürfen die
         // persistierten Perioden-Werte nicht in die neue Periode übernommen werden.
         const lastSt = await this.getStateAsync('economics.savingsToday.eur').catch(() => null);
@@ -170,6 +191,14 @@ class PvStorageSim extends utils.Adapter {
         if (reset.year) this.acc.savingsYear = 0;
         if (reset.month) this.acc.savingsMonth = 0;
         if (reset.day) {
+            // resetDaily() lief für den beendeten Tag nicht – seine Ersparnis noch in die
+            // Historie übernehmen, bevor die Tageswerte genullt werden (Duplikate vermeiden).
+            const endedDay = dayStart(new Date(lastTs));
+            if (!this.dailySavings.some(e => e && e.day === endedDay)) {
+                this.dailySavings.push({ day: endedDay, val: Math.round(this.acc.savingsToday * 100) / 100 });
+                if (this.dailySavings.length > 60) this.dailySavings.shift();
+                await this.setStateAsync('charts._dailyHistory', { val: JSON.stringify(this.dailySavings), ack: true }).catch(() => {});
+            }
             this.acc.chargedToday = 0;
             this.acc.dischargedToday = 0;
             this.acc.importOrigToday = 0;
@@ -179,13 +208,6 @@ class PvStorageSim extends utils.Adapter {
             this.acc.savingsToday = 0;
             this.log.debug('Persistierte Tageswerte stammen aus einer vergangenen Periode – zurückgesetzt.');
         }
-
-        // Chart-Daten: In-Memory-Tagespuffer + persistierte Tages-Ersparnis-Historie
-        this.dayBuffer = [];
-        this.lastSvgTs = 0;
-        const dh = await this.getStateAsync('charts._dailyHistory').catch(() => null);
-        try { this.dailySavings = JSON.parse(dh && dh.val ? dh.val : '[]'); } catch { this.dailySavings = []; }
-        if (!Array.isArray(this.dailySavings)) this.dailySavings = [];
 
         await this.setStateAsync('info.connection', { val: true, ack: true });
         this.timer = this.setInterval(
@@ -234,7 +256,10 @@ class PvStorageSim extends utils.Adapter {
             deficitWh = Math.max(-net, 0);
         }
 
-        if (surplusWh === 0 && deficitWh === 0) return;
+        // energy-Modus: Delta 0 bedeutet "keine neuen Zählerdaten" -> nichts verrechnen.
+        // Im power-Modus ist eine Null-Bilanz dagegen ein echter Messwert und wird normal
+        // verarbeitet (sonst blieben live.*-Werte, Puffer und SVG-Charts auf altem Stand stehen).
+        if (this.inputMode === 'energy' && surplusWh === 0 && deficitWh === 0) return;
 
         const r = stepBattery({ surplusWh, deficitWh, socWh: this.socWh }, this.p);
         this.socWh = r.socWh;
@@ -418,8 +443,9 @@ class PvStorageSim extends utils.Adapter {
     }
 
     async resetDaily(d) {
-        // abgeschlossenen Tag in die persistente Ersparnis-Historie schreiben (für die Monats-Balken)
-        const endedDay = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime() - 86400000;
+        // abgeschlossenen Tag in die persistente Ersparnis-Historie schreiben (für die Monats-Balken);
+        // kalenderbasiert statt "-24h", damit das Datum auch an Zeitumstellungs-Tagen stimmt
+        const endedDay = previousDayStart(d);
         this.dailySavings.push({ day: endedDay, val: Math.round(this.acc.savingsToday * 100) / 100 });
         if (this.dailySavings.length > 60) this.dailySavings.shift();
         await this.setStateAsync('charts._dailyHistory', { val: JSON.stringify(this.dailySavings), ack: true }).catch(() => {});

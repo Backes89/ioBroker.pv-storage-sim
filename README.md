@@ -82,6 +82,18 @@ Offene Punkte und geplante Erweiterungen werden in [TODO.md](TODO.md) gepflegt
 
 ## Changelog
 
+### 0.0.35 (2026-07-02)
+- Bugfix: Die Ersparnis eines beendeten Tages geht bei einem Neustart über Mitternacht nicht
+  mehr verloren, sondern wird beim Start in die Tages-Historie übernommen
+- Bugfix: Der Intraday-Puffer (Datenquelle des „heute"-Charts) überlebt Adapter-Neustarts
+- Bugfix: Im Leistungs-Modus aktualisiert auch eine exakte Null-Bilanz die `live.*`-Werte,
+  den Puffer und die SVG-Charts (vorher blieben veraltete Werte stehen); im Zählerstand-Modus
+  wird „kein neues Delta" weiterhin übersprungen
+- Bugfix: Tagesabschluss-Datum ist jetzt DST-sicher (kalenderbasiert statt „minus 24 h")
+- Wiederhergestellter Ladezustand wird auf die aktuelle Kapazität geklemmt (relevant nach
+  Wechsel auf eine kleinere Speicher-Vorlage)
+- Warnung im Log, wenn eine konfigurierte Speicher-Vorlage unbekannt ist
+
 ### 0.0.34 (2026-06-30)
 - Tages-Chart (heute) im Admin-Tab nutzt den dichten Intraday-Puffer des Adapters statt der
   History → lückenlose Kurve ohne „lineare" Interpolation, ohne History-Relog-Einstellung
