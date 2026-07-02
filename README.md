@@ -82,6 +82,15 @@ Offene Punkte und geplante Erweiterungen werden in [TODO.md](TODO.md) gepflegt
 
 ## Changelog
 
+### 0.0.36 (2026-07-02)
+- Release-Hygiene: Energie-States (kWh) tragen jetzt die korrekte Rolle `value.energy`;
+  bestehende Objekte werden beim Start automatisch migriert (History-Einstellungen bleiben erhalten)
+- `common.licenseInformation` ergänzt, deprecated `common.title`/`common.license` entfernt,
+  `common.tier: 3` gesetzt, News in io-package auf die letzten 15 Einträge gekürzt
+  (dieses README bleibt das vollständige Changelog-Archiv)
+- README-Lizenzkapitel ins Checker-Format gebracht; Paketvalidierung prüft die neuen Regeln
+  (News-Limit, deprecated Felder, License-Kapitel) ab jetzt automatisch
+
 ### 0.0.35 (2026-07-02)
 - Bugfix: Die Ersparnis eines beendeten Tages geht bei einem Neustart über Mitternacht nicht
   mehr verloren, sondern wird beim Start in die Tages-Historie übernommen
@@ -231,6 +240,10 @@ Offene Punkte und geplante Erweiterungen werden in [TODO.md](TODO.md) gepflegt
 - Erstveröffentlichung: Speicher-Simulation, Datenquellen PV+Verbrauch und Zweirichtungszähler,
   Wirtschaftlichkeitsberechnung (Ersparnis, Amortisation)
 
-## Lizenz
+## License
 
-MIT
+MIT License
+
+Copyright (c) 2026 Dominik Kremer <dom.kremer@gmail.com>
+
+Der vollständige Lizenztext steht in der Datei [LICENSE](LICENSE).

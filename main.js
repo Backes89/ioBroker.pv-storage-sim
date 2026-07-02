@@ -11,17 +11,17 @@ const { resolveStorage } = require('./lib/templates');
 const STATE_DEFS = [
     ['info.connection', 'Verbindung / aktiv', '', 'indicator.connected', 'boolean'],
 
-    ['battery.soc.kWh', 'Ladezustand', 'kWh', 'value.battery', 'number'],
+    ['battery.soc.kWh', 'Ladezustand', 'kWh', 'value.energy', 'number'],
     ['battery.soc.percent', 'Ladezustand', '%', 'value.battery', 'number'],
-    ['battery.chargedToday.kWh', 'Geladen (heute)', 'kWh', 'value.power.consumption', 'number'],
-    ['battery.dischargedToday.kWh', 'Entladen (heute)', 'kWh', 'value.power.consumption', 'number'],
-    ['battery.chargedTotal.kWh', 'Geladen (gesamt)', 'kWh', 'value.power.consumption', 'number'],
-    ['battery.dischargedTotal.kWh', 'Entladen (gesamt)', 'kWh', 'value.power.consumption', 'number'],
+    ['battery.chargedToday.kWh', 'Geladen (heute)', 'kWh', 'value.energy', 'number'],
+    ['battery.dischargedToday.kWh', 'Entladen (heute)', 'kWh', 'value.energy', 'number'],
+    ['battery.chargedTotal.kWh', 'Geladen (gesamt)', 'kWh', 'value.energy', 'number'],
+    ['battery.dischargedTotal.kWh', 'Entladen (gesamt)', 'kWh', 'value.energy', 'number'],
 
-    ['grid.importOriginalToday.kWh', 'Netzbezug ohne Speicher (heute)', 'kWh', 'value', 'number'],
-    ['grid.importSimulatedToday.kWh', 'Netzbezug mit Speicher (heute)', 'kWh', 'value', 'number'],
-    ['grid.exportOriginalToday.kWh', 'Einspeisung ohne Speicher (heute)', 'kWh', 'value', 'number'],
-    ['grid.exportSimulatedToday.kWh', 'Einspeisung mit Speicher (heute)', 'kWh', 'value', 'number'],
+    ['grid.importOriginalToday.kWh', 'Netzbezug ohne Speicher (heute)', 'kWh', 'value.energy', 'number'],
+    ['grid.importSimulatedToday.kWh', 'Netzbezug mit Speicher (heute)', 'kWh', 'value.energy', 'number'],
+    ['grid.exportOriginalToday.kWh', 'Einspeisung ohne Speicher (heute)', 'kWh', 'value.energy', 'number'],
+    ['grid.exportSimulatedToday.kWh', 'Einspeisung mit Speicher (heute)', 'kWh', 'value.energy', 'number'],
 
     ['economics.savingsToday.eur', 'Ersparnis (heute)', '€', 'value', 'number'],
     ['economics.savingsMonth.eur', 'Ersparnis (Monat)', '€', 'value', 'number'],
@@ -472,24 +472,26 @@ class PvStorageSim extends utils.Adapter {
     async createStates() {
         const isPv = this.sourceMode === 'pv_consumption';
         let created = 0;
+        let migrated = 0;
         for (const [id, name, unit, role, type] of STATE_DEFS) {
             if (!isPv && PV_ONLY_STATES.includes(id)) continue; // im Netz-Modus nicht anlegen
+            const common = { name, type, role, unit: unit || undefined, read: true, write: false };
             const existed = await this.getObjectAsync(id).catch(() => null);
-            await this.setObjectNotExistsAsync(id, {
-                type: 'state',
-                common: {
-                    name,
-                    type,
-                    role,
-                    unit: unit || undefined,
-                    read: true,
-                    write: false,
-                },
-                native: {},
-            });
-            if (!existed) created++;
+            if (!existed) {
+                await this.setObjectNotExistsAsync(id, { type: 'state', common, native: {} });
+                created++;
+            } else {
+                // Definition geändert (z. B. Rolle)? -> Objekt migrieren; extendObject
+                // merged nur common und lässt custom-Einstellungen (History) unangetastet.
+                const cc = existed.common || {};
+                if (cc.role !== role || cc.type !== type || (cc.unit || '') !== (unit || '') || cc.name !== name) {
+                    await this.extendObjectAsync(id, { common });
+                    migrated++;
+                }
+            }
         }
         if (created) this.log.info(`${created} fehlende(r) Datenpunkt(e) angelegt.`);
+        if (migrated) this.log.info(`${migrated} Datenpunkt(e) auf die aktuelle Definition migriert.`);
     }
 
     async getNumber(id) {

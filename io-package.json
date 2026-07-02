@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "pv-storage-sim",
-    "version": "0.0.35",
+    "version": "0.0.36",
     "news": {
+      "0.0.36": {
+        "en": "Release hygiene: energy states use role value.energy; existing objects are migrated; common.licenseInformation added; news trimmed; deprecated fields removed.",
+        "de": "Release-Hygiene: Energie-States nutzen role value.energy; bestehende Objekte werden migriert; common.licenseInformation ergänzt; News gekürzt; veraltete Felder entfernt."
+      },
       "0.0.35": {
         "en": "Bugfixes: daily savings no longer lost on restarts spanning midnight; intraday buffer survives restarts; zero balance in power mode updates live values; DST-safe day handling; SoC clamped to capacity; warning for unknown storage template.",
         "de": "Bugfixes: Tages-Ersparnis geht bei Neustart über Mitternacht nicht mehr verloren; Intraday-Puffer überlebt Neustarts; Null-Bilanz im Leistungs-Modus aktualisiert Live-Werte; DST-sichere Tagesberechnung; SoC auf Kapazität geklemmt; Warnung bei unbekannter Speicher-Vorlage."
@@ -58,93 +62,8 @@
       "0.0.22": {
         "en": "Missing states are (re)created on every start (as before) and now logged for transparency.",
         "de": "Fehlende Datenpunkte werden bei jedem Start (wie bisher) automatisch angelegt und jetzt zur Transparenz protokolliert."
-      },
-      "0.0.21": {
-        "en": "Mode-aware states: live.pv/consumption/directUse are only created in PV+consumption mode (removed in grid modes where they are always 0).",
-        "de": "Modusabhängige States: live.pv/consumption/directUse werden nur im PV+Verbrauch-Modus angelegt (in den Netz-Modi entfernt, dort immer 0)."
-      },
-      "0.0.20": {
-        "en": "Optional light smoothing for the day chart (toggle); table and tooltip keep exact raw values.",
-        "de": "Optionale seichte Glättung der Tageskurve (Schalter); Tabelle und Tooltip bleiben bei den exakten Rohwerten."
-      },
-      "0.0.19": {
-        "en": "Cleanup: removed the redundant live.gridImport*/Export* states (replaced by live.gridNet*); old objects are deleted automatically on start.",
-        "de": "Aufräumen: redundante live.gridImport*/Export*-States entfernt (durch live.gridNet* ersetzt); alte Objekte werden beim Start automatisch gelöscht."
-      },
-      "0.0.18": {
-        "en": "Bugfix: daily/monthly/yearly figures are now reset correctly after a restart spanning a date boundary (no longer carry stale values into the new period).",
-        "de": "Bugfix: Tages-/Monats-/Jahreswerte werden nach einem Neustart über eine Datumsgrenze korrekt zurückgesetzt (keine veralteten Werte mehr in der neuen Periode)."
-      },
-      "0.0.17": {
-        "en": "Forecast time axis capped at 40 years (avoids hundreds of gridlines when annual savings are tiny).",
-        "de": "Prognose-Zeitachse auf 40 Jahre begrenzt (verhindert hunderte Gitterlinien bei sehr kleiner Jahresersparnis)."
-      },
-      "0.0.16": {
-        "en": "New single signed grid balance states (live.gridNet*); grid chart now draws one net series (red import / blue feed-in), eliminating the two-series merge issue.",
-        "de": "Neue einzelne Netz-Saldo-Datenpunkte (live.gridNet*); Netz-Chart zeichnet jetzt eine Saldo-Reihe (rot Bezug / blau Einspeisung) und vermeidet das Zwei-Reihen-Problem."
-      },
-      "0.0.15": {
-        "en": "Table/tooltip use carry-forward instead of nearest value when merging series, so import and feed-in no longer appear together in the same row.",
-        "de": "Tabelle/Tooltip nutzen beim Zusammenführen den letzten gültigen Wert statt des nächsten – Bezug und Einspeisung erscheinen nicht mehr zusammen in einer Zeile."
-      },
-      "0.0.14": {
-        "en": "Day view uses raw values instead of averaging, so import and feed-in no longer appear at the same time (averaging artifact).",
-        "de": "Tagesansicht nutzt Rohwerte statt Mittelung – Netzbezug und Einspeisung erscheinen nicht mehr gleichzeitig (Mittelungs-Artefakt)."
-      },
-      "0.0.13": {
-        "en": "Evaluation tab: day navigation, more KPIs, monthly savings bar view and an amortization forecast chart.",
-        "de": "Auswertungs-Tab: Tagesnavigation, mehr Kennzahlen, Monats-Balkenansicht der Ersparnis und Amortisations-Prognose."
-      },
-      "0.0.12": {
-        "en": "View switch in the evaluation tab: Compare / With storage / Without storage.",
-        "de": "Ansichts-Umschalter im Auswertungs-Tab: Vergleich / Mit Speicher / Ohne Speicher."
-      },
-      "0.0.11": {
-        "en": "Series can be toggled by clicking the legend; battery charge/discharge power added as a line.",
-        "de": "Serien per Klick auf die Legende ein-/ausblendbar; Speicher-Lade-/Entladeleistung als Linie ergänzt."
-      },
-      "0.0.10": {
-        "en": "Grid chart now bidirectional: feed-in shown below zero, plus feed-in with/without storage; zero line in the middle.",
-        "de": "Netz-Chart jetzt bidirektional: Einspeisung unterhalb der Null-Linie, zusätzlich Einspeisung mit/ohne Speicher; Null-Linie in der Mitte."
-      },
-      "0.0.9": {
-        "en": "Evaluation tab uses the full window width and a taller chart.",
-        "de": "Auswertungs-Tab nutzt die volle Fensterbreite und einen höheren Chart."
-      },
-      "0.0.8": {
-        "en": "Larger chart, value table on the right, and hover crosshair with tooltip that highlights the matching table row.",
-        "de": "Größerer Chart, Werte-Tabelle rechts und Hover-Fadenkreuz mit Tooltip, das die passende Tabellenzeile hervorhebt."
-      },
-      "0.0.7": {
-        "en": "Fix: evaluation tab queries history only up to now (no flat line until 24:00).",
-        "de": "Fix: Auswertungs-Tab fragt die Historie nur bis jetzt ab (kein flacher Verlauf bis 24:00)."
-      },
-      "0.0.6": {
-        "en": "Fix: time axis of the evaluation tab always spans the full day (00:00-24:00).",
-        "de": "Fix: Zeitachse im Auswertungs-Tab läuft immer über den vollen Tag (00:00-24:00)."
-      },
-      "0.0.5": {
-        "en": "Admin tab 'PV evaluation' with canvas chart (daily curves, KPI cards).",
-        "de": "Admin-Tab 'PV-Auswertung' mit Canvas-Chart (Tageskurven, KPI-Karten)."
-      },
-      "0.0.4": {
-        "en": "New live.* power states and a hint that history logging is required for charts.",
-        "de": "Neue live.*-Leistungs-Datenpunkte und Hinweis, dass History-Logging für die Diagramme nötig ist."
-      },
-      "0.0.3": {
-        "en": "Unit (W/kW or kWh/Wh) selectable per datapoint.",
-        "de": "Einheit (W/kW bzw. kWh/Wh) je Datenpunkt auswählbar."
-      },
-      "0.0.2": {
-        "en": "New data source 'single signed datapoint' (grid_signed) for net grid power meters.",
-        "de": "Neue Datenquelle 'ein Datenpunkt mit Vorzeichen' (grid_signed) für Zähler mit saldierter Netzleistung."
-      },
-      "0.0.1": {
-        "en": "Initial release: storage simulation, PV+consumption and bidirectional meter sources, economics.",
-        "de": "Erstveröffentlichung: Speicher-Simulation, Quellen PV+Verbrauch und Zweirichtungszähler, Wirtschaftlichkeit."
       }
     },
-    "title": "PV Storage Simulation",
     "titleLang": {
       "en": "PV Storage Simulation",
       "de": "PV-Speicher-Simulation"
@@ -163,7 +82,6 @@
       "battery",
       "simulation"
     ],
-    "license": "MIT",
     "platform": "Javascript/Node.js",
     "main": "main.js",
     "icon": "pv-storage-sim.png",
@@ -180,15 +98,23 @@
     },
     "adminTab": {
       "name": "PV-Auswertung",
-      "singleton": true,
-      "fa-icon": "solar-panel"
+      "singleton": true
     },
     "dependencies": [
-      { "js-controller": ">=5.0.0" }
+      {
+        "js-controller": ">=5.0.0"
+      }
     ],
     "globalDependencies": [
-      { "admin": ">=6.0.0" }
-    ]
+      {
+        "admin": ">=6.0.0"
+      }
+    ],
+    "licenseInformation": {
+      "type": "free",
+      "license": "MIT"
+    },
+    "tier": 3
   },
   "native": {
     "inputMode": "power",

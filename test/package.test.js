@@ -35,12 +35,29 @@ test('news-Einträge haben en und de', () => {
 });
 
 test('Pflichtfelder in common sind vorhanden', () => {
-    for (const f of ['name', 'version', 'title', 'titleLang', 'desc', 'authors', 'license', 'type', 'mode', 'main']) {
+    for (const f of ['name', 'version', 'titleLang', 'desc', 'authors', 'licenseInformation', 'type', 'mode', 'main', 'tier']) {
         assert.ok(io.common[f] !== undefined && io.common[f] !== '', `common.${f} fehlt`);
     }
     assert.ok(io.common.titleLang.en && io.common.titleLang.de, 'titleLang braucht en+de');
     assert.ok(io.common.desc.en && io.common.desc.de, 'desc braucht en+de');
     assert.ok(Array.isArray(io.common.authors) && io.common.authors.length, 'authors fehlt');
+    assert.ok(io.common.licenseInformation.type && io.common.licenseInformation.license, 'licenseInformation braucht type+license');
+});
+
+test('deprecated Felder (title, license) sind entfernt', () => {
+    assert.strictEqual(io.common.title, undefined, 'common.title ist deprecated (titleLang nutzen)');
+    assert.strictEqual(io.common.license, undefined, 'common.license ist deprecated (licenseInformation nutzen)');
+});
+
+test('news hat höchstens 20 Einträge (Repo-Checker-Limit)', () => {
+    assert.ok(Object.keys(io.common.news).length <= 20, `news hat ${Object.keys(io.common.news).length} Einträge`);
+});
+
+test('README enthält Changelog- und License-Kapitel', () => {
+    const readme = fs.readFileSync(path.join(root, 'README.md'), 'utf8');
+    assert.ok(readme.includes('## Changelog'), 'README: ## Changelog fehlt');
+    assert.ok(readme.includes('## License'), 'README: ## License fehlt');
+    assert.ok(/Copyright \(c\) \d{4}/.test(readme), 'README: Copyright-Zeile fehlt');
 });
 
 test('referenzierte Dateien existieren (main, icon, lib, admin)', () => {
