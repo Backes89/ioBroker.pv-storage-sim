@@ -42,6 +42,8 @@ Einheiten-Auswahlfeld (W/kW bzw. Wh/kWh), das einen Umrechnungsfaktor setzt.
   auf später verschoben (ändert auch die Speicherstrategie-Frage).
 - Auswertungs-Tab (tab.html) übersetzen (aktuell deutsch; Admin-Config ist zweisprachig).
 - Vorlagen-Specs mit echten Datenblatt-Werten verifizieren (aktuell Richtwerte).
+- **Screenshots** des Auswertungs-Tabs ins README (bestes Verkaufsargument; vor Forum-Beta).
+- **Vor Repo-Antrag:** npm-Veröffentlichung, Version 0.1.0, Forum-Beta-Thread, ggf. Sentry-Plugin.
 
 ## Bekannte Vereinfachungen im Rechenmodell
 

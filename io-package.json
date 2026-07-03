@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "pv-storage-sim",
-    "version": "0.0.37",
+    "version": "0.0.38",
     "news": {
+      "0.0.38": {
+        "en": "English main documentation (German moved to docs/de); fixed broken master branch URLs in io-package.json.",
+        "de": "Englische Hauptdokumentation (Deutsch nach docs/de verschoben); defekte master-Branch-URLs in io-package.json korrigiert."
+      },
       "0.0.37": {
         "en": "Standby consumption of the storage system (parameter + templates), electricity price increase for the amortization forecast, amortization only shown after 14 days of data, optional event-based reading (subscribe), warning for stale input datapoints, bilingual admin UI and state names (en/de), GitHub Actions CI with integration test.",
         "de": "Standby-Verbrauch des Speichersystems (Parameter + Vorlagen), Strompreissteigerung für die Amortisations-Prognose, Amortisation erst ab 14 Tagen Datenbasis, optional ereignisbasiertes Lesen (Subscribe), Warnung bei eingefrorenen Eingangs-Datenpunkten, zweisprachige Admin-Oberfläche und State-Namen (en/de), GitHub-Actions-CI mit Integrationstest."
@@ -58,10 +62,6 @@
       "0.0.24": {
         "en": "Unit selection now matches the input type: W/kW for power, kWh/Wh for meter readings (no more mixed dimensions).",
         "de": "Einheiten-Auswahl passt jetzt zur Eingabeart: W/kW bei Leistung, kWh/Wh bei Zählerstand (keine gemischten Dimensionen mehr)."
-      },
-      "0.0.23": {
-        "en": "Removal of obsolete/mode-specific states only happens if they exist and is now logged.",
-        "de": "Entfernen veralteter/modusspezifischer Datenpunkte nur noch wenn vorhanden und jetzt protokolliert."
       }
     },
     "titleLang": {
@@ -85,8 +85,8 @@
     "platform": "Javascript/Node.js",
     "main": "main.js",
     "icon": "pv-storage-sim.png",
-    "extIcon": "https://raw.githubusercontent.com/Backes89/ioBroker.pv-storage-sim/master/admin/pv-storage-sim.png",
-    "readme": "https://github.com/Backes89/ioBroker.pv-storage-sim/blob/master/README.md",
+    "extIcon": "https://raw.githubusercontent.com/Backes89/ioBroker.pv-storage-sim/main/admin/pv-storage-sim.png",
+    "readme": "https://github.com/Backes89/ioBroker.pv-storage-sim/blob/main/README.md",
     "loglevel": "info",
     "mode": "daemon",
     "type": "energy",
