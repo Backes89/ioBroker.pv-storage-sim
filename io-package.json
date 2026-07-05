@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "pv-storage-sim",
-    "version": "0.0.39",
+    "version": "0.0.40",
     "news": {
+      "0.0.40": {
+        "en": "Config: reading mode now comes before the interval; interval help text explains its role in both modes (sampling+accounting vs. accounting only).",
+        "de": "Konfiguration: Lesemodus steht jetzt vor dem Intervall; der Hilfetext erklärt die Rolle des Intervalls in beiden Modi (Abtastung+Verbuchung vs. nur Verbuchung)."
+      },
       "0.0.39": {
         "en": "Monthly view: hovering a savings bar highlights it, shows a tooltip (date, savings, cumulative) and marks the matching table row.",
         "de": "Monatsansicht: Hover über einen Ersparnis-Balken hebt ihn hervor, zeigt einen Tooltip (Datum, Ersparnis, kumuliert) und markiert die passende Tabellenzeile."
@@ -58,10 +62,6 @@
       "0.0.26": {
         "en": "Accumulation logic extracted into a pure, tested function (totals, coverage, amortization).",
         "de": "Akkumulations-Logik in eine reine, getestete Funktion ausgelagert (Summen, Speicher-Deckung, Amortisation)."
-      },
-      "0.0.25": {
-        "en": "Period-reset logic extracted into a pure function with unit tests (day/month/year boundary on restart).",
-        "de": "Perioden-Reset-Logik in eine reine Funktion mit Unit-Tests ausgelagert (Tages-/Monats-/Jahresgrenze beim Neustart)."
       }
     },
     "titleLang": {

@@ -177,15 +177,6 @@
       "sm": 12,
       "md": 4
     },
-    "intervalSec": {
-      "type": "number",
-      "label": { "en": "Simulation interval (seconds)", "de": "Simulationsintervall (Sekunden)" },
-      "min": 5,
-      "default": 30,
-      "newLine": true,
-      "sm": 12,
-      "md": 4
-    },
     "readMode": {
       "type": "select",
       "label": { "en": "Reading mode", "de": "Lesemodus" },
@@ -195,8 +186,18 @@
         { "value": "subscribe", "label": { "en": "Event-based (subscribe)", "de": "Ereignisbasiert (Subscribe)" } }
       ],
       "default": "poll",
+      "newLine": true,
       "sm": 12,
       "md": 5
+    },
+    "intervalSec": {
+      "type": "number",
+      "label": { "en": "Simulation interval (seconds)", "de": "Simulationsintervall (Sekunden)" },
+      "help": { "en": "Polling: sampling AND accounting interval. Event-based: accounting interval only (accuracy comes from the events); states/charts are updated at this pace.", "de": "Zyklische Abfrage: Abtast- UND Verbuchungsintervall. Ereignisbasiert: nur Verbuchungsintervall (die Genauigkeit kommt aus den Ereignissen); States/Charts werden in diesem Takt aktualisiert." },
+      "min": 5,
+      "default": 30,
+      "sm": 12,
+      "md": 4
     },
 
     "_headerBattery": {

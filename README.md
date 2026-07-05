@@ -116,6 +116,10 @@ Open items and planned features are tracked in [TODO.md](TODO.md)
 
 ## Changelog
 
+### 0.0.40 (2026-07-03)
+- Config: reading mode now comes before the interval; the interval help text explains its
+  role in both modes (polling: sampling + accounting; event-based: accounting only)
+
 ### 0.0.39 (2026-07-03)
 - Monthly view: hovering a savings bar highlights it, shows a tooltip (date, savings,
   cumulative) and marks the matching table row — same interaction as in the day view
