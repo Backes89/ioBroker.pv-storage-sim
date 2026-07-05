@@ -7,4 +7,8 @@
 const path = require('path');
 const { tests } = require('@iobroker/testing');
 
-tests.integration(path.join(__dirname, '..'));
+tests.integration(path.join(__dirname, '..'), {
+    // Gegen die veröffentlichte js-controller-Version testen (Default wäre 'dev':
+    // der tagesaktuelle Dev-Build – dessen Brüche haben mit unserem Code nichts zu tun).
+    controllerVersion: 'latest',
+});
