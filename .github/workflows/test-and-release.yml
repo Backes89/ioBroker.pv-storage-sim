@@ -15,8 +15,8 @@ jobs:
       matrix:
         node: ['18.x', '20.x', '22.x']
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: ${{ matrix.node }}
       - run: npm ci
@@ -29,8 +29,8 @@ jobs:
     name: Adapter-Integrationstest (js-controller)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: '20.x'
       - run: npm ci
@@ -45,7 +45,7 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: '20.x'
       - run: npx --yes @iobroker/repochecker https://github.com/Backes89/ioBroker.pv-storage-sim
