@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "pv-storage-sim",
-    "version": "0.0.38",
+    "version": "0.0.39",
     "news": {
+      "0.0.39": {
+        "en": "Monthly view: hovering a savings bar highlights it, shows a tooltip (date, savings, cumulative) and marks the matching table row.",
+        "de": "Monatsansicht: Hover über einen Ersparnis-Balken hebt ihn hervor, zeigt einen Tooltip (Datum, Ersparnis, kumuliert) und markiert die passende Tabellenzeile."
+      },
       "0.0.38": {
         "en": "English main documentation (German moved to docs/de); fixed broken master branch URLs in io-package.json.",
         "de": "Englische Hauptdokumentation (Deutsch nach docs/de verschoben); defekte master-Branch-URLs in io-package.json korrigiert."
@@ -58,10 +62,6 @@
       "0.0.25": {
         "en": "Period-reset logic extracted into a pure function with unit tests (day/month/year boundary on restart).",
         "de": "Perioden-Reset-Logik in eine reine Funktion mit Unit-Tests ausgelagert (Tages-/Monats-/Jahresgrenze beim Neustart)."
-      },
-      "0.0.24": {
-        "en": "Unit selection now matches the input type: W/kW for power, kWh/Wh for meter readings (no more mixed dimensions).",
-        "de": "Einheiten-Auswahl passt jetzt zur Eingabeart: W/kW bei Leistung, kWh/Wh bei Zählerstand (keine gemischten Dimensionen mehr)."
       }
     },
     "titleLang": {

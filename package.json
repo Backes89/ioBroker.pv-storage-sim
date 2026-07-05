@@ -1,6 +1,6 @@
 {
   "name": "iobroker.pv-storage-sim",
-  "version": "0.0.38",
+  "version": "0.0.39",
   "description": "Simulates a PV battery storage based on real data to evaluate whether buying one would pay off",
   "author": {
     "name": "Dominik Kremer",

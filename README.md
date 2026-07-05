@@ -116,6 +116,10 @@ Open items and planned features are tracked in [TODO.md](TODO.md)
 
 ## Changelog
 
+### 0.0.39 (2026-07-03)
+- Monthly view: hovering a savings bar highlights it, shows a tooltip (date, savings,
+  cumulative) and marks the matching table row — same interaction as in the day view
+
 ### 0.0.38 (2026-07-02)
 - English main documentation (German version moved to `docs/de/README.md`)
 - Fixed broken `master` branch URLs in io-package.json (repository uses `main`)

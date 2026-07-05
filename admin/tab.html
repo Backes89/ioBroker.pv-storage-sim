@@ -111,6 +111,7 @@ var socket = null, instances = [], curInst = 0, sourceMode = 'pv_consumption';
 var curCfg = null, merged = [], tableRows = [], geom = null, hiddenSet = {};
 var periodMode = 'tag', capacityKwh = 10, smoothOn = false;
 var zoom = null, dragging = false, dragStartX = null;
+var barGeom = null; // Geometrie der Monats-Balken (für Hover)
 var wrap, crossCanvas, tipEl;
 
 function clampX(x) { return Math.max(geom.padL, Math.min(geom.padL + geom.plotW, x)); }
@@ -273,6 +274,7 @@ function amortYears(annual, invest, gPct) {
 }
 
 function setPeriodUI() {
+    if (periodMode !== 'monat') barGeom = null; // Hover-Geometrie nur in der Monatsansicht
     document.getElementById('viewWrap').style.display = (periodMode === 'tag') ? '' : 'none';
     document.getElementById('smoothWrap').style.display = (periodMode === 'tag') ? '' : 'none';
     document.getElementById('zoomReset').style.display = (periodMode === 'tag' && zoom) ? '' : 'none';
@@ -341,7 +343,7 @@ function refreshMonth() {
         drawBars(daily, startDay);
         renderRows(['Datum', 'Ersparnis €', 'kumuliert €'], daily.map(function (x) {
             return [ddmm(x.day), fmt(x.val, 2, ''), fmt(x.cum, 2, '')];
-        }), true);
+        }), true, daily.map(function (x) { return x.day; }));
         showOverlay(points.length ? '' : 'Noch keine Tagesdaten. Bitte History-Logging auf economics.savingsTotal.eur aktivieren – dann erscheint hier die tägliche Ersparnis.');
         setStatus('Stand: ' + new Date().toLocaleTimeString());
         return loadKpis();
@@ -382,6 +384,7 @@ function drawBars(daily, startDay) {
         ctx.fillStyle = muted; ctx.textAlign = 'right'; ctx.fillText(val.toFixed(2) + ' €', padL - 6, yy);
     }
     var n = daily.length, bw = Math.max(2, plotW / n * 0.7), everyN = Math.ceil(n / 10);
+    barGeom = { padL: padL, padT: padT, plotW: plotW, plotH: plotH, daily: daily };
     ctx.textAlign = 'center'; ctx.textBaseline = 'top';
     daily.forEach(function (x, i) {
         var cx = padL + plotW * (i + 0.5) / n, y = yv(x.val);
@@ -471,11 +474,12 @@ function drawForecast(annual, invest, gPct) {
 }
 
 // ---- generische Tabelle (Monat / Prognose) ------------------------------------------------
-function renderRows(headers, rows, highlightLast) {
+function renderRows(headers, rows, highlightLast, tsList) {
     document.querySelector('#tbl thead').innerHTML = '<tr>' + headers.map(function (h) { return '<th>' + h + '</th>'; }).join('') + '</tr>';
     document.querySelector('#tbl tbody').innerHTML = rows.map(function (r, i) {
         var cls = (highlightLast && i === rows.length - 1) ? ' class="hl"' : '';
-        return '<tr' + cls + '>' + r.map(function (c) { return '<td>' + c + '</td>'; }).join('') + '</tr>';
+        var ts = tsList ? ' data-ts="' + tsList[i] + '"' : '';
+        return '<tr' + cls + ts + '>' + r.map(function (c) { return '<td>' + c + '</td>'; }).join('') + '</tr>';
     }).join('');
     document.getElementById('tblInfo').textContent = rows.length ? (rows.length + ' Zeilen') : '';
 }
@@ -728,9 +732,10 @@ function nearestMergedIdx(ts) {
     return best;
 }
 function onMove(e) {
-    if (periodMode !== 'tag' || !geom) return;
     var rect = wrap.getBoundingClientRect();
     var cssX = e.clientX - rect.left;
+    if (periodMode === 'monat') { if (barGeom) onMoveMonth(cssX, rect); return; }
+    if (periodMode !== 'tag' || !geom) return;
     if (dragging) { drawSelection(dragStartX, clampX(cssX)); return; } // Aufziehen des Zoom-Bereichs
     if (!merged.length || !curCfg) return;
     if (cssX < geom.padL || cssX > geom.padL + geom.plotW) { onLeave(); return; }
@@ -780,10 +785,44 @@ function highlightRow(ts) {
     rows.forEach(function (tr) { tr.classList.remove('hl'); });
     if (best) { best.classList.add('hl'); best.scrollIntoView({ block: 'nearest' }); }
 }
+// Hover über einen Monats-Balken: Balken-Slot markieren, Tooltip zeigen, Tabellenzeile hervorheben
+function onMoveMonth(x, rect) {
+    var g = barGeom;
+    if (x < g.padL || x > g.padL + g.plotW) { onLeave(); return; }
+    var n = g.daily.length;
+    var i = Math.min(n - 1, Math.max(0, Math.floor((x - g.padL) / g.plotW * n)));
+    var d = g.daily[i];
+
+    var s = sizeCanvas(crossCanvas), ctx = s.ctx;
+    ctx.clearRect(0, 0, s.w, s.h);
+    var slotW = g.plotW / n, sx = g.padL + slotW * i;
+    ctx.fillStyle = 'rgba(120,160,255,0.12)';
+    ctx.fillRect(sx, g.padT, slotW, g.plotH);
+    ctx.strokeStyle = 'rgba(120,160,255,0.8)'; ctx.lineWidth = 1;
+    ctx.strokeRect(sx, g.padT, slotW, g.plotH);
+
+    tipEl.innerHTML = '<div class="t-time">' + ddmm(d.day) + '</div>' +
+        '<div class="t-row">Ersparnis:&nbsp;<b>' + fmt(d.val, 2, ' €') + '</b></div>' +
+        '<div class="t-row">kumuliert:&nbsp;<b>' + fmt(d.cum, 2, ' €') + '</b></div>';
+    tipEl.style.display = 'block';
+    var tw = tipEl.offsetWidth;
+    var left = sx + slotW + 10; if (left + tw > rect.width) left = sx - tw - 10;
+    tipEl.style.left = Math.max(4, left) + 'px';
+    tipEl.style.top = (g.padT + 6) + 'px';
+
+    highlightRow(d.day);
+}
+
 function onLeave() {
     if (crossCanvas) { var s = sizeCanvas(crossCanvas); s.ctx.clearRect(0, 0, s.w, s.h); }
     if (tipEl) tipEl.style.display = 'none';
     if (periodMode === 'tag') document.querySelectorAll('#tbl tbody tr.hl').forEach(function (tr) { tr.classList.remove('hl'); });
+    if (periodMode === 'monat') {
+        // Hover-Markierung entfernen, die Dauer-Markierung der letzten Zeile (heute) wiederherstellen
+        var rows = document.querySelectorAll('#tbl tbody tr');
+        rows.forEach(function (tr) { tr.classList.remove('hl'); });
+        if (rows.length) rows[rows.length - 1].classList.add('hl');
+    }
 }
 
 // ---- Events --------------------------------------------------------------------------------
