@@ -45,8 +45,8 @@ test('Pflichtfelder in common sind vorhanden', () => {
 });
 
 test('deprecated Felder (title, license) sind entfernt', () => {
-    assert.strictEqual(io.common.title, undefined, 'common.title ist deprecated (titleLang nutzen)');
-    assert.strictEqual(io.common.license, undefined, 'common.license ist deprecated (licenseInformation nutzen)');
+    assert.strictEqual(io.common['title'], undefined, 'common.title ist deprecated (titleLang nutzen)');
+    assert.strictEqual(io.common['license'], undefined, 'common.license ist deprecated (licenseInformation nutzen)');
 });
 
 test('news hat höchstens 20 Einträge (Repo-Checker-Limit)', () => {

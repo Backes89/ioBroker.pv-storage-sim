@@ -1,6 +1,6 @@
 {
   "name": "iobroker.pv-storage-sim",
-  "version": "0.0.40",
+  "version": "0.0.41",
   "description": "Simulates a PV battery storage based on real data to evaluate whether buying one would pay off",
   "author": {
     "name": "Dominik Kremer",
@@ -36,10 +36,17 @@
     "@iobroker/adapter-core": "^3.2.3"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@iobroker/testing": "^5.0.0",
-    "mocha": "^11.7.6"
+    "@types/node": "^26.1.0",
+    "eslint": "^10.6.0",
+    "globals": "^17.7.0",
+    "mocha": "^11.7.6",
+    "typescript": "^6.0.3"
   },
   "scripts": {
+    "lint": "eslint .",
+    "check": "tsc --noEmit -p tsconfig.check.json",
     "test:unit": "node --test test/simulation.test.js test/period.test.js test/accumulation.test.js test/svg.test.js test/templates.test.js test/package.test.js",
     "test:package": "mocha test/mocha.package.js --exit",
     "test:integration": "mocha test/mocha.integration.js --exit",

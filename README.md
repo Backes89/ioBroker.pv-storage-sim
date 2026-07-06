@@ -116,6 +116,12 @@ Open items and planned features are tracked in [TODO.md](TODO.md)
 
 ## Changelog
 
+### 0.0.41 (2026-07-06)
+- Code quality: ESLint (bug-focused flat config) and TypeScript type checking of the
+  JavaScript sources (`checkJs` incl. typed adapter config) — both enforced by a new CI job
+- CI: superseded runs are cancelled (`concurrency`), commits with `[skip ci]` skip the
+  pipeline, integration test pinned to the released js-controller (`latest`)
+
 ### 0.0.40 (2026-07-03)
 - Config: reading mode now comes before the interval; the interval help text explains its
   role in both modes (polling: sampling + accounting; event-based: accounting only)

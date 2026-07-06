@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "pv-storage-sim",
-    "version": "0.0.40",
+    "version": "0.0.41",
     "news": {
+      "0.0.41": {
+        "en": "Code quality: ESLint and TypeScript type checking (checkJs) added and enforced in CI; CI cancels superseded runs and supports [skip ci].",
+        "de": "Code-Qualität: ESLint und TypeScript-Typprüfung (checkJs) ergänzt und in der CI erzwungen; CI bricht überholte Läufe ab und unterstützt [skip ci]."
+      },
       "0.0.40": {
         "en": "Config: reading mode now comes before the interval; interval help text explains its role in both modes (sampling+accounting vs. accounting only).",
         "de": "Konfiguration: Lesemodus steht jetzt vor dem Intervall; der Hilfetext erklärt die Rolle des Intervalls in beiden Modi (Abtastung+Verbuchung vs. nur Verbuchung)."
@@ -58,10 +62,6 @@
       "0.0.27": {
         "en": "Added package validation tests (version/name consistency, news, required fields, referenced files, config<->native keys).",
         "de": "Paketvalidierungs-Tests ergänzt (Versions-/Namens-Konsistenz, News, Pflichtfelder, referenzierte Dateien, Config<->native-Keys)."
-      },
-      "0.0.26": {
-        "en": "Accumulation logic extracted into a pure, tested function (totals, coverage, amortization).",
-        "de": "Akkumulations-Logik in eine reine, getestete Funktion ausgelagert (Summen, Speicher-Deckung, Amortisation)."
       }
     },
     "titleLang": {

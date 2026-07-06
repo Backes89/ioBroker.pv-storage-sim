@@ -8,6 +8,7 @@ const { dayChartSvg, barsSvg, kpiCardSvg, fmtDE } = require('./lib/svg');
 const { resolveStorage } = require('./lib/templates');
 
 // Definition aller vom Adapter angelegten States: [id, name{en,de}, unit, role, type]
+/** @type {Array<[string, ioBroker.StringOrTranslated, string, string, ioBroker.CommonType]>} */
 const STATE_DEFS = [
     ['info.connection', { en: 'Adapter active', de: 'Verbindung / aktiv' }, '', 'indicator.connected', 'boolean'],
 
@@ -261,9 +262,9 @@ class PvStorageSim extends utils.Adapter {
         this.p.maxDischargeWh = this.p.maxDischargeW * dtH;
         this.p.standbyWh = this.p.standbyW * dtH;
 
-        // Überschuss & Defizit für dieses Intervall ermitteln (Wh)
-        let surplusWh = 0;
-        let deficitWh = 0;
+        // Überschuss & Defizit für dieses Intervall ermitteln (Wh) – jeder Zweig setzt beide
+        let surplusWh;
+        let deficitWh;
         let pvWh = null;   // nur im Modus PV+Verbrauch bekannt (für die Visualisierung)
         let consWh = null;
         if (this.sourceMode === 'grid_meter') {
