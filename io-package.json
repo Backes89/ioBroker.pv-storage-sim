@@ -83,7 +83,6 @@
       "simulation"
     ],
     "platform": "Javascript/Node.js",
-    "main": "main.js",
     "icon": "pv-storage-sim.png",
     "extIcon": "https://raw.githubusercontent.com/Backes89/ioBroker.pv-storage-sim/main/admin/pv-storage-sim.png",
     "readme": "https://github.com/Backes89/ioBroker.pv-storage-sim/blob/main/README.md",
