@@ -116,6 +116,9 @@ Open items and planned features are tracked in [TODO.md](TODO.md)
 
 ## Changelog
 
+### **WORK IN PROGRESS**
+- (iobroker-bot) Adapter requires node.js >= 20 now.
+
 ### 0.0.41 (2026-07-06)
 - Code quality: ESLint (bug-focused flat config) and TypeScript type checking of the
   JavaScript sources (`checkJs` incl. typed adapter config) — both enforced by a new CI job
