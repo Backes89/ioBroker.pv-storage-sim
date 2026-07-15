@@ -191,6 +191,8 @@ Open items and planned features are tracked in [TODO.md](TODO.md)
 Older entries (0.0.1 – 0.0.22, in German) are archived in
 [docs/de/README.md](docs/de/README.md).
 
+[Older changelogs can be found there](CHANGELOG_OLD.md)
+
 ## License
 
 MIT License
