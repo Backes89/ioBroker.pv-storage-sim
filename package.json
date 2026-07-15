@@ -38,7 +38,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@iobroker/testing": "^5.0.0",
-    "@types/node": "^26.1.0",
+    "@types/node": "^18.19.130",
     "eslint": "^10.6.0",
     "globals": "^17.7.0",
     "mocha": "^11.7.6",
