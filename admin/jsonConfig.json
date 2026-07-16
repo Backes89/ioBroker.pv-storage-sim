@@ -1,39 +1,24 @@
 {
-  "i18n": false,
+  "i18n": true,
   "type": "panel",
   "items": {
     "_headerInput": {
       "type": "header",
       "size": 2,
-      "text": {
-        "en": "Input data",
-        "de": "Eingangsdaten"
-      }
+      "text": "Input data"
     },
     "inputMode": {
       "type": "select",
-      "label": {
-        "en": "Input type of the datapoints",
-        "de": "Eingabeart der Datenpunkte"
-      },
-      "help": {
-        "en": "Power: momentary values in W. Meter reading: cumulative values in kWh.",
-        "de": "Leistung: momentane Werte in W. Zählerstand: kumulierte Werte in kWh."
-      },
+      "label": "Input type of the datapoints",
+      "help": "Power: momentary values in W. Meter reading: cumulative values in kWh.",
       "options": [
         {
           "value": "power",
-          "label": {
-            "en": "Power (W, momentary)",
-            "de": "Leistung (W, momentan)"
-          }
+          "label": "Power (W, momentary)"
         },
         {
           "value": "energy",
-          "label": {
-            "en": "Meter reading (kWh, cumulative)",
-            "de": "Zählerstand (kWh, kumuliert)"
-          }
+          "label": "Meter reading (kWh, cumulative)"
         }
       ],
       "default": "power",
@@ -46,35 +31,20 @@
     },
     "sourceMode": {
       "type": "select",
-      "label": {
-        "en": "Data source",
-        "de": "Datenquelle"
-      },
-      "help": {
-        "en": "PV + consumption OR grid import + feed-in of a bidirectional meter.",
-        "de": "PV + Verbrauch ODER Netzbezug + Einspeisung eines Zweirichtungszählers."
-      },
+      "label": "Data source",
+      "help": "PV + consumption OR grid import + feed-in of a bidirectional meter.",
       "options": [
         {
           "value": "pv_consumption",
-          "label": {
-            "en": "PV generation + house consumption",
-            "de": "PV-Erzeugung + Hausverbrauch"
-          }
+          "label": "PV generation + house consumption"
         },
         {
           "value": "grid_meter",
-          "label": {
-            "en": "Grid import + feed-in (two datapoints)",
-            "de": "Netzbezug + Einspeisung (zwei Datenpunkte)"
-          }
+          "label": "Grid import + feed-in (two datapoints)"
         },
         {
           "value": "grid_signed",
-          "label": {
-            "en": "Grid – one signed datapoint (+/-)",
-            "de": "Netz – ein Datenpunkt mit Vorzeichen (+/-)"
-          }
+          "label": "Grid – one signed datapoint (+/-)"
         }
       ],
       "default": "pv_consumption",
@@ -86,10 +56,7 @@
     },
     "idPv": {
       "type": "objectId",
-      "label": {
-        "en": "PV generation datapoint",
-        "de": "Datenpunkt PV-Erzeugung"
-      },
+      "label": "PV generation datapoint",
       "hidden": "data.sourceMode !== 'pv_consumption'",
       "newLine": true,
       "sm": 12,
@@ -100,10 +67,7 @@
     },
     "unitPvPower": {
       "type": "select",
-      "label": {
-        "en": "Unit",
-        "de": "Einheit"
-      },
+      "label": "Unit",
       "options": [
         {
           "value": "W",
@@ -124,10 +88,7 @@
     },
     "unitPvEnergy": {
       "type": "select",
-      "label": {
-        "en": "Unit",
-        "de": "Einheit"
-      },
+      "label": "Unit",
       "options": [
         {
           "value": "kWh",
@@ -148,10 +109,7 @@
     },
     "idConsumption": {
       "type": "objectId",
-      "label": {
-        "en": "House consumption datapoint",
-        "de": "Datenpunkt Hausverbrauch"
-      },
+      "label": "House consumption datapoint",
       "hidden": "data.sourceMode !== 'pv_consumption'",
       "newLine": true,
       "sm": 12,
@@ -162,10 +120,7 @@
     },
     "unitConsumptionPower": {
       "type": "select",
-      "label": {
-        "en": "Unit",
-        "de": "Einheit"
-      },
+      "label": "Unit",
       "options": [
         {
           "value": "W",
@@ -186,10 +141,7 @@
     },
     "unitConsumptionEnergy": {
       "type": "select",
-      "label": {
-        "en": "Unit",
-        "de": "Einheit"
-      },
+      "label": "Unit",
       "options": [
         {
           "value": "kWh",
@@ -210,10 +162,7 @@
     },
     "idGridImport": {
       "type": "objectId",
-      "label": {
-        "en": "Grid import datapoint",
-        "de": "Datenpunkt Netzbezug"
-      },
+      "label": "Grid import datapoint",
       "hidden": "data.sourceMode !== 'grid_meter'",
       "newLine": true,
       "sm": 12,
@@ -224,10 +173,7 @@
     },
     "unitGridImportPower": {
       "type": "select",
-      "label": {
-        "en": "Unit",
-        "de": "Einheit"
-      },
+      "label": "Unit",
       "options": [
         {
           "value": "W",
@@ -248,10 +194,7 @@
     },
     "unitGridImportEnergy": {
       "type": "select",
-      "label": {
-        "en": "Unit",
-        "de": "Einheit"
-      },
+      "label": "Unit",
       "options": [
         {
           "value": "kWh",
@@ -272,10 +215,7 @@
     },
     "idGridExport": {
       "type": "objectId",
-      "label": {
-        "en": "Feed-in datapoint",
-        "de": "Datenpunkt Einspeisung"
-      },
+      "label": "Feed-in datapoint",
       "hidden": "data.sourceMode !== 'grid_meter'",
       "newLine": true,
       "sm": 12,
@@ -286,10 +226,7 @@
     },
     "unitGridExportPower": {
       "type": "select",
-      "label": {
-        "en": "Unit",
-        "de": "Einheit"
-      },
+      "label": "Unit",
       "options": [
         {
           "value": "W",
@@ -310,10 +247,7 @@
     },
     "unitGridExportEnergy": {
       "type": "select",
-      "label": {
-        "en": "Unit",
-        "de": "Einheit"
-      },
+      "label": "Unit",
       "options": [
         {
           "value": "kWh",
@@ -334,14 +268,8 @@
     },
     "idGridPower": {
       "type": "objectId",
-      "label": {
-        "en": "Grid power datapoint (signed)",
-        "de": "Datenpunkt Netzleistung (mit Vorzeichen)"
-      },
-      "help": {
-        "en": "A single datapoint carrying import and feed-in via its sign (e.g. OBIS 16.7.0 total active power).",
-        "de": "Ein einzelner Datenpunkt, der Bezug und Einspeisung über das Vorzeichen abbildet (z. B. OBIS 16.7.0 Gesamtwirkleistung)."
-      },
+      "label": "Grid power datapoint (signed)",
+      "help": "A single datapoint carrying import and feed-in via its sign (e.g. OBIS 16.7.0 total active power).",
       "hidden": "data.sourceMode !== 'grid_signed'",
       "newLine": true,
       "sm": 12,
@@ -352,10 +280,7 @@
     },
     "unitGridPowerPower": {
       "type": "select",
-      "label": {
-        "en": "Unit",
-        "de": "Einheit"
-      },
+      "label": "Unit",
       "options": [
         {
           "value": "W",
@@ -376,10 +301,7 @@
     },
     "unitGridPowerEnergy": {
       "type": "select",
-      "label": {
-        "en": "Unit",
-        "de": "Einheit"
-      },
+      "label": "Unit",
       "options": [
         {
           "value": "kWh",
@@ -400,28 +322,16 @@
     },
     "gridSignPositive": {
       "type": "select",
-      "label": {
-        "en": "Sign convention",
-        "de": "Vorzeichen-Bedeutung"
-      },
-      "help": {
-        "en": "Most meters (OBIS 16.7.0) use positive = grid import, negative = feed-in.",
-        "de": "Bei den meisten Zählern (OBIS 16.7.0) ist positiv = Netzbezug, negativ = Einspeisung."
-      },
+      "label": "Sign convention",
+      "help": "Most meters (OBIS 16.7.0) use positive = grid import, negative = feed-in.",
       "options": [
         {
           "value": "import",
-          "label": {
-            "en": "Positive = import, negative = feed-in",
-            "de": "Positiv = Netzbezug, negativ = Einspeisung"
-          }
+          "label": "Positive = import, negative = feed-in"
         },
         {
           "value": "export",
-          "label": {
-            "en": "Positive = feed-in, negative = import",
-            "de": "Positiv = Einspeisung, negativ = Netzbezug"
-          }
+          "label": "Positive = feed-in, negative = import"
         }
       ],
       "default": "import",
@@ -434,28 +344,16 @@
     },
     "readMode": {
       "type": "select",
-      "label": {
-        "en": "Reading mode",
-        "de": "Lesemodus"
-      },
-      "help": {
-        "en": "Polling reads the momentary value once per interval. Event-based subscribes to the source datapoints and integrates every change time-weighted (more accurate with fast-changing meters).",
-        "de": "Zyklische Abfrage liest je Intervall den Momentanwert. Ereignisbasiert abonniert die Quell-Datenpunkte und integriert jede Änderung zeitgewichtet (genauer bei schnell schwankenden Zählern)."
-      },
+      "label": "Reading mode",
+      "help": "Polling reads the momentary value once per interval. Event-based subscribes to the source datapoints and integrates every change time-weighted (more accurate with fast-changing meters).",
       "options": [
         {
           "value": "poll",
-          "label": {
-            "en": "Polling (default)",
-            "de": "Zyklische Abfrage (Standard)"
-          }
+          "label": "Polling (default)"
         },
         {
           "value": "subscribe",
-          "label": {
-            "en": "Event-based (subscribe)",
-            "de": "Ereignisbasiert (Subscribe)"
-          }
+          "label": "Event-based (subscribe)"
         }
       ],
       "default": "poll",
@@ -468,14 +366,8 @@
     },
     "intervalSec": {
       "type": "number",
-      "label": {
-        "en": "Simulation interval (seconds)",
-        "de": "Simulationsintervall (Sekunden)"
-      },
-      "help": {
-        "en": "Polling: sampling AND accounting interval. Event-based: accounting interval only (accuracy comes from the events); states/charts are updated at this pace.",
-        "de": "Zyklische Abfrage: Abtast- UND Verbuchungsintervall. Ereignisbasiert: nur Verbuchungsintervall (die Genauigkeit kommt aus den Ereignissen); States/Charts werden in diesem Takt aktualisiert."
-      },
+      "label": "Simulation interval (seconds)",
+      "help": "Polling: sampling AND accounting interval. Event-based: accounting interval only (accuracy comes from the events); states/charts are updated at this pace.",
       "min": 5,
       "default": 30,
       "sm": 12,
@@ -487,28 +379,16 @@
     "_headerBattery": {
       "type": "header",
       "size": 2,
-      "text": {
-        "en": "Storage",
-        "de": "Speicher"
-      }
+      "text": "Storage"
     },
     "storageTemplate": {
       "type": "select",
-      "label": {
-        "en": "Storage template",
-        "de": "Speicher-Vorlage"
-      },
-      "help": {
-        "en": "Pick a template – its technical values are shown below. Choose 'Custom values' to enter your own.",
-        "de": "Vorlage wählen – die technischen Werte werden darunter angezeigt. Für abweichende/eigene Werte 'Eigene Werte' wählen."
-      },
+      "label": "Storage template",
+      "help": "Pick a template – its technical values are shown below. Choose 'Custom values' to enter your own.",
       "options": [
         {
           "value": "custom",
-          "label": {
-            "en": "Custom values (manual)",
-            "de": "Eigene Werte (manuell)"
-          }
+          "label": "Custom values (manual)"
         },
         {
           "value": "huawei_luna2000_5",
@@ -573,10 +453,7 @@
     },
     "_tplInfo_huawei_luna2000_5": {
       "type": "staticText",
-      "text": {
-        "en": "Huawei LUNA2000 – 5 kWh · capacity 5 kWh · max. charge 2500 W · max. discharge 2500 W · efficiency 95 % · standby ~5 W. Representative values – please verify against the datasheet.",
-        "de": "Huawei LUNA2000 – 5 kWh · Kapazität 5 kWh · max. Ladeleistung 2500 W · max. Entladeleistung 2500 W · Wirkungsgrad 95 % · Standby ~5 W. Richtwerte – bitte am Datenblatt prüfen."
-      },
+      "text": "Huawei LUNA2000 – 5 kWh · capacity 5 kWh · max. charge 2500 W · max. discharge 2500 W · efficiency 95 % · standby ~5 W. Representative values – please verify against the datasheet.",
       "hidden": "data.storageTemplate !== 'huawei_luna2000_5'",
       "newLine": true,
       "sm": 12,
@@ -587,10 +464,7 @@
     },
     "_tplInfo_huawei_luna2000_10": {
       "type": "staticText",
-      "text": {
-        "en": "Huawei LUNA2000 – 10 kWh · capacity 10 kWh · max. charge 5000 W · max. discharge 5000 W · efficiency 95 % · standby ~8 W. Representative values – please verify against the datasheet.",
-        "de": "Huawei LUNA2000 – 10 kWh · Kapazität 10 kWh · max. Ladeleistung 5000 W · max. Entladeleistung 5000 W · Wirkungsgrad 95 % · Standby ~8 W. Richtwerte – bitte am Datenblatt prüfen."
-      },
+      "text": "Huawei LUNA2000 – 10 kWh · capacity 10 kWh · max. charge 5000 W · max. discharge 5000 W · efficiency 95 % · standby ~8 W. Representative values – please verify against the datasheet.",
       "hidden": "data.storageTemplate !== 'huawei_luna2000_10'",
       "newLine": true,
       "sm": 12,
@@ -601,10 +475,7 @@
     },
     "_tplInfo_huawei_luna2000_15": {
       "type": "staticText",
-      "text": {
-        "en": "Huawei LUNA2000 – 15 kWh · capacity 15 kWh · max. charge 5000 W · max. discharge 5000 W · efficiency 95 % · standby ~10 W. Representative values – please verify against the datasheet.",
-        "de": "Huawei LUNA2000 – 15 kWh · Kapazität 15 kWh · max. Ladeleistung 5000 W · max. Entladeleistung 5000 W · Wirkungsgrad 95 % · Standby ~10 W. Richtwerte – bitte am Datenblatt prüfen."
-      },
+      "text": "Huawei LUNA2000 – 15 kWh · capacity 15 kWh · max. charge 5000 W · max. discharge 5000 W · efficiency 95 % · standby ~10 W. Representative values – please verify against the datasheet.",
       "hidden": "data.storageTemplate !== 'huawei_luna2000_15'",
       "newLine": true,
       "sm": 12,
@@ -615,10 +486,7 @@
     },
     "_tplInfo_huawei_luna2000_7_s1": {
       "type": "staticText",
-      "text": {
-        "en": "Huawei LUNA2000 S1 – 7 kWh · capacity 7 kWh · max. charge 3500 W · max. discharge 3500 W · efficiency 95 % · standby ~6 W. Representative values – please verify against the datasheet.",
-        "de": "Huawei LUNA2000 S1 – 7 kWh · Kapazität 7 kWh · max. Ladeleistung 3500 W · max. Entladeleistung 3500 W · Wirkungsgrad 95 % · Standby ~6 W. Richtwerte – bitte am Datenblatt prüfen."
-      },
+      "text": "Huawei LUNA2000 S1 – 7 kWh · capacity 7 kWh · max. charge 3500 W · max. discharge 3500 W · efficiency 95 % · standby ~6 W. Representative values – please verify against the datasheet.",
       "hidden": "data.storageTemplate !== 'huawei_luna2000_7_s1'",
       "newLine": true,
       "sm": 12,
@@ -629,10 +497,7 @@
     },
     "_tplInfo_huawei_luna2000_14_s1": {
       "type": "staticText",
-      "text": {
-        "en": "Huawei LUNA2000 S1 – 14 kWh · capacity 14 kWh · max. charge 5000 W · max. discharge 5000 W · efficiency 95 % · standby ~9 W. Representative values – please verify against the datasheet.",
-        "de": "Huawei LUNA2000 S1 – 14 kWh · Kapazität 14 kWh · max. Ladeleistung 5000 W · max. Entladeleistung 5000 W · Wirkungsgrad 95 % · Standby ~9 W. Richtwerte – bitte am Datenblatt prüfen."
-      },
+      "text": "Huawei LUNA2000 S1 – 14 kWh · capacity 14 kWh · max. charge 5000 W · max. discharge 5000 W · efficiency 95 % · standby ~9 W. Representative values – please verify against the datasheet.",
       "hidden": "data.storageTemplate !== 'huawei_luna2000_14_s1'",
       "newLine": true,
       "sm": 12,
@@ -643,10 +508,7 @@
     },
     "_tplInfo_huawei_luna2000_21_s1": {
       "type": "staticText",
-      "text": {
-        "en": "Huawei LUNA2000 S1 – 21 kWh · capacity 21 kWh · max. charge 5000 W · max. discharge 5000 W · efficiency 95 % · standby ~12 W. Representative values – please verify against the datasheet.",
-        "de": "Huawei LUNA2000 S1 – 21 kWh · Kapazität 21 kWh · max. Ladeleistung 5000 W · max. Entladeleistung 5000 W · Wirkungsgrad 95 % · Standby ~12 W. Richtwerte – bitte am Datenblatt prüfen."
-      },
+      "text": "Huawei LUNA2000 S1 – 21 kWh · capacity 21 kWh · max. charge 5000 W · max. discharge 5000 W · efficiency 95 % · standby ~12 W. Representative values – please verify against the datasheet.",
       "hidden": "data.storageTemplate !== 'huawei_luna2000_21_s1'",
       "newLine": true,
       "sm": 12,
@@ -657,10 +519,7 @@
     },
     "_tplInfo_byd_hvs_5_1": {
       "type": "staticText",
-      "text": {
-        "en": "BYD Battery-Box HVS 5.1 · capacity 5.1 kWh · max. charge 3000 W · max. discharge 3000 W · efficiency 95 % · standby ~5 W. Representative values – please verify against the datasheet.",
-        "de": "BYD Battery-Box HVS 5.1 · Kapazität 5,1 kWh · max. Ladeleistung 3000 W · max. Entladeleistung 3000 W · Wirkungsgrad 95 % · Standby ~5 W. Richtwerte – bitte am Datenblatt prüfen."
-      },
+      "text": "BYD Battery-Box HVS 5.1 · capacity 5.1 kWh · max. charge 3000 W · max. discharge 3000 W · efficiency 95 % · standby ~5 W. Representative values – please verify against the datasheet.",
       "hidden": "data.storageTemplate !== 'byd_hvs_5_1'",
       "newLine": true,
       "sm": 12,
@@ -671,10 +530,7 @@
     },
     "_tplInfo_byd_hvs_7_7": {
       "type": "staticText",
-      "text": {
-        "en": "BYD Battery-Box HVS 7.7 · capacity 7.7 kWh · max. charge 4500 W · max. discharge 4500 W · efficiency 95 % · standby ~6 W. Representative values – please verify against the datasheet.",
-        "de": "BYD Battery-Box HVS 7.7 · Kapazität 7,7 kWh · max. Ladeleistung 4500 W · max. Entladeleistung 4500 W · Wirkungsgrad 95 % · Standby ~6 W. Richtwerte – bitte am Datenblatt prüfen."
-      },
+      "text": "BYD Battery-Box HVS 7.7 · capacity 7.7 kWh · max. charge 4500 W · max. discharge 4500 W · efficiency 95 % · standby ~6 W. Representative values – please verify against the datasheet.",
       "hidden": "data.storageTemplate !== 'byd_hvs_7_7'",
       "newLine": true,
       "sm": 12,
@@ -685,10 +541,7 @@
     },
     "_tplInfo_byd_hvs_10_2": {
       "type": "staticText",
-      "text": {
-        "en": "BYD Battery-Box HVS 10.2 · capacity 10.2 kWh · max. charge 6000 W · max. discharge 6000 W · efficiency 95 % · standby ~7 W. Representative values – please verify against the datasheet.",
-        "de": "BYD Battery-Box HVS 10.2 · Kapazität 10,2 kWh · max. Ladeleistung 6000 W · max. Entladeleistung 6000 W · Wirkungsgrad 95 % · Standby ~7 W. Richtwerte – bitte am Datenblatt prüfen."
-      },
+      "text": "BYD Battery-Box HVS 10.2 · capacity 10.2 kWh · max. charge 6000 W · max. discharge 6000 W · efficiency 95 % · standby ~7 W. Representative values – please verify against the datasheet.",
       "hidden": "data.storageTemplate !== 'byd_hvs_10_2'",
       "newLine": true,
       "sm": 12,
@@ -699,10 +552,7 @@
     },
     "_tplInfo_tesla_powerwall_2": {
       "type": "staticText",
-      "text": {
-        "en": "Tesla Powerwall 2 · capacity 13.5 kWh · max. charge 5000 W · max. discharge 5000 W · efficiency 90 % · standby ~15 W. Representative values – please verify against the datasheet.",
-        "de": "Tesla Powerwall 2 · Kapazität 13,5 kWh · max. Ladeleistung 5000 W · max. Entladeleistung 5000 W · Wirkungsgrad 90 % · Standby ~15 W. Richtwerte – bitte am Datenblatt prüfen."
-      },
+      "text": "Tesla Powerwall 2 · capacity 13.5 kWh · max. charge 5000 W · max. discharge 5000 W · efficiency 90 % · standby ~15 W. Representative values – please verify against the datasheet.",
       "hidden": "data.storageTemplate !== 'tesla_powerwall_2'",
       "newLine": true,
       "sm": 12,
@@ -713,10 +563,7 @@
     },
     "_tplInfo_lg_resu10h": {
       "type": "staticText",
-      "text": {
-        "en": "LG RESU10H · capacity 9.8 kWh · max. charge 5000 W · max. discharge 5000 W · efficiency 95 % · standby ~5 W. Representative values – please verify against the datasheet.",
-        "de": "LG RESU10H · Kapazität 9,8 kWh · max. Ladeleistung 5000 W · max. Entladeleistung 5000 W · Wirkungsgrad 95 % · Standby ~5 W. Richtwerte – bitte am Datenblatt prüfen."
-      },
+      "text": "LG RESU10H · capacity 9.8 kWh · max. charge 5000 W · max. discharge 5000 W · efficiency 95 % · standby ~5 W. Representative values – please verify against the datasheet.",
       "hidden": "data.storageTemplate !== 'lg_resu10h'",
       "newLine": true,
       "sm": 12,
@@ -727,10 +574,7 @@
     },
     "_tplInfo_sonnen_10_11": {
       "type": "staticText",
-      "text": {
-        "en": "sonnenBatterie 10 (11 kWh) · capacity 11 kWh · max. charge 4600 W · max. discharge 4600 W · efficiency 90 % · standby ~15 W. Representative values – please verify against the datasheet.",
-        "de": "sonnenBatterie 10 (11 kWh) · Kapazität 11 kWh · max. Ladeleistung 4600 W · max. Entladeleistung 4600 W · Wirkungsgrad 90 % · Standby ~15 W. Richtwerte – bitte am Datenblatt prüfen."
-      },
+      "text": "sonnenBatterie 10 (11 kWh) · capacity 11 kWh · max. charge 4600 W · max. discharge 4600 W · efficiency 90 % · standby ~15 W. Representative values – please verify against the datasheet.",
       "hidden": "data.storageTemplate !== 'sonnen_10_11'",
       "newLine": true,
       "sm": 12,
@@ -741,10 +585,7 @@
     },
     "_tplInfo_e3dc_s10_e_13": {
       "type": "staticText",
-      "text": {
-        "en": "E3/DC S10 E (13 kWh) · capacity 13 kWh · max. charge 4500 W · max. discharge 4500 W · efficiency 90 % · standby ~25 W. Representative values – please verify against the datasheet.",
-        "de": "E3/DC S10 E (13 kWh) · Kapazität 13 kWh · max. Ladeleistung 4500 W · max. Entladeleistung 4500 W · Wirkungsgrad 90 % · Standby ~25 W. Richtwerte – bitte am Datenblatt prüfen."
-      },
+      "text": "E3/DC S10 E (13 kWh) · capacity 13 kWh · max. charge 4500 W · max. discharge 4500 W · efficiency 90 % · standby ~25 W. Representative values – please verify against the datasheet.",
       "hidden": "data.storageTemplate !== 'e3dc_s10_e_13'",
       "newLine": true,
       "sm": 12,
@@ -755,10 +596,7 @@
     },
     "capacityKwh": {
       "type": "number",
-      "label": {
-        "en": "Capacity (kWh)",
-        "de": "Kapazität (kWh)"
-      },
+      "label": "Capacity (kWh)",
       "min": 0.1,
       "default": 10,
       "hidden": "data.storageTemplate !== 'custom'",
@@ -771,10 +609,7 @@
     },
     "minSocPercent": {
       "type": "number",
-      "label": {
-        "en": "Minimum state of charge (%)",
-        "de": "Mindest-Ladezustand (%)"
-      },
+      "label": "Minimum state of charge (%)",
       "min": 0,
       "max": 50,
       "default": 5,
@@ -787,10 +622,7 @@
     },
     "roundTripEff": {
       "type": "number",
-      "label": {
-        "en": "Round-trip efficiency (%)",
-        "de": "Roundtrip-Wirkungsgrad (%)"
-      },
+      "label": "Round-trip efficiency (%)",
       "min": 1,
       "max": 100,
       "default": 90,
@@ -803,10 +635,7 @@
     },
     "maxChargeW": {
       "type": "number",
-      "label": {
-        "en": "Max. charge power (W)",
-        "de": "Max. Ladeleistung (W)"
-      },
+      "label": "Max. charge power (W)",
       "min": 0,
       "default": 3000,
       "hidden": "data.storageTemplate !== 'custom'",
@@ -819,10 +648,7 @@
     },
     "maxDischargeW": {
       "type": "number",
-      "label": {
-        "en": "Max. discharge power (W)",
-        "de": "Max. Entladeleistung (W)"
-      },
+      "label": "Max. discharge power (W)",
       "min": 0,
       "default": 3000,
       "hidden": "data.storageTemplate !== 'custom'",
@@ -834,14 +660,8 @@
     },
     "standbyW": {
       "type": "number",
-      "label": {
-        "en": "Standby consumption (W)",
-        "de": "Standby-Verbrauch (W)"
-      },
-      "help": {
-        "en": "Continuous self-consumption of the storage system (battery management etc.). Covered from the battery while charged, otherwise from the grid.",
-        "de": "Dauerhafter Eigenverbrauch des Speichersystems (Batteriemanagement usw.). Wird aus dem Speicher gedeckt, solange er geladen ist, sonst aus dem Netz."
-      },
+      "label": "Standby consumption (W)",
+      "help": "Continuous self-consumption of the storage system (battery management etc.). Covered from the battery while charged, otherwise from the grid.",
       "min": 0,
       "default": 0,
       "hidden": "data.storageTemplate !== 'custom'",
@@ -854,17 +674,11 @@
     "_headerEconomics": {
       "type": "header",
       "size": 2,
-      "text": {
-        "en": "Economics",
-        "de": "Wirtschaftlichkeit"
-      }
+      "text": "Economics"
     },
     "priceImportCt": {
       "type": "number",
-      "label": {
-        "en": "Electricity price, import (ct/kWh)",
-        "de": "Strompreis Bezug (ct/kWh)"
-      },
+      "label": "Electricity price, import (ct/kWh)",
       "min": 0,
       "default": 35,
       "newLine": true,
@@ -876,10 +690,7 @@
     },
     "priceFeedInCt": {
       "type": "number",
-      "label": {
-        "en": "Feed-in tariff (ct/kWh)",
-        "de": "Einspeisevergütung (ct/kWh)"
-      },
+      "label": "Feed-in tariff (ct/kWh)",
       "min": 0,
       "default": 8,
       "sm": 12,
@@ -890,10 +701,7 @@
     },
     "investmentEur": {
       "type": "number",
-      "label": {
-        "en": "Investment (€)",
-        "de": "Anschaffungskosten (€)"
-      },
+      "label": "Investment (€)",
       "min": 0,
       "default": 7000,
       "sm": 12,
@@ -904,14 +712,8 @@
     },
     "priceIncreasePercent": {
       "type": "number",
-      "label": {
-        "en": "Electricity price increase (%/year)",
-        "de": "Strompreissteigerung (%/Jahr)"
-      },
-      "help": {
-        "en": "Assumed annual increase of the electricity price; used for the amortization estimate and forecast (0 = linear).",
-        "de": "Angenommene jährliche Strompreissteigerung; fließt in Amortisations-Schätzung und Prognose ein (0 = linear)."
-      },
+      "label": "Electricity price increase (%/year)",
+      "help": "Assumed annual increase of the electricity price; used for the amortization estimate and forecast (0 = linear).",
       "min": 0,
       "max": 20,
       "default": 0,
@@ -925,17 +727,11 @@
     "_headerViz": {
       "type": "header",
       "size": 2,
-      "text": {
-        "en": "Charts / WebUI",
-        "de": "Grafische Auswertung / WebUI"
-      }
+      "text": "Charts / WebUI"
     },
     "_vizHint": {
       "type": "staticText",
-      "text": {
-        "en": "The trend charts need time series. Enable history logging (adapter 'history', 'sql' or 'influxdb') on this instance's live.* datapoints (grid modes: live.gridNetOrigW, live.gridNetSimW, live.batteryPowerW; PV mode: live.pvW, live.consumptionW, live.directUseW) and on battery.soc.percent. For the monthly view additionally on economics.savingsTotal.eur. Without logging the evaluation only shows current values.",
-        "de": "Für die Verlaufs-Diagramme werden Zeitreihen benötigt. Aktiviere dazu ein History-Logging (Adapter 'history', 'sql' oder 'influxdb') auf den live.*-Datenpunkten dieser Instanz (im Netz-Modus z. B. live.gridNetOrigW, live.gridNetSimW, live.batteryPowerW; im PV-Modus live.pvW, live.consumptionW, live.directUseW) sowie auf battery.soc.percent. Für die Monatsansicht zusätzlich economics.savingsTotal.eur. Ohne Logging zeigt die Auswertung nur den aktuellen Wert, keinen Verlauf."
-      },
+      "text": "The trend charts need time series. Enable history logging (adapter 'history', 'sql' or 'influxdb') on this instance's live.* datapoints (grid modes: live.gridNetOrigW, live.gridNetSimW, live.batteryPowerW; PV mode: live.pvW, live.consumptionW, live.directUseW) and on battery.soc.percent. For the monthly view additionally on economics.savingsTotal.eur. Without logging the evaluation only shows current values.",
       "sm": 12,
       "xs": 12,
       "md": 12,

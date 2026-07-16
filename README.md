@@ -116,6 +116,13 @@ Open items and planned features are tracked in [TODO.md](TODO.md)
 
 ## Changelog
 
+### 0.0.43 (2026-07-16)
+- Repository checker (issue #1), round 2: admin UI translated into all 11 ioBroker
+  languages using the official i18n file structure (`admin/i18n/<lang>.json`,
+  maintained via `@iobroker/adapter-dev` / `translate-adapter`); io-package texts
+  (titleLang, description, news) available in all languages; new package tests enforce
+  i18n completeness
+
 ### 0.0.42 (2026-07-15)
 - Repository checker (issue #1), round 1: minimum versions raised (Node >= 20,
   js-controller >= 6.0.11, admin >= 7.6.17, @iobroker/testing >= 5.2.2, adapter-core

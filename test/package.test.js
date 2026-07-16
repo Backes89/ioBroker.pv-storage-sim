@@ -92,21 +92,62 @@ test('storageTemplate-Optionen decken sich mit den Vorlagen (+custom)', () => {
 });
 
 test('jede Vorlage hat einen Info-Text mit den korrekten Leistungs-/Standby-Werten', () => {
+    const en = JSON.parse(fs.readFileSync(path.join(root, 'admin/i18n/en.json'), 'utf8'));
+    const de = JSON.parse(fs.readFileSync(path.join(root, 'admin/i18n/de.json'), 'utf8'));
     for (const [key, s] of Object.entries(TEMPLATES)) {
         const info = jsonConfig.items['_tplInfo_' + key];
         assert.ok(info && info.type === 'staticText', `_tplInfo_${key} fehlt`);
         assert.ok(info.hidden && info.hidden.includes("'" + key + "'"), `_tplInfo_${key}: hidden-Bezug fehlt`);
-        const txt = JSON.stringify(info.text);
-        assert.ok(txt.includes(String(s.maxChargeW)), `_tplInfo_${key}: Ladeleistung fehlt`);
-        assert.ok(txt.includes(String(s.maxDischargeW)), `_tplInfo_${key}: Entladeleistung fehlt`);
-        assert.ok(txt.includes('~' + s.standbyW + ' W'), `_tplInfo_${key}: Standby fehlt`);
-        assert.ok(info.text.en && info.text.de, `_tplInfo_${key}: en/de fehlt`);
+        // text ist jetzt ein i18n-Schlüssel; Werte in der en- UND de-Fassung prüfen
+        assert.ok(typeof info.text === 'string' && en[info.text] && de[info.text], `_tplInfo_${key}: i18n-Eintrag fehlt`);
+        for (const txt of [en[info.text], de[info.text]]) {
+            assert.ok(txt.includes(String(s.maxChargeW)), `_tplInfo_${key}: Ladeleistung fehlt`);
+            assert.ok(txt.includes(String(s.maxDischargeW)), `_tplInfo_${key}: Entladeleistung fehlt`);
+            assert.ok(txt.includes('~' + s.standbyW + ' W'), `_tplInfo_${key}: Standby fehlt`);
+        }
     }
 });
 
 test('Vorlagen enthalten einen Standby-Wert', () => {
     for (const [key, s] of Object.entries(TEMPLATES)) {
         assert.ok(typeof s.standbyW === 'number' && s.standbyW >= 0 && s.standbyW <= 100, `${key}: standbyW unplausibel`);
+    }
+});
+
+const I18N_LANGS = ['en', 'de', 'ru', 'pt', 'nl', 'fr', 'it', 'es', 'pl', 'uk', 'zh-cn'];
+
+test('i18n: alle Sprachdateien vorhanden und schlüsselgleich zu en', () => {
+    const en = JSON.parse(fs.readFileSync(path.join(root, 'admin/i18n/en.json'), 'utf8'));
+    for (const lang of I18N_LANGS) {
+        const file = path.join(root, 'admin/i18n', lang + '.json');
+        assert.ok(fs.existsSync(file), `i18n-Datei fehlt: ${lang}.json`);
+        const keys = Object.keys(JSON.parse(fs.readFileSync(file, 'utf8')));
+        assert.deepStrictEqual(keys.sort(), Object.keys(en).sort(), `Schlüssel in ${lang}.json weichen von en.json ab`);
+    }
+});
+
+test('i18n: jeder jsonConfig-Text hat einen Eintrag in en.json', () => {
+    const en = JSON.parse(fs.readFileSync(path.join(root, 'admin/i18n/en.json'), 'utf8'));
+    assert.strictEqual(jsonConfig.i18n, true, 'jsonConfig.i18n muss true sein');
+    const missing = [];
+    for (const [key, item] of Object.entries(jsonConfig.items)) {
+        for (const f of ['label', 'help', 'text']) {
+            if (typeof item[f] === 'string' && en[item[f]] === undefined) missing.push(`${key}.${f}`);
+        }
+        for (const o of item['options'] || []) {
+            if (typeof o.label === 'string' && en[o.label] === undefined) missing.push(`${key}.options`);
+        }
+    }
+    assert.deepStrictEqual(missing, [], `Texte ohne Übersetzungs-Eintrag: ${missing}`);
+});
+
+test('io-package: titleLang, desc und news in allen Sprachen', () => {
+    for (const lang of I18N_LANGS) {
+        assert.ok(io.common.titleLang[lang], `titleLang.${lang} fehlt`);
+        assert.ok(io.common.desc[lang], `desc.${lang} fehlt`);
+        for (const [v, entry] of Object.entries(io.common.news)) {
+            assert.ok(entry[lang], `news ${v}: ${lang} fehlt`);
+        }
     }
 });
 

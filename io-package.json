@@ -1,44 +1,125 @@
 {
   "common": {
     "name": "pv-storage-sim",
-    "version": "0.0.42",
+    "version": "0.0.43",
     "news": {
+      "0.0.43": {
+        "en": "Admin UI translated into all ioBroker languages (i18n files, translate-adapter); io-package texts (title, description, news) available in 11 languages.",
+        "de": "Admin-Oberfläche in alle ioBroker-Sprachen übersetzt (i18n-Dateien, translate-adapter); io-package-Texte (Titel, Beschreibung, News) in 11 Sprachen.",
+        "ru": "Пользовательский интерфейс администратора переведен на все языки ioBroker (файлы i18n, адаптер перевода); Тексты io-пакета (название, описание, новости) доступны на 11 языках.",
+        "pt": "UI de administração traduzida para todos os idiomas do ioBroker (arquivos i18n, adaptador de tradução); textos do pacote io (título, descrição, notícias) disponíveis em 11 idiomas.",
+        "nl": "Beheerdersinterface vertaald in alle ioBroker-talen (i18n-bestanden, vertaaladapter); io-pakketteksten (titel, beschrijving, nieuws) beschikbaar in 11 talen.",
+        "fr": "Interface utilisateur d'administration traduite dans toutes les langues ioBroker (fichiers i18n, adaptateur de traduction) ; Textes io-package (titre, description, actualité) disponibles en 11 langues.",
+        "it": "Interfaccia utente di amministrazione tradotta in tutte le lingue di ioBroker (file i18n, adattatore di traduzione); Testi del pacchetto io (titolo, descrizione, notizie) disponibili in 11 lingue.",
+        "es": "UI de administrador traducida a todos los idiomas de ioBroker (archivos i18n, adaptador de traducción); Textos del paquete io (título, descripción, noticias) disponibles en 11 idiomas.",
+        "pl": "Interfejs administratora przetłumaczony na wszystkie języki ioBroker (pliki i18n, adapter do tłumaczenia); teksty pakietu io (tytuł, opis, aktualności) dostępne w 11 językach.",
+        "uk": "Інтерфейс адміністратора перекладено на всі мови ioBroker (файли i18n, адаптер перекладу); Тексти io-пакетів (назва, опис, новини) доступні 11 мовами.",
+        "zh-cn": "管理 UI 已翻译为所有 ioBroker 语言（i18n 文件、翻译适配器）； io-package 文本（标题、描述、新闻）有 11 种语言版本。"
+      },
       "0.0.42": {
         "en": "Repository checker round 1: node>=20, js-controller>=6.0.11, admin>=7.6.17, deprecated common.main removed, multilingual adminTab name, news capped at 7, workflow follows naming conventions, responsive widths in jsonConfig.",
-        "de": "Repository-Checker Runde 1: node>=20, js-controller>=6.0.11, admin>=7.6.17, deprecated common.main entfernt, mehrsprachiger adminTab-Name, News auf 7 begrenzt, Workflow folgt den Namenskonventionen, responsive Breiten in jsonConfig."
+        "de": "Repository-Checker Runde 1: node>=20, js-controller>=6.0.11, admin>=7.6.17, deprecated common.main entfernt, mehrsprachiger adminTab-Name, News auf 7 begrenzt, Workflow folgt den Namenskonventionen, responsive Breiten in jsonConfig.",
+        "ru": "Проверка репозитория, этап 1: node>=20, js-controller>=6.0.11, admin>=7.6.17, устаревший common.main удален, многоязычное имя adminTab, новости ограничены 7, рабочий процесс соответствует соглашениям об именах, адаптивная ширина в jsonConfig.",
+        "pt": "Rodada 1 do verificador de repositório: node>=20, js-controller>=6.0.11, admin>=7.6.17, common.main obsoleto removido, nome adminTab multilíngue, notícias limitadas a 7, fluxo de trabalho segue convenções de nomenclatura, larguras responsivas em jsonConfig.",
+        "nl": "Repositorycontrole ronde 1: node>=20, js-controller>=6.0.11, admin>=7.6.17, verouderde common.main verwijderd, meertalige adminTab-naam, nieuws beperkt tot 7, workflow volgt naamgevingsconventies, responsieve breedtes in jsonConfig.",
+        "fr": "Vérificateur de référentiel tour 1 : node>=20, js-controller>=6.0.11, admin>=7.6.17, common.main obsolète supprimé, nom d'adminTab multilingue, actualités limitées à 7, le flux de travail suit les conventions de dénomination, les largeurs réactives dans jsonConfig.",
+        "it": "Controllo del repository round 1: node>=20, js-controller>=6.0.11, admin>=7.6.17, common.main deprecato rimosso, nome adminTab multilingue, notizie limitate a 7, il flusso di lavoro segue le convenzioni di denominazione, larghezze reattive in jsonConfig.",
+        "es": "Ronda 1 del verificador del repositorio: nodo>=20, js-controller>=6.0.11, admin>=7.6.17, common.main obsoleto eliminado, nombre de adminTab multilingüe, noticias con un límite de 7, el flujo de trabajo sigue las convenciones de nomenclatura, anchos de respuesta en jsonConfig.",
+        "pl": "Runda 1 sprawdzania repozytorium: węzeł>=20, kontroler js>=6.0.11, admin>=7.6.17, usunięty przestarzały plik common.main, wielojęzyczna nazwa adminTab, liczba wiadomości ograniczona do 7, przepływ pracy zgodny z konwencjami nazewnictwa, responsywne szerokości w jsonConfig.",
+        "uk": "Перший раунд перевірки сховища: node>=20, js-controller>=6.0.11, admin>=7.6.17, застарілий common.main видалено, багатомовна назва adminTab, новини обмежені 7, робочий процес відповідає умовам іменування, адаптивна ширина в jsonConfig.",
+        "zh-cn": "存储库检查器第 1 轮：node>=20、js-controller>=6.0.11、admin>=7.6.17、已弃用的 common.main 已删除、多语言 adminTab 名称、新闻上限为 7、工作流程遵循命名约定、jsonConfig 中的响应宽度。"
       },
       "0.0.41": {
         "en": "Code quality: ESLint and TypeScript type checking (checkJs) added and enforced in CI; CI cancels superseded runs and supports [skip ci].",
-        "de": "Code-Qualität: ESLint und TypeScript-Typprüfung (checkJs) ergänzt und in der CI erzwungen; CI bricht überholte Läufe ab und unterstützt [skip ci]."
+        "de": "Code-Qualität: ESLint und TypeScript-Typprüfung (checkJs) ergänzt und in der CI erzwungen; CI bricht überholte Läufe ab und unterstützt [skip ci].",
+        "ru": "Качество кода: добавлена ​​и реализована проверка типов ESLint и TypeScript (checkJs) в CI; CI отменяет замененные прогоны и поддерживает [skip ci].",
+        "pt": "Qualidade do código: verificação de tipo ESLint e TypeScript (checkJs) adicionada e aplicada no CI; CI cancela execuções substituídas e suporta [skip ci].",
+        "nl": "Codekwaliteit: ESLint- en TypeScript-typecontrole (checkJs) toegevoegd en afgedwongen in CI; CI annuleert vervangen runs en ondersteunt [skip ci].",
+        "fr": "Qualité du code : vérification de type ESLint et TypeScript (checkJs) ajoutée et appliquée dans CI ; CI annule les exécutions remplacées et prend en charge [skip ci].",
+        "it": "Qualità del codice: controllo del tipo ESLint e TypeScript (checkJs) aggiunto e applicato in CI; CI annulla le esecuzioni e i supporti sostituiti [salta ci].",
+        "es": "Calidad del código: verificación de tipos de ESLint y TypeScript (checkJs) agregada y aplicada en CI; CI cancela ejecuciones reemplazadas y admite [omitir ci].",
+        "pl": "Jakość kodu: dodano i wymuszono sprawdzanie typu ESLint i TypeScript (checkJs) w CI; CI anuluje zastąpione przebiegi i obsługuje [pomiń ci].",
+        "uk": "Якість коду: перевірка типу ESLint і TypeScript (checkJs) додана та примусова до CI; CI скасовує замінені запуску та підтримує [пропустити ci].",
+        "zh-cn": "代码质量：在 CI 中添加并强制执行 ESLint 和 TypeScript 类型检查 (checkJs)； CI 取消被取代的运行并支持 [skip ci]。"
       },
       "0.0.40": {
         "en": "Config: reading mode now comes before the interval; interval help text explains its role in both modes (sampling+accounting vs. accounting only).",
-        "de": "Konfiguration: Lesemodus steht jetzt vor dem Intervall; der Hilfetext erklärt die Rolle des Intervalls in beiden Modi (Abtastung+Verbuchung vs. nur Verbuchung)."
+        "de": "Konfiguration: Lesemodus steht jetzt vor dem Intervall; der Hilfetext erklärt die Rolle des Intervalls in beiden Modi (Abtastung+Verbuchung vs. nur Verbuchung).",
+        "ru": "Конфиг: режим чтения теперь предшествует интервалу; Текст справки по интервалу объясняет его роль в обоих режимах (выборка + учет или только учет).",
+        "pt": "Config: o modo de leitura agora vem antes do intervalo; o texto de ajuda de intervalo explica sua função em ambos os modos (amostragem + contabilidade vs. apenas contabilidade).",
+        "nl": "Config: de leesmodus komt nu vóór het interval; interval-helptekst legt de rol ervan in beide modi uit (steekproef+boekhouding vs. alleen boekhouding).",
+        "fr": "Config : le mode lecture vient désormais avant l'intervalle ; Le texte d'aide sur l'intervalle explique son rôle dans les deux modes (échantillonnage + comptabilité vs comptabilité uniquement).",
+        "it": "Config: la modalità lettura ora precede l'intervallo; il testo di aiuto a intervalli spiega il suo ruolo in entrambe le modalità (campionamento+contabilità vs. solo contabilità).",
+        "es": "Configuración: el modo de lectura ahora viene antes del intervalo; El texto de ayuda del intervalo explica su función en ambos modos (muestreo+contabilidad versus solo contabilidad).",
+        "pl": "Konfiguracja: tryb odczytu pojawia się teraz przed przerwą; tekst pomocy dotyczący interwału wyjaśnia jego rolę w obu trybach (próbkowanie + księgowanie vs. tylko księgowanie).",
+        "uk": "Конфігурація: режим читання тепер стоїть перед інтервалом; Довідковий текст інтервалу пояснює його роль в обох режимах (вибірка+облік проти лише обліку).",
+        "zh-cn": "配置：阅读模式现在出现在间隔之前；间隔帮助文本解释了它在两种模式中的作用（采样+记账与仅记账）。"
       },
       "0.0.39": {
         "en": "Monthly view: hovering a savings bar highlights it, shows a tooltip (date, savings, cumulative) and marks the matching table row.",
-        "de": "Monatsansicht: Hover über einen Ersparnis-Balken hebt ihn hervor, zeigt einen Tooltip (Datum, Ersparnis, kumuliert) und markiert die passende Tabellenzeile."
+        "de": "Monatsansicht: Hover über einen Ersparnis-Balken hebt ihn hervor, zeigt einen Tooltip (Datum, Ersparnis, kumuliert) und markiert die passende Tabellenzeile.",
+        "ru": "Просмотр по месяцам: при наведении на полосу экономии она выделяется, отображается всплывающая подсказка (дата, экономия, совокупная сумма) и помечается соответствующая строка таблицы.",
+        "pt": "Visualização mensal: passar o mouse sobre uma barra de economia destaca-a, mostra uma dica de ferramenta (data, economia, cumulativa) e marca a linha da tabela correspondente.",
+        "nl": "Maandweergave: als u de muis over een spaarbalk beweegt, wordt deze gemarkeerd, wordt tooltip weergegeven (datum, besparing, cumulatief) en wordt de overeenkomende tabelrij gemarkeerd.",
+        "fr": "Vue mensuelle : le survol d'une barre d'épargne la met en surbrillance, affiche une info-bulle (date, économies, cumulé) et marque la ligne du tableau correspondante.",
+        "it": "Visualizzazione mensile: il passaggio del mouse su una barra di risparmio la evidenzia, mostra un suggerimento (data, risparmio, cumulativo) e contrassegna la riga della tabella corrispondente.",
+        "es": "Vista mensual: al pasar el cursor sobre una barra de ahorro, se resalta, se muestra información sobre herramientas (fecha, ahorros, acumulativo) y se marca la fila correspondiente de la tabla.",
+        "pl": "Widok miesięczny: najechanie kursorem na pasek oszczędności powoduje jego podświetlenie, wyświetlenie podpowiedzi (data, oszczędności, skumulowane) i zaznaczenie pasującego wiersza tabeli.",
+        "uk": "Місячний перегляд: наведення курсора на панель заощаджень виділяє її, показує спливаючу підказку (дата, заощадження, кумулятивні) і позначає відповідний рядок таблиці.",
+        "zh-cn": "每月视图：将鼠标悬停在储蓄栏上会突出显示它，显示工具提示（日期、储蓄、累积）并标记匹配的表行。"
       },
       "0.0.38": {
         "en": "English main documentation (German moved to docs/de); fixed broken master branch URLs in io-package.json.",
-        "de": "Englische Hauptdokumentation (Deutsch nach docs/de verschoben); defekte master-Branch-URLs in io-package.json korrigiert."
+        "de": "Englische Hauptdokumentation (Deutsch nach docs/de verschoben); defekte master-Branch-URLs in io-package.json korrigiert.",
+        "ru": "Основная документация на английском языке (немецкий перенесен в docs/de); исправлены неработающие URL-адреса главной ветки в io-package.json.",
+        "pt": "Documentação principal em inglês (alemão movido para docs/de); URLs de branch master quebrados corrigidos em io-package.json.",
+        "nl": "Engelse hoofddocumentatie (Duits verplaatst naar docs/de); Vaste gebroken master branch-URL's in io-package.json.",
+        "fr": "Documentation principale en anglais (l'allemand a été déplacé vers docs/de) ; correction des URL de branche principale cassées dans io-package.json.",
+        "it": "Documentazione principale in inglese (il tedesco è stato spostato in docs/de); corretti gli URL del ramo principale non funzionanti in io-package.json.",
+        "es": "Documentación principal en inglés (el alemán se trasladó a docs/de); Se corrigieron las URL de la rama maestra rotas en io-package.json.",
+        "pl": "Dokumentacja główna w języku angielskim (niemiecka przeniesiona do docs/de); naprawiono uszkodzone adresy URL gałęzi głównych w io-package.json.",
+        "uk": "Основна документація англійською мовою (німецька переміщена в docs/de); виправлено пошкоджені головні URL-адреси гілок у io-package.json.",
+        "zh-cn": "英文主要文档（德语移至 docs/de）；修复了 io-package.json 中损坏的主分支 URL。"
       },
       "0.0.37": {
         "en": "Standby consumption of the storage system (parameter + templates), electricity price increase for the amortization forecast, amortization only shown after 14 days of data, optional event-based reading (subscribe), warning for stale input datapoints, bilingual admin UI and state names (en/de), GitHub Actions CI with integration test.",
-        "de": "Standby-Verbrauch des Speichersystems (Parameter + Vorlagen), Strompreissteigerung für die Amortisations-Prognose, Amortisation erst ab 14 Tagen Datenbasis, optional ereignisbasiertes Lesen (Subscribe), Warnung bei eingefrorenen Eingangs-Datenpunkten, zweisprachige Admin-Oberfläche und State-Namen (en/de), GitHub-Actions-CI mit Integrationstest."
-      },
-      "0.0.36": {
-        "en": "Release hygiene: energy states use role value.energy; existing objects are migrated; common.licenseInformation added; news trimmed; deprecated fields removed.",
-        "de": "Release-Hygiene: Energie-States nutzen role value.energy; bestehende Objekte werden migriert; common.licenseInformation ergänzt; News gekürzt; veraltete Felder entfernt."
+        "de": "Standby-Verbrauch des Speichersystems (Parameter + Vorlagen), Strompreissteigerung für die Amortisations-Prognose, Amortisation erst ab 14 Tagen Datenbasis, optional ereignisbasiertes Lesen (Subscribe), Warnung bei eingefrorenen Eingangs-Datenpunkten, zweisprachige Admin-Oberfläche und State-Namen (en/de), GitHub-Actions-CI mit Integrationstest.",
+        "ru": "Потребление системы хранения в режиме ожидания (параметр + шаблоны), повышение цен на электроэнергию для прогноза амортизации, амортизация отображается только через 14 дней данных, дополнительное чтение на основе событий (подписка), предупреждение об устаревших точках входных данных, двуязычный пользовательский интерфейс администратора и названия состояний (en/de), GitHub Actions CI с интеграционным тестом.",
+        "pt": "Consumo em espera do sistema de armazenamento (parâmetro + modelos), aumento do preço da eletricidade para a previsão de amortização, amortização mostrada apenas após 14 dias de dados, leitura opcional baseada em eventos (assinatura), aviso para pontos de dados de entrada obsoletos, UI de administração bilíngue e nomes de estado (en/de), GitHub Actions CI com teste de integração.",
+        "nl": "Stand-byverbruik van het opslagsysteem (parameter + sjablonen), stijging van de elektriciteitsprijs voor de afschrijvingsvoorspelling, afschrijving wordt pas getoond na 14 dagen aan gegevens, optioneel op gebeurtenissen gebaseerd uitlezen (abonneren), waarschuwing voor verouderde invoergegevenspunten, tweetalige beheerdersinterface en statusnamen (en/de), GitHub Actions CI met integratietest.",
+        "fr": "Consommation en veille du système de stockage (paramètre + modèles), augmentation du prix de l'électricité pour la prévision d'amortissement, amortissement affiché uniquement après 14 jours de données, lecture facultative basée sur les événements (abonnement), avertissement pour les points de données d'entrée obsolètes, interface utilisateur d'administration bilingue et noms d'état (en/de), GitHub Actions CI avec test d'intégration.",
+        "it": "Consumo in standby del sistema di accumulo (parametri + modelli), aumento del prezzo dell'elettricità per la previsione di ammortamento, ammortamento mostrato solo dopo 14 giorni di dati, lettura opzionale basata su eventi (sottoscrizione), avviso per datapoint di input obsoleti, interfaccia utente di amministrazione bilingue e nomi di stato (en/de), GitHub Actions CI con test di integrazione.",
+        "es": "Consumo en espera del sistema de almacenamiento (parámetro + plantillas), aumento del precio de la electricidad para el pronóstico de amortización, amortización que solo se muestra después de 14 días de datos, lectura opcional basada en eventos (suscripción), advertencia para puntos de datos de entrada obsoletos, interfaz de usuario de administración bilingüe y nombres de estado (en/de), GitHub Actions CI con prueba de integración.",
+        "pl": "Zużycie w trybie gotowości systemu magazynowania (parametry + szablony), wzrost ceny energii elektrycznej dla prognozy amortyzacji, amortyzacja pokazywana dopiero po 14 dniach danych, opcjonalny odczyt oparty na zdarzeniach (subskrybuj), ostrzeżenie o nieaktualnych wejściowych punktach danych, dwujęzyczny interfejs administratora i nazwy stanów (en/de), GitHub Actions CI z testem integracji.",
+        "uk": "Споживання системи зберігання в режимі очікування (параметр + шаблони), підвищення ціни на електроенергію для прогнозу амортизації, амортизація відображається лише після 14 днів даних, необов’язкове читання на основі подій (підписка), попередження про застарілі вхідні точки даних, двомовний інтерфейс адміністратора та назви станів (en/de), GitHub Actions CI з тестом інтеграції.",
+        "zh-cn": "存储系统的待机消耗（参数 + 模板）、摊销预测的电价上涨、仅在 14 天数据后显示摊销、可选的基于事件的读取（订阅）、过时输入数据点警告、双语管理 UI 和状态名称（en/de）、带有集成测试的 GitHub Actions CI。"
       }
     },
     "titleLang": {
       "en": "PV Storage Simulation",
-      "de": "PV-Speicher-Simulation"
+      "de": "PV-Speicher-Simulation",
+      "ru": "Моделирование фотоэлектрического хранилища",
+      "pt": "Simulação de armazenamento fotovoltaico",
+      "nl": "Simulatie van PV-opslag",
+      "fr": "Simulation de stockage photovoltaïque",
+      "it": "Simulazione dello stoccaggio fotovoltaico",
+      "es": "Simulación de almacenamiento fotovoltaico",
+      "pl": "Symulacja magazynowania fotowoltaicznego",
+      "uk": "Моделювання зберігання PV",
+      "zh-cn": "光伏存储模拟"
     },
     "desc": {
       "en": "Simulates a PV battery storage to evaluate whether buying one would pay off.",
-      "de": "Simuliert einen PV-Batteriespeicher, um die Wirtschaftlichkeit eines Kaufs zu prüfen."
+      "de": "Simuliert einen PV-Batteriespeicher, um die Wirtschaftlichkeit eines Kaufs zu prüfen.",
+      "ru": "Имитирует фотоэлектрическую батарею, чтобы оценить, окупится ли ее покупка.",
+      "pt": "Simula o armazenamento de uma bateria fotovoltaica para avaliar se a compra de uma valeria a pena.",
+      "nl": "Simuleert de opslag van een PV-batterij om te evalueren of het kopen ervan lonend zou zijn.",
+      "fr": "Simule le stockage d'une batterie photovoltaïque pour évaluer si son achat serait rentable.",
+      "it": "Simula un accumulo di batterie fotovoltaiche per valutare se acquistarne una sarebbe vantaggioso.",
+      "es": "Simula el almacenamiento de una batería fotovoltaica para evaluar si vale la pena comprar una.",
+      "pl": "Symuluje akumulator fotowoltaiczny, aby ocenić, czy jego zakup się opłaci.",
+      "uk": "Імітує накопичувач фотоелектричної батареї, щоб оцінити, чи окупиться його покупка.",
+      "zh-cn": "模拟光伏电池存储以评估购买是否值得。"
     },
     "authors": [
       "Dominik Kremer <dom.kremer@gmail.com>"

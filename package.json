@@ -1,6 +1,6 @@
 {
   "name": "iobroker.pv-storage-sim",
-  "version": "0.0.42",
+  "version": "0.0.43",
   "description": "Simulates a PV battery storage based on real data to evaluate whether buying one would pay off",
   "author": {
     "name": "Dominik Kremer",
@@ -37,6 +37,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@iobroker/adapter-dev": "^1.5.0",
     "@iobroker/testing": "^5.3.0",
     "@types/node": "^20.19.43",
     "eslint": "^10.6.0",
