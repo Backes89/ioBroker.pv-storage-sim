@@ -2,7 +2,7 @@
 
 const { test } = require('node:test');
 const assert = require('node:assert');
-const { stepBattery, splitSignedPower, unitFactor } = require('../lib/simulation');
+const { stepBattery, splitSignedPower, unitFactor, toEurPerKwh } = require('../lib/simulation');
 
 const base = {
     capacityWh: 10000,
@@ -84,6 +84,13 @@ test('Einheit-Faktor: Zählerstand kWh (Standard) und Wh', () => {
 test('Einheit-Faktor: unbekannt/leer fällt auf Standard zurück', () => {
     assert.strictEqual(unitFactor(undefined), 1);
     assert.strictEqual(unitFactor(''), 1);
+});
+
+test('Preis-Normierung: ct/kWh wird umgerechnet, €/kWh bleibt, negativ erlaubt', () => {
+    assert.strictEqual(toEurPerKwh(28, 'ct_kwh'), 0.28);
+    assert.strictEqual(toEurPerKwh(0.2834, 'eur_kwh'), 0.2834);
+    assert.strictEqual(toEurPerKwh(0.31, undefined), 0.31);
+    assert.strictEqual(toEurPerKwh(-5, 'ct_kwh'), -0.05); // negative Spotpreise
 });
 
 test('Standby wird aus dem Speicher gedeckt, solange er über der Reserve liegt', () => {

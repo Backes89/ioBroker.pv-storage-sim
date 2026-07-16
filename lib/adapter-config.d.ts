@@ -31,6 +31,12 @@ declare global {
             maxChargeW: number;
             maxDischargeW: number;
             standbyW: number;
+            priceImportSource: 'fixed' | 'datapoint';
+            idPriceImport: string;
+            unitPriceImport: 'eur_kwh' | 'ct_kwh';
+            priceFeedInSource: 'fixed' | 'datapoint';
+            idPriceFeedIn: string;
+            unitPriceFeedIn: 'eur_kwh' | 'ct_kwh';
             priceImportCt: number;
             priceFeedInCt: number;
             investmentEur: number;

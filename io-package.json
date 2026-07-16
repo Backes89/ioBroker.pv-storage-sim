@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "pv-storage-sim",
-    "version": "0.0.43",
+    "version": "0.0.44",
     "news": {
+      "0.0.44": {
+        "en": "Dynamic electricity prices: import and feed-in price can optionally come from a datapoint (e.g. Tibber, €/kWh or ct/kWh); fixed value serves as fallback; current prices exposed as states.",
+        "de": "Dynamische Strompreise: Bezugspreis und Einspeisevergütung können optional aus einem Datenpunkt kommen (z. B. Tibber, €/kWh oder ct/kWh); der Festwert dient als Fallback; aktuelle Preise als States sichtbar.",
+        "ru": "Динамические цены на электроэнергию: импортная и льготная цена могут быть дополнительно взяты из точки данных (например, Тиббер, евро/кВтч или карат/кВтч); фиксированное значение служит резервным вариантом; текущие цены представлены как состояния.",
+        "pt": "Preços dinâmicos da eletricidade: os preços de importação e de feed-in podem opcionalmente provir de um ponto de dados (por exemplo, Tibber, €/kWh ou ct/kWh); o valor fixo serve como alternativa; preços atuais expostos como estados.",
+        "nl": "Dynamische elektriciteitsprijzen: import- en feed-in-prijs kunnen optioneel afkomstig zijn van een datapunt (bijvoorbeeld Tibber, €/kWh of ct/kWh); vaste waarde dient als fallback; huidige prijzen worden weergegeven als staten.",
+        "fr": "Prix ​​dynamiques de l'électricité : les prix d'importation et de rachat peuvent éventuellement provenir d'un point de données (par exemple Tibber, €/kWh ou ct/kWh) ; la valeur fixe sert de solution de repli ; prix actuels exposés en tant qu'États.",
+        "it": "Prezzi dinamici dell'elettricità: i prezzi di importazione e di feed-in possono facoltativamente provenire da un punto dati (ad esempio Tibber, €/kWh o ct/kWh); il valore fisso funge da fallback; prezzi correnti esposti come stati.",
+        "es": "Precios dinámicos de la electricidad: los precios de importación y de alimentación pueden provenir opcionalmente de un punto de datos (por ejemplo, Tibber, €/kWh o ct/kWh); el valor fijo sirve como respaldo; Precios actuales expuestos según estados.",
+        "pl": "Dynamiczne ceny energii elektrycznej: cena importu i gwarantowana może opcjonalnie pochodzić z punktu danych (np. Tibber, €/kWh lub ct/kWh); stała wartość służy jako rezerwa; ceny bieżące eksponowane jako stany.",
+        "uk": "Динамічні ціни на електроенергію: імпортна та споживана ціна може за бажанням надходити з точки даних (наприклад, Tibber, €/кВт-год або ct/кВт-год); фіксоване значення служить запасним; поточні ціни виставлені як держ.",
+        "zh-cn": "动态电价：进口电价和上网电价可以选择来自数据点（例如 Tibber、€/kWh 或 ct/kWh）；固定值作为后备；当前价格作为国家公开。"
+      },
       "0.0.43": {
         "en": "Admin UI translated into all ioBroker languages (i18n files, translate-adapter); io-package texts (title, description, news) available in 11 languages.",
         "de": "Admin-Oberfläche in alle ioBroker-Sprachen übersetzt (i18n-Dateien, translate-adapter); io-package-Texte (Titel, Beschreibung, News) in 11 Sprachen.",
@@ -80,19 +93,6 @@
         "pl": "Dokumentacja główna w języku angielskim (niemiecka przeniesiona do docs/de); naprawiono uszkodzone adresy URL gałęzi głównych w io-package.json.",
         "uk": "Основна документація англійською мовою (німецька переміщена в docs/de); виправлено пошкоджені головні URL-адреси гілок у io-package.json.",
         "zh-cn": "英文主要文档（德语移至 docs/de）；修复了 io-package.json 中损坏的主分支 URL。"
-      },
-      "0.0.37": {
-        "en": "Standby consumption of the storage system (parameter + templates), electricity price increase for the amortization forecast, amortization only shown after 14 days of data, optional event-based reading (subscribe), warning for stale input datapoints, bilingual admin UI and state names (en/de), GitHub Actions CI with integration test.",
-        "de": "Standby-Verbrauch des Speichersystems (Parameter + Vorlagen), Strompreissteigerung für die Amortisations-Prognose, Amortisation erst ab 14 Tagen Datenbasis, optional ereignisbasiertes Lesen (Subscribe), Warnung bei eingefrorenen Eingangs-Datenpunkten, zweisprachige Admin-Oberfläche und State-Namen (en/de), GitHub-Actions-CI mit Integrationstest.",
-        "ru": "Потребление системы хранения в режиме ожидания (параметр + шаблоны), повышение цен на электроэнергию для прогноза амортизации, амортизация отображается только через 14 дней данных, дополнительное чтение на основе событий (подписка), предупреждение об устаревших точках входных данных, двуязычный пользовательский интерфейс администратора и названия состояний (en/de), GitHub Actions CI с интеграционным тестом.",
-        "pt": "Consumo em espera do sistema de armazenamento (parâmetro + modelos), aumento do preço da eletricidade para a previsão de amortização, amortização mostrada apenas após 14 dias de dados, leitura opcional baseada em eventos (assinatura), aviso para pontos de dados de entrada obsoletos, UI de administração bilíngue e nomes de estado (en/de), GitHub Actions CI com teste de integração.",
-        "nl": "Stand-byverbruik van het opslagsysteem (parameter + sjablonen), stijging van de elektriciteitsprijs voor de afschrijvingsvoorspelling, afschrijving wordt pas getoond na 14 dagen aan gegevens, optioneel op gebeurtenissen gebaseerd uitlezen (abonneren), waarschuwing voor verouderde invoergegevenspunten, tweetalige beheerdersinterface en statusnamen (en/de), GitHub Actions CI met integratietest.",
-        "fr": "Consommation en veille du système de stockage (paramètre + modèles), augmentation du prix de l'électricité pour la prévision d'amortissement, amortissement affiché uniquement après 14 jours de données, lecture facultative basée sur les événements (abonnement), avertissement pour les points de données d'entrée obsolètes, interface utilisateur d'administration bilingue et noms d'état (en/de), GitHub Actions CI avec test d'intégration.",
-        "it": "Consumo in standby del sistema di accumulo (parametri + modelli), aumento del prezzo dell'elettricità per la previsione di ammortamento, ammortamento mostrato solo dopo 14 giorni di dati, lettura opzionale basata su eventi (sottoscrizione), avviso per datapoint di input obsoleti, interfaccia utente di amministrazione bilingue e nomi di stato (en/de), GitHub Actions CI con test di integrazione.",
-        "es": "Consumo en espera del sistema de almacenamiento (parámetro + plantillas), aumento del precio de la electricidad para el pronóstico de amortización, amortización que solo se muestra después de 14 días de datos, lectura opcional basada en eventos (suscripción), advertencia para puntos de datos de entrada obsoletos, interfaz de usuario de administración bilingüe y nombres de estado (en/de), GitHub Actions CI con prueba de integración.",
-        "pl": "Zużycie w trybie gotowości systemu magazynowania (parametry + szablony), wzrost ceny energii elektrycznej dla prognozy amortyzacji, amortyzacja pokazywana dopiero po 14 dniach danych, opcjonalny odczyt oparty na zdarzeniach (subskrybuj), ostrzeżenie o nieaktualnych wejściowych punktach danych, dwujęzyczny interfejs administratora i nazwy stanów (en/de), GitHub Actions CI z testem integracji.",
-        "uk": "Споживання системи зберігання в режимі очікування (параметр + шаблони), підвищення ціни на електроенергію для прогнозу амортизації, амортизація відображається лише після 14 днів даних, необов’язкове читання на основі подій (підписка), попередження про застарілі вхідні точки даних, двомовний інтерфейс адміністратора та назви станів (en/de), GitHub Actions CI з тестом інтеграції.",
-        "zh-cn": "存储系统的待机消耗（参数 + 模板）、摊销预测的电价上涨、仅在 14 天数据后显示摊销、可选的基于事件的读取（订阅）、过时输入数据点警告、双语管理 UI 和状态名称（en/de）、带有集成测试的 GitHub Actions CI。"
       }
     },
     "titleLang": {
@@ -195,6 +195,12 @@
     "maxChargeW": 3000,
     "maxDischargeW": 3000,
     "standbyW": 0,
+    "priceImportSource": "fixed",
+    "idPriceImport": "",
+    "unitPriceImport": "eur_kwh",
+    "priceFeedInSource": "fixed",
+    "idPriceFeedIn": "",
+    "unitPriceFeedIn": "eur_kwh",
     "priceImportCt": 35,
     "priceFeedInCt": 8,
     "investmentEur": 7000,

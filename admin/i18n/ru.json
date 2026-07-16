@@ -1,5 +1,6 @@
 {
   "A single datapoint carrying import and feed-in via its sign (e.g. OBIS 16.7.0 total active power).": "Одна точка данных, передающая импорт и подачу через свой знак (например, общая активная мощность OBIS 16.7.0).",
+  "Also used as fallback when the price datapoint is unavailable.": "Также используется в качестве запасного варианта, когда точка данных о цене недоступна.",
   "Assumed annual increase of the electricity price; used for the amortization estimate and forecast (0 = linear).": "Предполагаемое ежегодное повышение цены на электроэнергию; используется для оценки и прогноза амортизации (0 = линейный).",
   "BYD Battery-Box HVS 10.2": "Аккумуляторный блок BYD HVS 10.2",
   "BYD Battery-Box HVS 10.2 · capacity 10.2 kWh · max. charge 6000 W · max. discharge 6000 W · efficiency 95 % · standby ~7 W. Representative values – please verify against the datasheet.": "Аккумуляторный блок BYD HVS 10,2 · мощность 10,2 кВтч · макс. заряд 6000 Вт · макс. разряд 6000 Вт · КПД 95 % · режим ожидания ~7 Вт. Репрезентативные значения – сверяйте с техническими данными.",
@@ -12,6 +13,7 @@
   "Continuous self-consumption of the storage system (battery management etc.). Covered from the battery while charged, otherwise from the grid.": "Постоянное самопотребление системы хранения (управление аккумулятором и т. д.). Накрыт от аккумулятора пока заряжен, иначе от сети.",
   "Custom values (manual)": "Пользовательские значения (вручную)",
   "Data source": "Источник данных",
+  "Datapoint (dynamic tariff)": "Датапоинт (динамический тариф)",
   "E3/DC S10 E (13 kWh)": "E3/DC S10 E (13 кВтч)",
   "E3/DC S10 E (13 kWh) · capacity 13 kWh · max. charge 4500 W · max. discharge 4500 W · efficiency 90 % · standby ~25 W. Representative values – please verify against the datasheet.": "E3/DC S10 E (13 кВтч) · мощность 13 кВтч · макс. зарядка 4500 Вт · макс. разрядная мощность 4500 Вт · КПД 90 % · режим ожидания ~25 Вт. Репрезентативные значения – сверяйте с техническими данными.",
   "Economics": "Экономика",
@@ -19,7 +21,11 @@
   "Electricity price, import (ct/kWh)": "Цена на электроэнергию, импорт (ц/кВтч)",
   "Event-based (subscribe)": "На основе событий (подписаться)",
   "Feed-in datapoint": "Точка ввода данных",
+  "Feed-in price datapoint": "Точка данных о льготных ценах",
+  "Feed-in price source": "Источник льготных цен",
   "Feed-in tariff (ct/kWh)": "Зелёный тариф (ц/кВтч)",
+  "Fixed value": "Фиксированное значение",
+  "Fixed value or a datapoint with a dynamic tariff (e.g. Tibber).": "Фиксированное значение или точка данных с динамическим тарифом (например, Тиббер).",
   "Grid import + feed-in (two datapoints)": "Импорт сетки + подача (две точки данных)",
   "Grid import datapoint": "Точка данных импорта сетки",
   "Grid power datapoint (signed)": "Точка данных электросети (подпись)",
@@ -37,6 +43,8 @@
   "Huawei LUNA2000 – 15 kWh · capacity 15 kWh · max. charge 5000 W · max. discharge 5000 W · efficiency 95 % · standby ~10 W. Representative values – please verify against the datasheet.": "Huawei LUNA2000 – 15 кВтч · мощность 15 кВтч · макс. зарядка 5000 Вт · макс. разряд 5000 Вт · КПД 95 % · режим ожидания ~10 Вт. Репрезентативные значения – сверяйте с техническими данными.",
   "Huawei LUNA2000 – 5 kWh": "Huawei LUNA2000 – 5 кВтч",
   "Huawei LUNA2000 – 5 kWh · capacity 5 kWh · max. charge 2500 W · max. discharge 2500 W · efficiency 95 % · standby ~5 W. Representative values – please verify against the datasheet.": "Huawei LUNA2000 – 5 кВтч · мощность 5 кВтч · макс. зарядка 2500 Вт · макс. разрядная мощность 2500 Вт · КПД 95 % · режим ожидания ~5 Вт. Репрезентативные значения – сверяйте с техническими данными.",
+  "Import price datapoint": "Импортировать точку данных о цене",
+  "Import price source": "Источник импортной цены",
   "Input data": "Входные данные",
   "Input type of the datapoints": "Тип ввода точек данных",
   "Investment (€)": "Инвестиции (€)",
@@ -71,8 +79,11 @@
   "Unit": "Единица",
   "W": "Вт",
   "Wh": "Чт",
+  "ct/kWh": "карат/кВтч",
+  "e.g. Tibber 'CurrentPrice.total'. If it delivers no numeric value, the fixed value is used as fallback.": "например Тиббер «CurrentPrice.total». Если он не передает числового значения, фиксированное значение используется в качестве резервного варианта.",
   "kW": "кВт",
   "kWh": "кВтч",
   "sonnenBatterie 10 (11 kWh)": "sonnenBatterie 10 (11 кВтч)",
-  "sonnenBatterie 10 (11 kWh) · capacity 11 kWh · max. charge 4600 W · max. discharge 4600 W · efficiency 90 % · standby ~15 W. Representative values – please verify against the datasheet.": "sonnenBatterie 10 (11 кВтч) · мощность 11 кВтч · макс. зарядка 4600 Вт · макс. разрядная мощность 4600 Вт · КПД 90 % · режим ожидания ~15 Вт. Репрезентативные значения – сверьте с техническими данными."
+  "sonnenBatterie 10 (11 kWh) · capacity 11 kWh · max. charge 4600 W · max. discharge 4600 W · efficiency 90 % · standby ~15 W. Representative values – please verify against the datasheet.": "sonnenBatterie 10 (11 кВтч) · мощность 11 кВтч · макс. зарядка 4600 Вт · макс. разрядная мощность 4600 Вт · КПД 90 % · режим ожидания ~15 Вт. Репрезентативные значения – сверьте с техническими данными.",
+  "€/kWh": "€/кВтч"
 }

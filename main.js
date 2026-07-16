@@ -1,7 +1,7 @@
 'use strict';
 
 const utils = require('@iobroker/adapter-core');
-const { stepBattery, splitSignedPower, unitFactor } = require('./lib/simulation');
+const { stepBattery, splitSignedPower, unitFactor, toEurPerKwh } = require('./lib/simulation');
 const { periodResets, dayStart, previousDayStart } = require('./lib/period');
 const { accumulateStep } = require('./lib/accumulation');
 const { dayChartSvg, barsSvg, kpiCardSvg, fmtDE } = require('./lib/svg');
@@ -30,6 +30,8 @@ const STATE_DEFS = [
     ['economics.savingsTotal.eur', { en: 'Savings (total)', de: 'Ersparnis (gesamt)' }, '€', 'value', 'number'],
     ['economics.batteryCoverageToday.percent', { en: 'Storage coverage of import (today)', de: 'Speicher-Deckung des Bezugs (heute)' }, '%', 'value', 'number'],
     ['economics.amortizationYears', { en: 'Amortization (estimate)', de: 'Amortisationsdauer (Schätzung)' }, 'Jahre', 'value', 'number'],
+    ['economics.currentImportPrice', { en: 'Current import price', de: 'Aktueller Bezugspreis' }, '€/kWh', 'value', 'number'],
+    ['economics.currentFeedInPrice', { en: 'Current feed-in price', de: 'Aktuelle Einspeisevergütung' }, '€/kWh', 'value', 'number'],
     ['economics._startTs', { en: 'Simulation start time', de: 'Startzeitpunkt der Simulation' }, 'ms', 'value.time', 'number'],
 
     // Momentane Leistungen (W) für die grafische Auswertung / WebUI – hier History-Logging aktivieren
@@ -106,8 +108,27 @@ class PvStorageSim extends utils.Adapter {
         };
         if (tpl) this.log.info(`Speicher-Vorlage aktiv: ${tpl.label} (${spec.capacityKwh} kWh, Laden/Entladen ${spec.maxChargeW}/${spec.maxDischargeW} W, Standby ${this.p.standbyW} W).`);
 
-        this.priceImport = (Number(c.priceImportCt) || 0) / 100; // €/kWh
-        this.priceFeedIn = (Number(c.priceFeedInCt) || 0) / 100; // €/kWh
+        // Preise: Festwert oder dynamischer Tarif aus einem Datenpunkt (z. B. Tibber);
+        // der Festwert dient bei Datenpunkt-Quelle als Fallback.
+        this.prices = {
+            import: {
+                fixed: (Number(c.priceImportCt) || 0) / 100, // €/kWh
+                id: c.priceImportSource === 'datapoint' ? c.idPriceImport : '',
+                unit: c.unitPriceImport === 'ct_kwh' ? 'ct_kwh' : 'eur_kwh',
+            },
+            feedIn: {
+                fixed: (Number(c.priceFeedInCt) || 0) / 100, // €/kWh
+                id: c.priceFeedInSource === 'datapoint' ? c.idPriceFeedIn : '',
+                unit: c.unitPriceFeedIn === 'ct_kwh' ? 'ct_kwh' : 'eur_kwh',
+            },
+        };
+        this.priceWarnedAt = {};
+        if (c.priceImportSource === 'datapoint' && !c.idPriceImport) {
+            this.log.warn('Preisquelle Bezug ist "Datenpunkt", aber kein Datenpunkt konfiguriert – es gilt der Festwert.');
+        }
+        if (c.priceFeedInSource === 'datapoint' && !c.idPriceFeedIn) {
+            this.log.warn('Preisquelle Einspeisung ist "Datenpunkt", aber kein Datenpunkt konfiguriert – es gilt der Festwert.');
+        }
         this.investment = Number(c.investmentEur) || 0;
         this.priceIncreasePct = Math.max(Number(c.priceIncreasePercent) || 0, 0);
         this.inputMode = c.inputMode === 'energy' ? 'energy' : 'power';
@@ -293,11 +314,20 @@ class PvStorageSim extends utils.Adapter {
 
         const chargedKwh = r.chargedWh / 1000;
         const dischargedKwh = r.dischargedWh / 1000;
+        // Preise dieses Ticks (Festwert oder dynamischer Tarif aus Datenpunkt)
+        const priceImport = await this.currentPrice('import');
+        const priceFeedIn = await this.currentPrice('feedIn');
         // Wirtschaftlicher Nutzen des Speichers = gesparter Netzbezug minus entgangene
         // Einspeisevergütung minus netzgedeckter Standby-Verbrauch (der batteriegedeckte
         // Anteil wirkt indirekt: er verbraucht geladene Energie ohne Bezugs-Ersparnis)
-        const benefit = dischargedKwh * this.priceImport - chargedKwh * this.priceFeedIn
-            - (r.standbyGridWh / 1000) * this.priceImport;
+        const benefit = dischargedKwh * priceImport - chargedKwh * priceFeedIn
+            - (r.standbyGridWh / 1000) * priceImport;
+
+        const round4 = (v) => Math.round(v * 10000) / 10000;
+        await Promise.all([
+            this.setStateAsync('economics.currentImportPrice', { val: round4(priceImport), ack: true }),
+            this.setStateAsync('economics.currentFeedInPrice', { val: round4(priceFeedIn), ack: true }),
+        ]);
 
         await this.accumulate(r, chargedKwh, dischargedKwh, benefit, surplusWh, deficitWh);
         await this.publishLive(r, dtH, pvWh, consWh, surplusWh, deficitWh);
@@ -318,6 +348,28 @@ class PvStorageSim extends utils.Adapter {
             this.lastSvgTs = now;
             await this.renderCharts().catch(e => this.log.warn(`renderCharts: ${e.message}`));
         }
+    }
+
+    /**
+     * Liefert den aktuell gültigen Preis (€/kWh) für 'import' bzw. 'feedIn'.
+     * Bei Datenpunkt-Quelle wird der Wert je Tick frisch gelesen (dynamische Tarife ändern
+     * sich stündlich); liefert der Datenpunkt nichts Numerisches, gilt der Festwert
+     * als Fallback (Warnung gedrosselt auf 1×/Stunde). Negative Spotpreise sind erlaubt.
+     */
+    async currentPrice(key) {
+        const p = this.prices[key];
+        if (!p.id) return p.fixed;
+        const st = await this.getForeignStateAsync(p.id).catch(() => null);
+        const raw = st && typeof st.val === 'number' ? st.val : null;
+        if (raw === null) {
+            const now = Date.now();
+            if (!this.priceWarnedAt[key] || now - this.priceWarnedAt[key] > 3600000) {
+                this.priceWarnedAt[key] = now;
+                this.log.warn(`Preis-Datenpunkt ${p.id} liefert keinen numerischen Wert – Festwert ${p.fixed} €/kWh wird verwendet.`);
+            }
+            return p.fixed;
+        }
+        return toEurPerKwh(raw, p.unit);
     }
 
     /**

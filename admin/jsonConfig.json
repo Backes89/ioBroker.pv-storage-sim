@@ -676,6 +676,114 @@
       "size": 2,
       "text": "Economics"
     },
+    "priceImportSource": {
+      "type": "select",
+      "label": "Import price source",
+      "help": "Fixed value or a datapoint with a dynamic tariff (e.g. Tibber).",
+      "options": [
+        {
+          "value": "fixed",
+          "label": "Fixed value"
+        },
+        {
+          "value": "datapoint",
+          "label": "Datapoint (dynamic tariff)"
+        }
+      ],
+      "default": "fixed",
+      "newLine": true,
+      "xs": 12,
+      "sm": 12,
+      "md": 4,
+      "lg": 4,
+      "xl": 4
+    },
+    "idPriceImport": {
+      "type": "objectId",
+      "label": "Import price datapoint",
+      "help": "e.g. Tibber 'CurrentPrice.total'. If it delivers no numeric value, the fixed value is used as fallback.",
+      "hidden": "data.priceImportSource !== 'datapoint'",
+      "xs": 12,
+      "sm": 12,
+      "md": 5,
+      "lg": 5,
+      "xl": 5
+    },
+    "unitPriceImport": {
+      "type": "select",
+      "label": "Unit",
+      "options": [
+        {
+          "value": "eur_kwh",
+          "label": "€/kWh"
+        },
+        {
+          "value": "ct_kwh",
+          "label": "ct/kWh"
+        }
+      ],
+      "default": "eur_kwh",
+      "hidden": "data.priceImportSource !== 'datapoint'",
+      "xs": 12,
+      "sm": 12,
+      "md": 3,
+      "lg": 3,
+      "xl": 3
+    },
+    "priceFeedInSource": {
+      "type": "select",
+      "label": "Feed-in price source",
+      "help": "Fixed value or a datapoint with a dynamic tariff (e.g. Tibber).",
+      "options": [
+        {
+          "value": "fixed",
+          "label": "Fixed value"
+        },
+        {
+          "value": "datapoint",
+          "label": "Datapoint (dynamic tariff)"
+        }
+      ],
+      "default": "fixed",
+      "newLine": true,
+      "xs": 12,
+      "sm": 12,
+      "md": 4,
+      "lg": 4,
+      "xl": 4
+    },
+    "idPriceFeedIn": {
+      "type": "objectId",
+      "label": "Feed-in price datapoint",
+      "help": "e.g. Tibber 'CurrentPrice.total'. If it delivers no numeric value, the fixed value is used as fallback.",
+      "hidden": "data.priceFeedInSource !== 'datapoint'",
+      "xs": 12,
+      "sm": 12,
+      "md": 5,
+      "lg": 5,
+      "xl": 5
+    },
+    "unitPriceFeedIn": {
+      "type": "select",
+      "label": "Unit",
+      "options": [
+        {
+          "value": "eur_kwh",
+          "label": "€/kWh"
+        },
+        {
+          "value": "ct_kwh",
+          "label": "ct/kWh"
+        }
+      ],
+      "default": "eur_kwh",
+      "hidden": "data.priceFeedInSource !== 'datapoint'",
+      "xs": 12,
+      "sm": 12,
+      "md": 3,
+      "lg": 3,
+      "xl": 3
+    },
     "priceImportCt": {
       "type": "number",
       "label": "Electricity price, import (ct/kWh)",
@@ -686,7 +794,8 @@
       "md": 4,
       "xs": 12,
       "lg": 4,
-      "xl": 4
+      "xl": 4,
+      "help": "Also used as fallback when the price datapoint is unavailable."
     },
     "priceFeedInCt": {
       "type": "number",
@@ -697,7 +806,8 @@
       "md": 4,
       "xs": 12,
       "lg": 4,
-      "xl": 4
+      "xl": 4,
+      "help": "Also used as fallback when the price datapoint is unavailable."
     },
     "investmentEur": {
       "type": "number",

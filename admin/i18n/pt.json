@@ -1,5 +1,6 @@
 {
   "A single datapoint carrying import and feed-in via its sign (e.g. OBIS 16.7.0 total active power).": "Um único ponto de dados que transporta importação e alimentação através do seu sinal (por exemplo, potência ativa total do OBIS 16.7.0).",
+  "Also used as fallback when the price datapoint is unavailable.": "Também usado como substituto quando o ponto de dados de preço não está disponível.",
   "Assumed annual increase of the electricity price; used for the amortization estimate and forecast (0 = linear).": "Aumento anual presumido do preço da eletricidade; utilizado para estimativa e previsão de amortização (0 = linear).",
   "BYD Battery-Box HVS 10.2": "Caixa de bateria BYD HVS 10.2",
   "BYD Battery-Box HVS 10.2 · capacity 10.2 kWh · max. charge 6000 W · max. discharge 6000 W · efficiency 95 % · standby ~7 W. Representative values – please verify against the datasheet.": "Caixa de bateria BYD HVS 10.2 · capacidade 10,2 kWh · máx. carregue 6000 W · máx. descarga 6000 W · eficiência 95% · standby ~7 W. Valores representativos – verifique na folha de dados.",
@@ -12,6 +13,7 @@
   "Continuous self-consumption of the storage system (battery management etc.). Covered from the battery while charged, otherwise from the grid.": "Autoconsumo contínuo do sistema de armazenamento (gestão de baterias, etc.). Coberto da bateria enquanto estiver carregado, caso contrário, da rede.",
   "Custom values (manual)": "Valores personalizados (manual)",
   "Data source": "Fonte de dados",
+  "Datapoint (dynamic tariff)": "Datapoint (tarifa dinâmica)",
   "E3/DC S10 E (13 kWh)": "E3/DC S10 E (13 kWh)",
   "E3/DC S10 E (13 kWh) · capacity 13 kWh · max. charge 4500 W · max. discharge 4500 W · efficiency 90 % · standby ~25 W. Representative values – please verify against the datasheet.": "E3/DC S10 E (13 kWh) · capacidade 13 kWh · máx. carregue 4500 W · máx. descarga 4500 W · eficiência 90% · standby ~25 W. Valores representativos – verifique na folha de dados.",
   "Economics": "Economia",
@@ -19,7 +21,11 @@
   "Electricity price, import (ct/kWh)": "Preço da eletricidade, importação (ct/kWh)",
   "Event-based (subscribe)": "Baseado em eventos (inscrever-se)",
   "Feed-in datapoint": "Ponto de dados de alimentação",
+  "Feed-in price datapoint": "Ponto de dados de preço feed-in",
+  "Feed-in price source": "Fonte de preço feed-in",
   "Feed-in tariff (ct/kWh)": "Tarifa feed-in (ct/kWh)",
+  "Fixed value": "Valor fixo",
+  "Fixed value or a datapoint with a dynamic tariff (e.g. Tibber).": "Valor fixo ou datapoint com tarifa dinâmica (ex. Tibber).",
   "Grid import + feed-in (two datapoints)": "Importação de grade + feed-in (dois pontos de dados)",
   "Grid import datapoint": "Ponto de dados de importação de grade",
   "Grid power datapoint (signed)": "Ponto de dados de energia da rede (assinado)",
@@ -37,6 +43,8 @@
   "Huawei LUNA2000 – 15 kWh · capacity 15 kWh · max. charge 5000 W · max. discharge 5000 W · efficiency 95 % · standby ~10 W. Representative values – please verify against the datasheet.": "Huawei LUNA2000 – 15 kWh · capacidade 15 kWh · máx. carregue 5000 W · máx. descarga 5000 W · eficiência 95% · standby ~10 W. Valores representativos – verifique na folha de dados.",
   "Huawei LUNA2000 – 5 kWh": "Huawei LUNA2000 – 5 kWh",
   "Huawei LUNA2000 – 5 kWh · capacity 5 kWh · max. charge 2500 W · max. discharge 2500 W · efficiency 95 % · standby ~5 W. Representative values – please verify against the datasheet.": "Huawei LUNA2000 – 5 kWh · capacidade 5 kWh · máx. carregue 2500 W · máx. descarga 2500 W · eficiência 95% · standby ~5 W. Valores representativos – verifique na folha de dados.",
+  "Import price datapoint": "Ponto de dados de preço de importação",
+  "Import price source": "Fonte de preço de importação",
   "Input data": "Dados de entrada",
   "Input type of the datapoints": "Tipo de entrada dos pontos de dados",
   "Investment (€)": "Investimento (€)",
@@ -71,8 +79,11 @@
   "Unit": "Unidade",
   "W": "C",
   "Wh": "O que",
+  "ct/kWh": "ct/kWh",
+  "e.g. Tibber 'CurrentPrice.total'. If it delivers no numeric value, the fixed value is used as fallback.": "por exemplo Tibber 'CurrentPrice.total'. Se não fornecer nenhum valor numérico, o valor fixo será usado como substituto.",
   "kW": "kW",
   "kWh": "kWh",
   "sonnenBatterie 10 (11 kWh)": "sonnenBateria 10 (11 kWh)",
-  "sonnenBatterie 10 (11 kWh) · capacity 11 kWh · max. charge 4600 W · max. discharge 4600 W · efficiency 90 % · standby ~15 W. Representative values – please verify against the datasheet.": "sonnenBatterie 10 (11 kWh) · capacidade 11 kWh · máx. carregar 4600 W · máx. descarga 4600 W · eficiência 90% · standby ~15 W. Valores representativos – verifique na folha de dados."
+  "sonnenBatterie 10 (11 kWh) · capacity 11 kWh · max. charge 4600 W · max. discharge 4600 W · efficiency 90 % · standby ~15 W. Representative values – please verify against the datasheet.": "sonnenBatterie 10 (11 kWh) · capacidade 11 kWh · máx. carregar 4600 W · máx. descarga 4600 W · eficiência 90% · standby ~15 W. Valores representativos – verifique na folha de dados.",
+  "€/kWh": "€/kWh"
 }

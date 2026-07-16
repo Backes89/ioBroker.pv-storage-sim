@@ -74,5 +74,16 @@
   "Electricity price increase (%/year)": "Electricity price increase (%/year)",
   "Assumed annual increase of the electricity price; used for the amortization estimate and forecast (0 = linear).": "Assumed annual increase of the electricity price; used for the amortization estimate and forecast (0 = linear).",
   "Charts / WebUI": "Charts / WebUI",
-  "The trend charts need time series. Enable history logging (adapter 'history', 'sql' or 'influxdb') on this instance's live.* datapoints (grid modes: live.gridNetOrigW, live.gridNetSimW, live.batteryPowerW; PV mode: live.pvW, live.consumptionW, live.directUseW) and on battery.soc.percent. For the monthly view additionally on economics.savingsTotal.eur. Without logging the evaluation only shows current values.": "The trend charts need time series. Enable history logging (adapter 'history', 'sql' or 'influxdb') on this instance's live.* datapoints (grid modes: live.gridNetOrigW, live.gridNetSimW, live.batteryPowerW; PV mode: live.pvW, live.consumptionW, live.directUseW) and on battery.soc.percent. For the monthly view additionally on economics.savingsTotal.eur. Without logging the evaluation only shows current values."
+  "The trend charts need time series. Enable history logging (adapter 'history', 'sql' or 'influxdb') on this instance's live.* datapoints (grid modes: live.gridNetOrigW, live.gridNetSimW, live.batteryPowerW; PV mode: live.pvW, live.consumptionW, live.directUseW) and on battery.soc.percent. For the monthly view additionally on economics.savingsTotal.eur. Without logging the evaluation only shows current values.": "The trend charts need time series. Enable history logging (adapter 'history', 'sql' or 'influxdb') on this instance's live.* datapoints (grid modes: live.gridNetOrigW, live.gridNetSimW, live.batteryPowerW; PV mode: live.pvW, live.consumptionW, live.directUseW) and on battery.soc.percent. For the monthly view additionally on economics.savingsTotal.eur. Without logging the evaluation only shows current values.",
+  "Import price source": "Import price source",
+  "Feed-in price source": "Feed-in price source",
+  "Fixed value": "Fixed value",
+  "Datapoint (dynamic tariff)": "Datapoint (dynamic tariff)",
+  "Fixed value or a datapoint with a dynamic tariff (e.g. Tibber).": "Fixed value or a datapoint with a dynamic tariff (e.g. Tibber).",
+  "Import price datapoint": "Import price datapoint",
+  "Feed-in price datapoint": "Feed-in price datapoint",
+  "e.g. Tibber 'CurrentPrice.total'. If it delivers no numeric value, the fixed value is used as fallback.": "e.g. Tibber 'CurrentPrice.total'. If it delivers no numeric value, the fixed value is used as fallback.",
+  "Also used as fallback when the price datapoint is unavailable.": "Also used as fallback when the price datapoint is unavailable.",
+  "€/kWh": "€/kWh",
+  "ct/kWh": "ct/kWh"
 }

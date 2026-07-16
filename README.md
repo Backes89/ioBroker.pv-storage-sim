@@ -91,6 +91,17 @@ Efficiency is applied half each (√η) on charge and discharge. The amortizatio
 can take an annual **electricity price increase** into account (geometric series) and is
 only shown once at least 14 days of data have been collected.
 
+**Dynamic electricity prices:** both the import price and the feed-in tariff can
+optionally be read from a datapoint (e.g. the Tibber adapter's `CurrentPrice.total`)
+instead of using a fixed value — each simulation step is then valued at the tariff in
+effect at that moment, which matters a lot for dynamic tariffs where a battery
+systematically discharges during expensive evening hours. The datapoint unit is
+selectable (€/kWh or ct/kWh), the configured fixed value serves as fallback if the
+datapoint is unavailable, and the currently applied prices are exposed as
+`economics.currentImportPrice` / `economics.currentFeedInPrice`. Note: the simulated
+battery still behaves like a standard storage (charge on surplus, discharge on deficit) —
+only the valuation is dynamic, not the charging strategy.
+
 ## Installation
 
 Beta (not yet in the official repository) — install from GitHub:
@@ -115,6 +126,12 @@ Open items and planned features are tracked in [TODO.md](TODO.md)
 (e.g. instance comparison view, dynamic electricity prices, model simplifications).
 
 ## Changelog
+
+### 0.0.44 (2026-07-16)
+- Dynamic electricity prices (community request): import price and feed-in tariff can
+  optionally come from a datapoint (e.g. Tibber), unit selectable (€/kWh or ct/kWh),
+  fixed value as fallback, currently applied prices exposed as states
+  (`economics.currentImportPrice` / `currentFeedInPrice`)
 
 ### 0.0.43 (2026-07-16)
 - Repository checker (issue #1), round 2: admin UI translated into all 11 ioBroker
