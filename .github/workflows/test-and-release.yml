@@ -1,9 +1,13 @@
-name: Test
+name: Test and Release
 
 on:
   push:
     branches: [main]
-    tags: ['v*']
+    tags:
+      # normale Versionen
+      - "v[0-9]+.[0-9]+.[0-9]+"
+      # Pre-Releases
+      - "v[0-9]+.[0-9]+.[0-9]+-**"
   pull_request: {}
 
 # Bei schnell aufeinanderfolgenden Pushes den veralteten Lauf abbrechen
@@ -12,8 +16,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  lint:
-    name: Lint & Typecheck
+  # Schnelle Vorab-Checks: Lint, Typecheck und offizielle Paketvalidierung
+  check-and-lint:
     if: contains(github.event.head_commit.message, '[skip ci]') == false
     runs-on: ubuntu-latest
     steps:
@@ -26,43 +30,32 @@ jobs:
         run: npm run lint
       - name: Typecheck (tsc --noEmit, checkJs)
         run: npm run check
+      - name: Offizielle Paketvalidierung (@iobroker/testing)
+        run: npm run test:package
 
-  unit:
-    name: Unit- & Pakettests (Node ${{ matrix.node }})
+  # Unit- und Integrationstests auf allen unterstützten Node-Versionen
+  adapter-tests:
     if: contains(github.event.head_commit.message, '[skip ci]') == false
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        node: ['18.x', '20.x', '22.x']
+        node-version: ['20.x', '22.x', '24.x']
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
         with:
-          node-version: ${{ matrix.node }}
+          node-version: ${{ matrix.node-version }}
       - run: npm ci
       - name: Unit-Tests (node:test)
         run: npm run test:unit
-      - name: Offizielle Paketvalidierung (@iobroker/testing)
-        run: npm run test:package
-
-  integration:
-    name: Adapter-Integrationstest (js-controller)
-    if: contains(github.event.head_commit.message, '[skip ci]') == false
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
-        with:
-          node-version: '20.x'
-      - run: npm ci
-      - name: Integrationstest (@iobroker/testing)
+      - name: Integrationstest (@iobroker/testing, js-controller latest)
         run: npm run test:integration
 
   repochecker:
     # Informativ: prüft den GitHub-Stand gegen die Regeln des offiziellen ioBroker-Repos.
-    # continue-on-error, weil der Checker den bereits gepushten master prüft (Race bei PRs)
-    # und Warnungen enthält, die erst zur Veröffentlichung relevant sind.
+    # continue-on-error, weil der Checker den bereits gepushten Stand prüft (Race bei PRs)
+    # und Punkte enthält, die erst zur Veröffentlichung relevant sind.
     name: ioBroker Repo-Checker (informativ)
     runs-on: ubuntu-latest
     continue-on-error: true
@@ -71,3 +64,6 @@ jobs:
         with:
           node-version: '20.x'
       - run: npx --yes @iobroker/repochecker https://github.com/Backes89/ioBroker.pv-storage-sim
+
+  # Hinweis: Der "deploy"-Job (automatisches npm-Publish + GitHub-Release bei Versions-Tags)
+  # folgt zusammen mit der npm-Veröffentlichung (benötigt NPM_TOKEN-Secret).

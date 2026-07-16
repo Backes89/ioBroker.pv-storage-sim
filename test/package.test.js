@@ -35,7 +35,7 @@ test('news-Einträge haben en und de', () => {
 });
 
 test('Pflichtfelder in common sind vorhanden', () => {
-    for (const f of ['name', 'version', 'titleLang', 'desc', 'authors', 'licenseInformation', 'type', 'mode', 'main', 'tier']) {
+    for (const f of ['name', 'version', 'titleLang', 'desc', 'authors', 'licenseInformation', 'type', 'mode', 'tier']) {
         assert.ok(io.common[f] !== undefined && io.common[f] !== '', `common.${f} fehlt`);
     }
     assert.ok(io.common.titleLang.en && io.common.titleLang.de, 'titleLang braucht en+de');
@@ -44,13 +44,19 @@ test('Pflichtfelder in common sind vorhanden', () => {
     assert.ok(io.common.licenseInformation.type && io.common.licenseInformation.license, 'licenseInformation braucht type+license');
 });
 
-test('deprecated Felder (title, license) sind entfernt', () => {
+test('deprecated Felder (title, license, main) sind entfernt', () => {
     assert.strictEqual(io.common['title'], undefined, 'common.title ist deprecated (titleLang nutzen)');
     assert.strictEqual(io.common['license'], undefined, 'common.license ist deprecated (licenseInformation nutzen)');
+    assert.strictEqual(io.common['main'], undefined, 'common.main ist deprecated (main in package.json)');
 });
 
-test('news hat höchstens 20 Einträge (Repo-Checker-Limit)', () => {
-    assert.ok(Object.keys(io.common.news).length <= 20, `news hat ${Object.keys(io.common.news).length} Einträge`);
+test('adminTab.name ist mehrsprachig (Objekt mit en/de)', () => {
+    const n = io.common.adminTab && io.common.adminTab.name;
+    assert.ok(n && typeof n === 'object' && n.en && n.de, 'adminTab.name muss {en, de}-Objekt sein');
+});
+
+test('news hat höchstens 7 Einträge (Repository-Builder kappt bei 7)', () => {
+    assert.ok(Object.keys(io.common.news).length <= 7, `news hat ${Object.keys(io.common.news).length} Einträge`);
 });
 
 test('README enthält Changelog- und License-Kapitel', () => {

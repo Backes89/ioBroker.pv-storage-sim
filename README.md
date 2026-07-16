@@ -116,6 +116,14 @@ Open items and planned features are tracked in [TODO.md](TODO.md)
 
 ## Changelog
 
+### 0.0.42 (2026-07-15)
+- Repository checker (issue #1), round 1: minimum versions raised (Node >= 20,
+  js-controller >= 6.0.11, admin >= 7.6.17, @iobroker/testing >= 5.2.2, adapter-core
+  updated), deprecated `common.main` removed, `adminTab.name` multilingual, news capped
+  at 7 entries (repository builder limit), workflow renamed to "Test and Release" with
+  conventional job names (`check-and-lint`, `adapter-tests`) and semver tag patterns,
+  responsive width attributes (xs/lg/xl) for all jsonConfig fields, `.commitinfo` ignored
+
 ### 0.0.41 (2026-07-06)
 - Code quality: ESLint (bug-focused flat config) and TypeScript type checking of the
   JavaScript sources (`checkJs` incl. typed adapter config) — both enforced by a new CI job

@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "pv-storage-sim",
-    "version": "0.0.41",
+    "version": "0.0.42",
     "news": {
+      "0.0.42": {
+        "en": "Repository checker round 1: node>=20, js-controller>=6.0.11, admin>=7.6.17, deprecated common.main removed, multilingual adminTab name, news capped at 7, workflow follows naming conventions, responsive widths in jsonConfig.",
+        "de": "Repository-Checker Runde 1: node>=20, js-controller>=6.0.11, admin>=7.6.17, deprecated common.main entfernt, mehrsprachiger adminTab-Name, News auf 7 begrenzt, Workflow folgt den Namenskonventionen, responsive Breiten in jsonConfig."
+      },
       "0.0.41": {
         "en": "Code quality: ESLint and TypeScript type checking (checkJs) added and enforced in CI; CI cancels superseded runs and supports [skip ci].",
         "de": "Code-Qualität: ESLint und TypeScript-Typprüfung (checkJs) ergänzt und in der CI erzwungen; CI bricht überholte Läufe ab und unterstützt [skip ci]."
@@ -26,42 +30,6 @@
       "0.0.36": {
         "en": "Release hygiene: energy states use role value.energy; existing objects are migrated; common.licenseInformation added; news trimmed; deprecated fields removed.",
         "de": "Release-Hygiene: Energie-States nutzen role value.energy; bestehende Objekte werden migriert; common.licenseInformation ergänzt; News gekürzt; veraltete Felder entfernt."
-      },
-      "0.0.35": {
-        "en": "Bugfixes: daily savings no longer lost on restarts spanning midnight; intraday buffer survives restarts; zero balance in power mode updates live values; DST-safe day handling; SoC clamped to capacity; warning for unknown storage template.",
-        "de": "Bugfixes: Tages-Ersparnis geht bei Neustart über Mitternacht nicht mehr verloren; Intraday-Puffer überlebt Neustarts; Null-Bilanz im Leistungs-Modus aktualisiert Live-Werte; DST-sichere Tagesberechnung; SoC auf Kapazität geklemmt; Warnung bei unbekannter Speicher-Vorlage."
-      },
-      "0.0.34": {
-        "en": "Day chart for today now uses the adapter's dense intraday buffer (gap-free, no history relog needed). Storage template specs shown below the dropdown (charge/discharge separately) instead of in the label.",
-        "de": "Tages-Chart für heute nutzt den dichten Intraday-Puffer des Adapters (lückenlos, kein History-Relog nötig). Vorlagen-Werte werden unter dem Dropdown angezeigt (Lade-/Entladeleistung getrennt) statt im Namen."
-      },
-      "0.0.33": {
-        "en": "Storage template dropdown now shows the stored specs (capacity, charge/discharge power, efficiency) in the option label.",
-        "de": "Speicher-Vorlagen-Dropdown zeigt die hinterlegten Werte (Kapazität, Lade-/Entladeleistung, Wirkungsgrad) direkt im Namen an."
-      },
-      "0.0.32": {
-        "en": "Added Huawei LUNA2000 S1 templates (7/14/21 kWh, newer 7 kWh modules).",
-        "de": "Huawei LUNA2000 S1-Vorlagen ergänzt (7/14/21 kWh, neuere 7-kWh-Module)."
-      },
-      "0.0.31": {
-        "en": "Storage templates: pick a manufacturer/model to prefill technical specs (representative values, please verify); 'custom' keeps manual entry.",
-        "de": "Speicher-Vorlagen: Hersteller/Modell wählen und technische Specs übernehmen (repräsentative Werte, bitte prüfen); 'Eigene Werte' bleibt manuell."
-      },
-      "0.0.30": {
-        "en": "New SVG chart states (charts.todaySvg, savingsMonthSvg, kpiCardSvg) for easy display in any dashboard (VIS etc.), rendered without an extra adapter.",
-        "de": "Neue SVG-Chart-Datenpunkte (charts.todaySvg, savingsMonthSvg, kpiCardSvg) zur einfachen Anzeige in beliebigen Dashboards (VIS usw.), ohne Zusatz-Adapter gerendert."
-      },
-      "0.0.29": {
-        "en": "Day chart: zoom into a time range by dragging with the mouse; reset via button or double-click.",
-        "de": "Tages-Chart: per Maus einen Zeitbereich aufziehen zum Reinzoomen; Zurücksetzen per Button oder Doppelklick."
-      },
-      "0.0.28": {
-        "en": "KPI 'savings' now reflects the selected day (from savingsTotal history) instead of always today.",
-        "de": "KPI 'Ersparnis' bezieht sich jetzt auf den angezeigten Tag (aus der savingsTotal-Historie) statt immer auf heute."
-      },
-      "0.0.27": {
-        "en": "Added package validation tests (version/name consistency, news, required fields, referenced files, config<->native keys).",
-        "de": "Paketvalidierungs-Tests ergänzt (Versions-/Namens-Konsistenz, News, Pflichtfelder, referenzierte Dateien, Config<->native-Keys)."
       }
     },
     "titleLang": {
@@ -83,7 +51,6 @@
       "simulation"
     ],
     "platform": "Javascript/Node.js",
-    "main": "main.js",
     "icon": "pv-storage-sim.png",
     "extIcon": "https://raw.githubusercontent.com/Backes89/ioBroker.pv-storage-sim/main/admin/pv-storage-sim.png",
     "readme": "https://github.com/Backes89/ioBroker.pv-storage-sim/blob/main/README.md",
@@ -97,17 +64,20 @@
       "config": "json"
     },
     "adminTab": {
-      "name": "PV-Auswertung",
+      "name": {
+        "en": "PV evaluation",
+        "de": "PV-Auswertung"
+      },
       "singleton": true
     },
     "dependencies": [
       {
-        "js-controller": ">=5.0.0"
+        "js-controller": ">=6.0.11"
       }
     ],
     "globalDependencies": [
       {
-        "admin": ">=6.0.0"
+        "admin": ">=7.6.17"
       }
     ],
     "licenseInformation": {
