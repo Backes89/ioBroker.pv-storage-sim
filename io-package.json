@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "pv-storage-sim",
-    "version": "0.0.44",
+    "version": "0.0.45",
     "news": {
+      "0.0.45": {
+        "en": "Template updates (ioBroker-Bot): Dependabot incl. auto-merge, Node.js 20 dropped (requires Node >= 22), admin >= 7.8.23, CHANGELOG_OLD.md.",
+        "de": "Template-Updates (ioBroker-Bot): Dependabot inkl. Auto-Merge, Node.js 20 entfällt (benötigt Node >= 22), admin >= 7.8.23, CHANGELOG_OLD.md.",
+        "ru": "Обновления шаблонов (ioBroker-Bot): Dependabot вкл. автоматическое объединение, Node.js 20 удален (требуется Node >= 22), администратор >= 7.8.23, CHANGELOG_OLD.md.",
+        "pt": "Atualizações de modelo (ioBroker-Bot): Dependabot incl. mesclagem automática, Node.js 20 eliminado (requer Node >= 22), admin >= 7.8.23, CHANGELOG_OLD.md.",
+        "nl": "Sjabloonupdates (ioBroker-Bot): Dependabot incl. automatisch samenvoegen, Node.js 20 verwijderd (vereist Node >= 22), admin >= 7.8.23, CHANGELOG_OLD.md.",
+        "fr": "Mises à jour des modèles (ioBroker-Bot) : Dependabot incl. fusion automatique, Node.js 20 abandonné (nécessite Node >= 22), admin >= 7.8.23, CHANGELOG_OLD.md.",
+        "it": "Aggiornamenti dei modelli (ioBroker-Bot): Dependabot incl. unione automatica, Node.js 20 eliminato (richiede Node >= 22), admin >= 7.8.23, CHANGELOG_OLD.md.",
+        "es": "Actualizaciones de plantillas (ioBroker-Bot): Dependabot incl. fusión automática, Node.js 20 eliminado (requiere Node >= 22), admin >= 7.8.23, CHANGELOG_OLD.md.",
+        "pl": "Aktualizacje szablonów (ioBroker-Bot): Zależność od robota włącznie. automatyczne łączenie, porzucono Node.js 20 (wymaga Node >= 22), admin >= 7.8.23, CHANGELOG_OLD.md.",
+        "uk": "Оновлення шаблону (ioBroker-Bot): Dependabot вкл. автоматичне злиття, Node.js 20 видалено (потрібен вузол >= 22), admin >= 7.8.23, CHANGELOG_OLD.md.",
+        "zh-cn": "模板更新 (ioBroker-Bot)：Dependabot 包括。自动合并，Node.js 20 已删除（需要 Node >= 22），admin >= 7.8.23，CHANGELOG_OLD.md。"
+      },
       "0.0.44": {
         "en": "Dynamic electricity prices: import and feed-in price can optionally come from a datapoint (e.g. Tibber, €/kWh or ct/kWh); fixed value serves as fallback; current prices exposed as states.",
         "de": "Dynamische Strompreise: Bezugspreis und Einspeisevergütung können optional aus einem Datenpunkt kommen (z. B. Tibber, €/kWh oder ct/kWh); der Festwert dient als Fallback; aktuelle Preise als States sichtbar.",
@@ -80,19 +93,6 @@
         "pl": "Widok miesięczny: najechanie kursorem na pasek oszczędności powoduje jego podświetlenie, wyświetlenie podpowiedzi (data, oszczędności, skumulowane) i zaznaczenie pasującego wiersza tabeli.",
         "uk": "Місячний перегляд: наведення курсора на панель заощаджень виділяє її, показує спливаючу підказку (дата, заощадження, кумулятивні) і позначає відповідний рядок таблиці.",
         "zh-cn": "每月视图：将鼠标悬停在储蓄栏上会突出显示它，显示工具提示（日期、储蓄、累积）并标记匹配的表行。"
-      },
-      "0.0.38": {
-        "en": "English main documentation (German moved to docs/de); fixed broken master branch URLs in io-package.json.",
-        "de": "Englische Hauptdokumentation (Deutsch nach docs/de verschoben); defekte master-Branch-URLs in io-package.json korrigiert.",
-        "ru": "Основная документация на английском языке (немецкий перенесен в docs/de); исправлены неработающие URL-адреса главной ветки в io-package.json.",
-        "pt": "Documentação principal em inglês (alemão movido para docs/de); URLs de branch master quebrados corrigidos em io-package.json.",
-        "nl": "Engelse hoofddocumentatie (Duits verplaatst naar docs/de); Vaste gebroken master branch-URL's in io-package.json.",
-        "fr": "Documentation principale en anglais (l'allemand a été déplacé vers docs/de) ; correction des URL de branche principale cassées dans io-package.json.",
-        "it": "Documentazione principale in inglese (il tedesco è stato spostato in docs/de); corretti gli URL del ramo principale non funzionanti in io-package.json.",
-        "es": "Documentación principal en inglés (el alemán se trasladó a docs/de); Se corrigieron las URL de la rama maestra rotas en io-package.json.",
-        "pl": "Dokumentacja główna w języku angielskim (niemiecka przeniesiona do docs/de); naprawiono uszkodzone adresy URL gałęzi głównych w io-package.json.",
-        "uk": "Основна документація англійською мовою (німецька переміщена в docs/de); виправлено пошкоджені головні URL-адреси гілок у io-package.json.",
-        "zh-cn": "英文主要文档（德语移至 docs/de）；修复了 io-package.json 中损坏的主分支 URL。"
       }
     },
     "titleLang": {
@@ -158,7 +158,7 @@
     ],
     "globalDependencies": [
       {
-        "admin": ">=7.6.17"
+        "admin": ">=7.8.23"
       }
     ],
     "licenseInformation": {

@@ -127,6 +127,12 @@ Open items and planned features are tracked in [TODO.md](TODO.md)
 
 ## Changelog
 
+### 0.0.45 (2026-07-17)
+- Adopted the ioBroker-Bot template pull requests (content re-implemented on current main,
+  PRs #2–#10 superseded): Dependabot for npm and GitHub Actions incl. auto-merge rules,
+  Node.js 20 support dropped (End of Life — adapter now requires **Node >= 22**, CI tests
+  on 22/24), admin dependency raised to >= 7.8.23, `CHANGELOG_OLD.md` added
+
 ### 0.0.44 (2026-07-16)
 - Dynamic electricity prices (community request): import price and feed-in tariff can
   optionally come from a datapoint (e.g. Tibber), unit selectable (€/kWh or ct/kWh),
@@ -222,6 +228,8 @@ Open items and planned features are tracked in [TODO.md](TODO.md)
 
 Older entries (0.0.1 – 0.0.22, in German) are archived in
 [docs/de/README.md](docs/de/README.md).
+
+Older changelog entries are moved to [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 
 ## License
 
